@@ -1,0 +1,1165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model alarm_classes {
+  id           Int           @id(map: "pk_alarm_classes_id") @unique(map: "ui_alarm_classes_id") @default(autoincrement())
+  deleted      Boolean?      @default(false, map: "DF__alarm_cla__delet__61316BF4")
+  created      DateTime?     @default(now(), map: "DF__alarm_cla__creat__6225902D") @db.DateTime
+  changed      DateTime?     @default(now(), map: "DF__alarm_cla__chang__6319B466") @db.DateTime
+  company      Int
+  class        String        @db.VarChar(45)
+  name         String?       @db.VarChar(255)
+  render       Int?
+  comment      String?       @db.VarChar(512)
+  alarm_render alarm_render? @relation(fields: [render], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_alarm_classes_alarm_render")
+  companies    companies     @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_alarm_classes_company")
+  alarms       alarms[]
+
+  @@unique([company, class], map: "ui_alarm_classes_company_class")
+  @@index([changed], map: "i_alarm_classes_changed")
+  @@index([class], map: "i_alarm_classes_class")
+  @@index([company], map: "i_alarm_classes_company")
+  @@index([created], map: "i_alarm_classes_created")
+}
+
+model alarm_groups {
+  id        Int       @id(map: "pk_alarm_groups_id") @unique(map: "ui_alarm_groups_id") @default(autoincrement())
+  deleted   Boolean?  @default(false, map: "DF__alarm_gro__delet__4A4E069C")
+  created   DateTime? @default(now(), map: "DF__alarm_gro__creat__4B422AD5") @db.DateTime
+  changed   DateTime? @default(now(), map: "DF__alarm_gro__chang__4C364F0E") @db.DateTime
+  company   Int
+  group     String    @db.VarChar(45)
+  comment   String?   @db.VarChar(512)
+  companies companies @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_alarm_groups_company")
+  alarms    alarms[]
+
+  @@unique([company, group], map: "ui_alarm_groups_company_group")
+  @@index([changed], map: "i_alarm_groups_changed")
+  @@index([company], map: "i_alarm_groups_company")
+  @@index([created], map: "i_alarm_groups_created")
+  @@index([group], map: "i_alarm_groups_group")
+}
+
+model alarm_render {
+  id              Int             @id(map: "pk_alarm_render_id") @unique(map: "ui_alarm_render_id") @default(autoincrement())
+  deleted         Boolean?        @default(false, map: "DF__alarm_ren__delet__52E34C9D")
+  created         DateTime?       @default(now(), map: "DF__alarm_ren__creat__53D770D6") @db.DateTime
+  changed         DateTime?       @default(now(), map: "DF__alarm_ren__chang__54CB950F") @db.DateTime
+  company         Int
+  render          String          @db.VarChar(45)
+  name            String?         @db.VarChar(255)
+  color           String?         @default("255;255;0", map: "DF__alarm_ren__color__56B3DD81") @db.VarChar(45)
+  background      String?         @default("255;0;0", map: "DF__alarm_ren__backg__57A801BA") @db.VarChar(45)
+  blink           Boolean?        @default(false, map: "DF__alarm_ren__blink__589C25F3")
+  colorBlink      String?         @default("255;0;0", map: "DF__alarm_ren__color__59904A2C") @db.VarChar(45)
+  backgroundBlink String?         @default("255;255;0", map: "DF__alarm_ren__backg__5A846E65") @db.VarChar(45)
+  comment         String?         @db.VarChar(512)
+  alarm_classes   alarm_classes[]
+  companies       companies       @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_alarm_render_company")
+
+  @@unique([company, render], map: "ui_alarm_render_company_group")
+  @@index([changed], map: "i_alarm_render_changed")
+  @@index([company], map: "i_alarm_render_company")
+  @@index([created], map: "i_alarm_render_created")
+  @@index([render], map: "i_alarm_render_render")
+}
+
+model alarms {
+  id            Int            @id(map: "pk_alarms_id") @unique(map: "ui_alarms_id") @default(autoincrement())
+  deleted       Boolean?       @default(false, map: "DF__alarms__deleted__6CA31EA0")
+  created       DateTime?      @default(now(), map: "DF__alarms__created__6D9742D9") @db.DateTime
+  changed       DateTime?      @default(now(), map: "DF__alarms__changed__6E8B6712") @db.DateTime
+  company       Int
+  alarm         String         @db.VarChar(45)
+  name          String?        @db.VarChar(255)
+  descirption   String?        @db.VarChar(512)
+  group         Int?
+  class         Int?
+  language      Int?
+  comment       String?        @db.VarChar(512)
+  alarm_classes alarm_classes? @relation(fields: [class], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_alarms_alarm_class")
+  alarm_groups  alarm_groups?  @relation(fields: [group], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_alarms_alarm_group")
+  companies     companies      @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_alarms_company")
+  tags          tags[]
+
+  @@unique([company, alarm], map: "ui_alarms_company_alarm")
+  @@index([alarm, group, class], map: "i_alarms_alarm")
+  @@index([changed], map: "i_alarms_changed")
+  @@index([company], map: "i_alarms_company")
+  @@index([created], map: "i_alarms_created")
+}
+
+model analyse_allowed {
+  id             Int            @id(map: "pk_analyse_allowed_id") @unique(map: "ui_analyse_allowed_id") @default(autoincrement())
+  deleted        Boolean?       @default(false, map: "DF__analyse_a__delet__4CC05EF3")
+  created        DateTime?      @default(now(), map: "DF__analyse_a__creat__4DB4832C") @db.DateTime
+  changed        DateTime?      @default(now(), map: "DF__analyse_a__chang__4EA8A765") @db.DateTime
+  company        Int
+  point          Int
+  type           Int
+  designation    String?        @db.VarChar(255)
+  enable         Boolean?       @default(true, map: "DF__analyse_a__enabl__5090EFD7")
+  tag            Int
+  description    String?        @db.Text
+  companies      companies      @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_analyse_allowed_company")
+  analyse_points analyse_points @relation(fields: [point], references: [id], onUpdate: NoAction, map: "fk_analyse_allowed_point")
+  tags           tags           @relation(fields: [tag], references: [id], onUpdate: NoAction, map: "fk_analyse_allowed_tag")
+  analyse_types  analyse_types  @relation(fields: [type], references: [id], onUpdate: NoAction, map: "fk_analyse_allowed_type")
+
+  @@index([changed], map: "i_analyse_allowed_changed")
+  @@index([created], map: "i_analyse_allowed_created")
+  @@index([point], map: "i_analyse_allowed_point")
+  @@index([tag], map: "i_analyse_allowed_tag")
+  @@index([type], map: "i_analyse_allowed_type")
+  @@index([company, point, type], map: "ui_analyse_allowed_company_point_type")
+}
+
+model analyse_categories {
+  id            Int             @id(map: "pk_analyse_categories_id") @unique(map: "ui_analyse_categories_id") @default(autoincrement())
+  deleted       Boolean?        @default(false, map: "DF__analyse_c__delet__16644E42")
+  created       DateTime?       @default(now(), map: "DF__analyse_c__creat__1758727B") @db.DateTime
+  changed       DateTime?       @default(now(), map: "DF__analyse_c__chang__184C96B4") @db.DateTime
+  business      Int?
+  company       Int?
+  category      String          @db.VarChar(45)
+  designation   String?         @db.VarChar(255)
+  description   String?         @db.Text
+  businesses    businesses?     @relation(fields: [business], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_analyse_categories_business")
+  companies     companies?      @relation(fields: [company], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_analyse_categories_company")
+  analyse_types analyse_types[]
+
+  @@index([category], map: "i_analyse_categories_category")
+  @@index([changed], map: "i_analyse_categories_changed")
+  @@index([created], map: "i_analyse_categories_created")
+  @@index([designation], map: "i_analyse_categories_designation")
+  @@index([business, category], map: "ui_analyse_categories_business_category")
+  @@index([company, category], map: "ui_analyse_categories_company_category")
+}
+
+model analyse_methods {
+  id            Int             @id(map: "pk_analyse_methods_id") @unique(map: "ui_analyse_methods_id") @default(autoincrement())
+  deleted       Boolean?        @default(false, map: "DF__analyse_m__delet__22CA2527")
+  created       DateTime?       @default(now(), map: "DF__analyse_m__creat__23BE4960") @db.DateTime
+  changed       DateTime?       @default(now(), map: "DF__analyse_m__chang__24B26D99") @db.DateTime
+  business      Int?
+  company       Int?
+  method        String          @db.VarChar(45)
+  designation   String?         @db.VarChar(255)
+  description   String?         @db.Text
+  filepath      String?         @db.VarChar(4096)
+  businesses    businesses?     @relation(fields: [business], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_analyse_methods_business")
+  companies     companies?      @relation(fields: [company], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_analyse_methods_company")
+  analyse_types analyse_types[]
+
+  @@index([changed], map: "i_analyse_methods_changed")
+  @@index([created], map: "i_analyse_methods_created")
+  @@index([designation], map: "i_analyse_methods_designation")
+  @@index([method], map: "i_analyse_methods_method")
+  @@index([business, method], map: "ui_analyse_methods_business_method")
+  @@index([company, method], map: "ui_analyse_methods_company_method")
+}
+
+model analyse_points {
+  id              Int               @id(map: "pk_analyse_points_id") @unique(map: "ui_analyse_points_id") @default(autoincrement())
+  deleted         Boolean?          @default(false, map: "DF__analyse_p__delet__3F6663D5")
+  created         DateTime?         @default(now(), map: "DF__analyse_p__creat__405A880E") @db.DateTime
+  changed         DateTime?         @default(now(), map: "DF__analyse_p__chang__414EAC47") @db.DateTime
+  company         Int
+  point           String            @db.VarChar(45)
+  designation     String?           @db.VarChar(255)
+  available       Boolean?          @default(true, map: "DF__analyse_p__avail__4336F4B9")
+  picture         String?           @db.VarChar(4096)
+  equipement      Int?
+  description     String?           @db.Text
+  analyse_allowed analyse_allowed[]
+  companies       companies         @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_analyse_points_company")
+  equipements     equipements?      @relation(fields: [equipement], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_analyse_points_equipement")
+
+  @@index([changed], map: "i_analyse_points_changed")
+  @@index([created], map: "i_analyse_points_created")
+  @@index([designation], map: "i_analyse_points_designation")
+  @@index([equipement], map: "i_analyse_points_equipement")
+  @@index([point], map: "i_analyse_points_point")
+  @@index([company, point], map: "ui_analyse_points_company_point")
+}
+
+model analyse_types {
+  id                 Int                @id(map: "pk_analyse_types_id") @unique(map: "ui_analyse_types_id") @default(autoincrement())
+  deleted            Boolean?           @default(false, map: "DF__analyse_t__delet__30242045")
+  created            DateTime?          @default(now(), map: "DF__analyse_t__creat__3118447E") @db.DateTime
+  changed            DateTime?          @default(now(), map: "DF__analyse_t__chang__320C68B7") @db.DateTime
+  business           Int?
+  company            Int?
+  type               String             @db.VarChar(45)
+  designation        String?            @db.VarChar(255)
+  unit               Int
+  method             Int
+  category           Int
+  description        String?            @db.Text
+  analyse_allowed    analyse_allowed[]
+  businesses         businesses?        @relation(fields: [business], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_analyse_types_business")
+  analyse_categories analyse_categories @relation(fields: [category], references: [id], onUpdate: NoAction, map: "fk_analyse_types_category")
+  companies          companies?         @relation(fields: [company], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_analyse_types_company")
+  analyse_methods    analyse_methods    @relation(fields: [method], references: [id], onUpdate: NoAction, map: "fk_analyse_types_method")
+  meas_units         meas_units         @relation(fields: [unit], references: [id], onUpdate: NoAction, map: "fk_analyse_types_unit")
+
+  @@index([category], map: "i_analyse_types_category")
+  @@index([changed], map: "i_analyse_types_changed")
+  @@index([created], map: "i_analyse_types_created")
+  @@index([designation], map: "i_analyse_types_designation")
+  @@index([method], map: "i_analyse_types_method")
+  @@index([type], map: "i_analyse_types_type")
+  @@index([unit], map: "i_analyse_types_unit")
+  @@index([business, type], map: "ui_analyse_types_business_type")
+}
+
+model businesses {
+  id                    Int                     @id(map: "pk_businesses_id") @unique(map: "ui_businesses_id") @default(autoincrement())
+  deleted               Boolean?                @default(false, map: "DF__businesse__delet__05D8E0BE")
+  created               DateTime?               @default(now(), map: "DF__businesse__creat__06CD04F7") @db.DateTime
+  changed               DateTime?               @default(now(), map: "DF__businesse__chang__07C12930") @db.DateTime
+  business              String                  @unique(map: "UQ__business__577682976DCB3437") @db.VarChar(45)
+  designation           String?                 @db.VarChar(255)
+  builded               Int?                    @default(dbgenerated("datepart(year,getdate())"), map: "DF__businesse__build__09A971A2")
+  main                  Boolean?                @default(false, map: "DF__businesses__main__0B91BA14")
+  activated             Boolean?                @default(true, map: "DF__businesse__activ__0C85DE4D")
+  logoPath              String?                 @db.VarChar(512)
+  location              Int?
+  entity                String                  @db.VarChar(45)
+  analyse_categories    analyse_categories[]
+  analyse_methods       analyse_methods[]
+  analyse_types         analyse_types[]
+  entities              entities                @relation(fields: [entity], references: [entity], map: "fk_businesses_entity")
+  locations             locations?              @relation(fields: [location], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_businesses_location")
+  companies             companies[]
+  meas_limits           meas_limits[]
+  meas_limits_groups    meas_limits_groups[]
+  user_role_permissions user_role_permissions[]
+  user_roles            user_roles[]
+
+  @@unique([entity, business], map: "ui_businesses_business")
+  @@index([changed], map: "i_businesses_changed")
+  @@index([created], map: "i_businesses_created")
+}
+
+model companies {
+  id                             Int                              @id(map: "pk_companies_id") @unique(map: "ui_companies_id") @default(autoincrement())
+  deleted                        Boolean?                         @default(false, map: "DF__companies__delet__160F4887")
+  created                        DateTime?                        @default(now(), map: "DF__companies__creat__17036CC0") @db.DateTime
+  changed                        DateTime?                        @default(now(), map: "DF__companies__chang__17F790F9") @db.DateTime
+  company                        String                           @unique(map: "UQ__companie__538A3DB9915B6BEF") @db.VarChar(45)
+  designation                    String?                          @db.VarChar(255)
+  builded                        Int?                             @default(dbgenerated("datepart(year,getdate())"), map: "DF__companies__build__19DFD96B")
+  main                           Boolean?                         @default(false, map: "DF__companies__main__1BC821DD")
+  activated                      Boolean?                         @default(true, map: "DF__companies__activ__1CBC4616")
+  logoPath                       String?                          @db.VarChar(512)
+  location                       Int?
+  business                       Int
+  alarm_classes                  alarm_classes[]
+  alarm_groups                   alarm_groups[]
+  alarm_render                   alarm_render[]
+  alarms                         alarms[]
+  analyse_allowed                analyse_allowed[]
+  analyse_categories             analyse_categories[]
+  analyse_methods                analyse_methods[]
+  analyse_points                 analyse_points[]
+  analyse_types                  analyse_types[]
+  businesses                     businesses                       @relation(fields: [business], references: [id], onUpdate: NoAction, map: "fk_companies_business")
+  locations                      locations?                       @relation(fields: [location], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_companies_location")
+  equipements                    equipements[]
+  equipements_data_external      equipements_data_external[]
+  equipements_external_providers equipements_external_providers[]
+  machines                       machines[]
+  meas_limits                    meas_limits[]
+  meas_limits_groups             meas_limits_groups[]
+  pers_standard                  pers_standard[]
+  pers_standard_limits           pers_standard_limits[]
+  persistence                    persistence[]
+  tags                           tags[]
+  tags_lists                     tags_lists[]
+  tags_lists_content             tags_lists_content[]
+  tags_tables                    tags_tables[]
+  user_role_permissions          user_role_permissions[]
+  user_roles                     user_roles[]
+
+  @@unique([business, company], map: "ui_companies_company")
+  @@index([changed], map: "i_companies_changed")
+  @@index([created], map: "i_companies_created")
+}
+
+model entities {
+  id                    Int                     @unique(map: "ui_entities_id") @default(autoincrement())
+  deleted               Boolean?                @default(false, map: "DF__entities__delete__76969D2E")
+  created               DateTime?               @default(now(), map: "DF__entities__create__778AC167") @db.DateTime
+  changed               DateTime?               @default(now(), map: "DF__entities__change__787EE5A0") @db.DateTime
+  entity                String                  @id(map: "pk_entities_entity") @unique(map: "ui_entities_entity") @db.VarChar(45)
+  designation           String?                 @db.VarChar(255)
+  builded               Int?                    @default(dbgenerated("datepart(year,getdate())"), map: "DF__entities__builde__7A672E12")
+  main                  Boolean?                @default(false, map: "DF__entities__main__7C4F7684")
+  activated             Boolean?                @default(true, map: "DF__entities__activa__7D439ABD")
+  logoPath              String?                 @db.VarChar(512)
+  location              Int?
+  businesses            businesses[]
+  locations             locations?              @relation(fields: [location], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_entities_location")
+  meas_units            meas_units[]
+  user_role_permissions user_role_permissions[]
+  user_roles            user_roles[]
+
+  @@index([changed], map: "i_entities_changed")
+  @@index([created], map: "i_entities_created")
+}
+
+model equipements {
+  id                        Int                         @id(map: "pk_equipements_id") @unique(map: "ui_equipements_id") @default(autoincrement())
+  deleted                   Boolean?                    @default(false, map: "DF__equipemen__delet__18B6AB08")
+  created                   DateTime?                   @default(now(), map: "DF__equipemen__creat__19AACF41") @db.DateTime
+  changed                   DateTime?                   @default(now(), map: "DF__equipemen__chang__1A9EF37A") @db.DateTime
+  company                   Int
+  equipement                String                      @db.VarChar(45)
+  name                      String?                     @db.VarChar(255)
+  analyse_points            analyse_points[]
+  companies                 companies                   @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_equipements_company")
+  equipements_data_external equipements_data_external[]
+
+  @@index([changed], map: "i_equipements_changed")
+  @@index([created], map: "i_equipements_created")
+  @@index([equipement], map: "i_equipements_equipement")
+  @@index([company, equipement], map: "ui_equipements_company_equipement")
+}
+
+model equipements_data_external {
+  id                             Int                            @id(map: "pk_equipements_data_external_id") @unique(map: "ui_equipements_data_external_id") @default(autoincrement())
+  deleted                        Boolean?                       @default(false, map: "DF__equipemen__delet__40C49C62")
+  created                        DateTime?                      @default(now(), map: "DF__equipemen__creat__41B8C09B") @db.DateTime
+  changed                        DateTime?                      @default(now(), map: "DF__equipemen__chang__42ACE4D4") @db.DateTime
+  company                        Int
+  equipement                     Int
+  provider                       Int
+  companies                      companies                      @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_equipements_data_external_company")
+  equipements                    equipements                    @relation(fields: [equipement], references: [id], onUpdate: NoAction, map: "fk_equipements_data_external_equipements")
+  equipements_external_providers equipements_external_providers @relation(fields: [provider], references: [id], onUpdate: NoAction, map: "fk_equipements_data_external_provider")
+
+  @@index([changed], map: "i_equipements_data_external_changed")
+  @@index([created], map: "i_equipements_data_external_created")
+  @@index([equipement], map: "i_equipements_data_external_equipement")
+  @@index([provider], map: "i_equipements_data_external_provider")
+  @@index([company, equipement, provider], map: "ui_equipements_data_external_company_equipement_provider")
+}
+
+model equipements_external_providers {
+  id                        Int                         @id(map: "pk_equipements_external_providers_id") @unique(map: "ui_equipements_external_providers_id") @default(autoincrement())
+  deleted                   Boolean?                    @default(false, map: "DF__equipemen__delet__214BF109")
+  created                   DateTime?                   @default(now(), map: "DF__equipemen__creat__22401542") @db.DateTime
+  changed                   DateTime?                   @default(now(), map: "DF__equipemen__chang__2334397B") @db.DateTime
+  company                   Int
+  provider                  String                      @db.VarChar(45)
+  name                      String?                     @db.VarChar(255)
+  type                      Int?
+  sourceType                Int?
+  link                      Int?
+  source                    String?                     @db.VarChar(512)
+  bddServer                 String?                     @db.VarChar(256)
+  bddUser                   String?                     @db.VarChar(45)
+  bddPassword               String?                     @db.VarChar(512)
+  bddPort                   Int?
+  approuved                 Boolean?                    @default(false, map: "DF__equipemen__appro__2CBDA3B5")
+  paramBool1                Boolean?
+  paramBool2                Boolean?
+  paramBool3                Boolean?
+  paramBool4                Boolean?
+  paramBool5                Boolean?
+  paramInt1                 Int?
+  paramInt2                 Int?
+  paramInt3                 Int?
+  paramInt4                 Int?
+  paramInt5                 Int?
+  paramStr1                 String?                     @db.VarChar(45)
+  paramStr2                 String?                     @db.VarChar(45)
+  paramStr3                 String?                     @db.VarChar(45)
+  paramStr4                 String?                     @db.VarChar(45)
+  paramStr5                 String?                     @db.VarChar(45)
+  equipements_data_external equipements_data_external[]
+  companies                 companies                   @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_equipements_external_providers_company")
+
+  @@index([changed], map: "i_equipements_external_providers_changed")
+  @@index([created], map: "i_equipements_external_providers_created")
+  @@index([provider], map: "i_equipements_external_providers_provider")
+  @@index([company, provider], map: "ui_equipements_external_providers_company_provider")
+}
+
+model loc_cities {
+  id            Int           @id(map: "PK__loc_citi__3213E83FE9CBFC58") @unique(map: "UQ__loc_citi__3213E83ED6679156") @default(autoincrement())
+  name          String        @db.VarChar(255)
+  state_id      Int
+  state_code    String        @db.VarChar(255)
+  country_id    Int
+  country_code  String        @db.Char(2)
+  latitude      Decimal       @db.Decimal(10, 8)
+  longitude     Decimal       @db.Decimal(11, 8)
+  created_at    DateTime      @default(now(), map: "DF__loc_citie__creat__5AEE82B9") @db.DateTime
+  updated_at    DateTime      @default(now(), map: "DF__loc_citie__updat__5BE2A6F2") @db.DateTime
+  flag          Boolean       @default(true, map: "DF__loc_cities__flag__5CD6CB2B")
+  wikiDataId    String?       @db.VarChar(255)
+  loc_states    loc_states    @relation(fields: [state_id], references: [id], onUpdate: NoAction, map: "loc_cities_ibfk_1")
+  loc_countries loc_countries @relation(fields: [country_id], references: [id], onUpdate: NoAction, map: "loc_cities_ibfk_2")
+  locations     locations[]
+
+  @@index([state_id], map: "loc_cities_test_ibfk_1")
+  @@index([country_id], map: "loc_cities_test_ibfk_2")
+}
+
+model loc_countries {
+  id              Int             @id(map: "PK__loc_coun__3213E83F900294B2") @unique(map: "UQ__loc_coun__3213E83E77A79EA1") @default(autoincrement())
+  name            String          @db.VarChar(100)
+  iso3            String?         @db.Char(3)
+  numeric_code    String?         @db.Char(3)
+  iso2            String?         @db.Char(2)
+  phonecode       String?         @db.VarChar(255)
+  capital         String?         @db.VarChar(255)
+  currency        String?         @db.VarChar(255)
+  currency_name   String?         @db.VarChar(255)
+  currency_symbol String?         @db.VarChar(255)
+  tld             String?         @db.VarChar(255)
+  native          String?         @db.VarChar(255)
+  region          String?         @db.VarChar(255)
+  region_id       Int?
+  subregion       String?         @db.VarChar(255)
+  subregion_id    Int?
+  nationality     String?         @db.VarChar(255)
+  timezones       String?         @db.Text
+  translations    String?         @db.Text
+  latitude        Decimal?        @db.Decimal(10, 8)
+  longitude       Decimal?        @db.Decimal(11, 8)
+  emoji           String?         @db.VarChar(191)
+  emojiU          String?         @db.VarChar(191)
+  created_at      DateTime?       @db.DateTime
+  updated_at      DateTime        @default(now(), map: "DF__loc_count__updat__46E78A0C") @db.DateTime
+  flag            Boolean         @default(true, map: "DF__loc_countr__flag__47DBAE45")
+  wikiDataId      String?         @db.VarChar(255)
+  loc_cities      loc_cities[]
+  loc_regions     loc_regions?    @relation(fields: [region_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "country_continent_final")
+  loc_subregions  loc_subregions? @relation(fields: [subregion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "country_subregion_final")
+  loc_states      loc_states[]
+  locations       locations[]
+
+  @@index([region_id], map: "country_continent")
+  @@index([subregion_id], map: "country_subregion")
+}
+
+model loc_regions {
+  id             Int              @id(map: "PK__loc_regi__3213E83F9754A42E") @unique(map: "UQ__loc_regi__3213E83ECD877599") @default(autoincrement())
+  name           String           @db.VarChar(100)
+  translations   String?          @db.Text
+  created_at     DateTime?        @db.DateTime
+  updated_at     DateTime         @default(now(), map: "DF__loc_regio__updat__267ABA7A") @db.DateTime
+  flag           Boolean          @default(true, map: "DF__loc_region__flag__276EDEB3")
+  wikiDataId     String?          @db.VarChar(255)
+  loc_countries  loc_countries[]
+  loc_subregions loc_subregions[]
+}
+
+model loc_states {
+  id            Int           @id(map: "PK__loc_stat__3213E83F73B657B8") @unique(map: "UQ__loc_stat__3213E83E16177904") @default(autoincrement())
+  name          String        @db.VarChar(255)
+  country_id    Int
+  country_code  String        @db.Char(2)
+  fips_code     String?       @db.VarChar(255)
+  iso2          String?       @db.VarChar(255)
+  type          String?       @db.VarChar(191)
+  latitude      Decimal?      @db.Decimal(10, 8)
+  longitude     Decimal?      @db.Decimal(11, 8)
+  created_at    DateTime?     @db.DateTime
+  updated_at    DateTime      @default(now(), map: "DF__loc_state__updat__5441852A") @db.DateTime
+  flag          Boolean       @default(true, map: "DF__loc_states__flag__5535A963")
+  wikiDataId    String?       @db.VarChar(255)
+  loc_cities    loc_cities[]
+  loc_countries loc_countries @relation(fields: [country_id], references: [id], onUpdate: NoAction, map: "country_region_final")
+  locations     locations[]
+
+  @@index([country_id], map: "country_region")
+}
+
+model loc_subregions {
+  id            Int             @id(map: "PK__loc_subr__3213E83FC7C6145A") @unique(map: "UQ__loc_subr__3213E83E68EDC1BD") @default(autoincrement())
+  name          String          @db.VarChar(100)
+  translations  String?         @db.Text
+  region_id     Int
+  created_at    DateTime?       @db.DateTime
+  updated_at    DateTime        @default(now(), map: "DF__loc_subre__updat__2D27B809") @db.DateTime
+  flag          Boolean         @default(true, map: "DF__loc_subreg__flag__2E1BDC42")
+  wikiDataId    String?         @db.VarChar(255)
+  loc_countries loc_countries[]
+  loc_regions   loc_regions     @relation(fields: [region_id], references: [id], onUpdate: NoAction, map: "loc_subregion_continent_final")
+
+  @@index([region_id], map: "loc_subregion_continent")
+}
+
+model locations {
+  id            Int           @id(map: "pk_locations_id") @unique(map: "ui_locations_id") @default(autoincrement())
+  deleted       Boolean?      @default(false, map: "DF__locations__delet__6383C8BA")
+  created       DateTime?     @default(now(), map: "DF__locations__creat__6477ECF3") @db.DateTime
+  changed       DateTime?     @default(now(), map: "DF__locations__chang__656C112C") @db.DateTime
+  location      String?       @db.VarChar(45)
+  designation   String?       @db.VarChar(255)
+  group         String?       @db.VarChar(45)
+  country       Int
+  state         Int
+  city          Int
+  address       String?       @db.VarChar(255)
+  address1      String?       @db.VarChar(255)
+  address3      String?       @db.VarChar(255)
+  bloc          String?       @db.VarChar(45)
+  floor         Int?
+  number        String?       @db.VarChar(45)
+  businesses    businesses[]
+  companies     companies[]
+  entities      entities[]
+  loc_cities    loc_cities    @relation(fields: [city], references: [id], onUpdate: NoAction, map: "fk_locations_city")
+  loc_countries loc_countries @relation(fields: [country], references: [id], onUpdate: NoAction, map: "fk_locations_country")
+  loc_states    loc_states    @relation(fields: [state], references: [id], onUpdate: NoAction, map: "fk_locations_state")
+
+  @@index([changed], map: "i_locations_changed")
+  @@index([city], map: "i_locations_city")
+  @@index([country], map: "i_locations_country")
+  @@index([created], map: "i_locations_created")
+  @@index([location], map: "i_locations_location")
+  @@index([state], map: "i_locations_state")
+}
+
+model mach_drivers {
+  id          Int        @id(map: "pk_mach_drivers_id") @unique(map: "ui_mach_drivers_id") @default(autoincrement())
+  deleted     Boolean?   @default(false, map: "DF__mach_driv__delet__7B264821")
+  created     DateTime?  @default(now(), map: "DF__mach_driv__creat__7C1A6C5A") @db.DateTime
+  changed     DateTime?  @default(now(), map: "DF__mach_driv__chang__7D0E9093") @db.DateTime
+  driver      String     @db.VarChar(15)
+  designation String?    @db.VarChar(255)
+  machines    machines[]
+
+  @@index([changed], map: "i_mach_drivers_changed")
+  @@index([created], map: "i_mach_drivers_created")
+  @@index([designation], map: "i_mach_drivers_designation")
+  @@index([driver], map: "i_mach_drivers_type")
+}
+
+model machines {
+  id             Int          @id(map: "pk_machines_id") @unique(map: "ui_machines_id") @default(autoincrement())
+  deleted        Boolean?     @default(false, map: "DF__machines__delete__02C769E9")
+  created        DateTime?    @default(now(), map: "DF__machines__create__03BB8E22") @db.DateTime
+  changed        DateTime?    @default(now(), map: "DF__machines__change__04AFB25B") @db.DateTime
+  company        Int
+  address        String       @db.VarChar(512)
+  mask           String?      @db.VarChar(15)
+  dns            String?      @db.VarChar(45)
+  ipv6           String?      @db.VarChar(45)
+  port           Int?         @default(0, map: "DF__machines__port__0880433F")
+  name           String?      @db.VarChar(45)
+  rack           Int?         @default(1, map: "DF__machines__rack__0A688BB1")
+  slot           Int?         @default(2, map: "DF__machines__slot__0B5CAFEA")
+  driver         Int
+  mqtt           Boolean?     @default(false, map: "DF__machines__mqtt__0C50D423")
+  mqtt_user      String?      @db.VarChar(45)
+  mqtt_password  String?      @db.VarChar(512)
+  webhook        Boolean?     @default(false, map: "DF__machines__webhoo__0F2D40CE")
+  webhook_secret String?      @db.VarChar(512)
+  bus            Int?         @default(0, map: "DF__machines__bus__11158940")
+  description    String?      @db.VarChar(512)
+  companies      companies    @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_machines_company")
+  mach_drivers   mach_drivers @relation(fields: [driver], references: [id], onUpdate: NoAction, map: "fk_machines_driver")
+  tags           tags[]
+
+  @@index([address], map: "i_machines_address")
+  @@index([changed], map: "i_machines_changed")
+  @@index([company], map: "i_machines_company")
+  @@index([company, address], map: "i_machines_company_address")
+  @@index([created], map: "i_machines_created")
+}
+
+model meas_comparators {
+  id                   Int                    @id(map: "pk_meas_comparators_id") @unique(map: "ui_meas_comparators_id") @default(autoincrement())
+  deleted              Boolean?               @default(false, map: "DF__meas_comp__delet__075714DC")
+  created              DateTime?              @default(now(), map: "DF__meas_comp__creat__084B3915") @db.DateTime
+  changed              DateTime?              @default(now(), map: "DF__meas_comp__chang__093F5D4E") @db.DateTime
+  symbol               String                 @db.VarChar(45)
+  name                 String?                @db.VarChar(255)
+  meas_limits          meas_limits[]
+  pers_standard_limits pers_standard_limits[]
+
+  @@index([changed], map: "i_meas_comparators_changed")
+  @@index([created], map: "i_meas_comparators_created")
+  @@index([symbol], map: "i_meas_comparators_symbol")
+}
+
+model meas_limits {
+  id                 Int                 @id(map: "pk_meas_limits_id") @unique(map: "ui_meas_limits_id") @default(autoincrement())
+  deleted            Boolean?            @default(false, map: "DF__meas_limi__delet__5A1A5A11")
+  created            DateTime?           @default(now(), map: "DF__meas_limi__creat__5B0E7E4A") @db.DateTime
+  changed            DateTime?           @default(now(), map: "DF__meas_limi__chang__5C02A283") @db.DateTime
+  business           Int?
+  company            Int?
+  tag                Int?
+  name               String?             @db.VarChar(255)
+  value              Float?              @default(0.0, map: "DF__meas_limi__value__60C757A0")
+  comparator         Int
+  delay              Int?                @default(0, map: "DF__meas_limi__delay__61BB7BD9")
+  hysteresis         Float?              @default(0.0, map: "DF__meas_limi__hyste__62AFA012")
+  target             Boolean?            @default(false, map: "DF__meas_limi__targe__63A3C44B")
+  enable             Boolean?            @default(true, map: "DF__meas_limi__enabl__6497E884")
+  group              Int?
+  sort               Int?
+  description        String?             @db.Text
+  businesses         businesses?         @relation(fields: [business], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meas_limits_business")
+  companies          companies?          @relation(fields: [company], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meas_limits_company")
+  meas_comparators   meas_comparators    @relation(fields: [comparator], references: [id], onUpdate: NoAction, map: "fk_meas_limits_comparator")
+  meas_limits_groups meas_limits_groups? @relation(fields: [group], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meas_limits_group")
+  tags               tags?               @relation(fields: [tag], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meas_limits_tag")
+
+  @@index([business], map: "i_meas_limits_business")
+  @@index([changed], map: "i_meas_limits_changed")
+  @@index([company], map: "i_meas_limits_company")
+  @@index([created], map: "i_meas_limits_created")
+  @@index([group], map: "i_meas_limits_group")
+  @@index([tag], map: "i_meas_limits_tag")
+  @@index([business, company, tag], map: "ui_meas_limits_business_company")
+}
+
+model meas_limits_groups {
+  id                   Int                    @id(map: "pk_meas_limits_groups_id") @unique(map: "ui_meas_limits_groups_id") @default(autoincrement())
+  deleted              Boolean?               @default(false, map: "DF__meas_limi__delet__0EF836A4")
+  created              DateTime?              @default(now(), map: "DF__meas_limi__creat__0FEC5ADD") @db.DateTime
+  changed              DateTime?              @default(now(), map: "DF__meas_limi__chang__10E07F16") @db.DateTime
+  business             Int?
+  company              Int?
+  group                String                 @db.VarChar(45)
+  designation          String?                @db.VarChar(255)
+  description          String?                @db.Text
+  meas_limits          meas_limits[]
+  businesses           businesses?            @relation(fields: [business], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meas_limits_groups_business")
+  companies            companies?             @relation(fields: [company], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_meas_limits_groups_company")
+  pers_standard_limits pers_standard_limits[]
+
+  @@index([changed], map: "i_meas_limits_groups_changed")
+  @@index([created], map: "i_meas_limits_groups_created")
+  @@index([designation], map: "i_meas_limits_groups_designation")
+  @@index([group], map: "i_meas_limits_groups_group")
+  @@index([business, company, group], map: "ui_meas_limits_groups_business_company")
+}
+
+model meas_units {
+  id            Int             @id(map: "pk_meas_units_id") @unique(map: "ui_meas_units_id") @default(autoincrement())
+  deleted       Boolean?        @default(false, map: "DF__meas_unit__delet__7BE56230")
+  created       DateTime?       @default(now(), map: "DF__meas_unit__creat__7CD98669") @db.DateTime
+  changed       DateTime?       @default(now(), map: "DF__meas_unit__chang__7DCDAAA2") @db.DateTime
+  entity        String          @db.VarChar(45)
+  sizeName      String          @db.VarChar(255)
+  sizeSymbol    String          @db.VarChar(45)
+  unitName      String          @db.VarChar(255)
+  unitSymbol    String          @db.VarChar(45)
+  dimension     String?         @db.VarChar(45)
+  group         String?         @db.VarChar(45)
+  tagging       String?         @db.VarChar(512)
+  comment       String?         @db.VarChar(512)
+  analyse_types analyse_types[]
+  entities      entities        @relation(fields: [entity], references: [entity], onUpdate: NoAction, map: "fk_meas_units_entity")
+  tags          tags[]
+
+  @@index([changed], map: "i_meas_units_changed")
+  @@index([created], map: "i_meas_units_created")
+  @@index([entity], map: "i_meas_units_entity")
+  @@index([group], map: "i_meas_units_group")
+}
+
+model pers_method {
+  id          Int           @id(map: "pk_pers_method_id") @unique(map: "ui_pers_method_id") @default(autoincrement())
+  deleted     Boolean?      @default(false, map: "DF__pers_meth__delet__703EA55A")
+  created     DateTime?     @default(now(), map: "DF__pers_meth__creat__7132C993") @db.DateTime
+  changed     DateTime?     @default(now(), map: "DF__pers_meth__chang__7226EDCC") @db.DateTime
+  name        String        @db.VarChar(45)
+  comment     String?       @db.VarChar(512)
+  persistence persistence[]
+
+  @@index([changed], map: "i_pers_method_changed")
+  @@index([created], map: "i_pers_method_created")
+  @@index([name], map: "i_pers_method_name")
+}
+
+model pers_standard {
+  id                                                                     Int                    @id(map: "pk_pers_standard_id") @unique(map: "ui_pers_standard_id") @default(autoincrement())
+  deleted                                                                Boolean?               @default(false, map: "DF__pers_stan__delet__035179CE")
+  created                                                                DateTime?              @default(now(), map: "DF__pers_stan__creat__04459E07") @db.DateTime
+  changed                                                                DateTime?              @default(now(), map: "DF__pers_stan__chang__0539C240") @db.DateTime
+  company                                                                Int
+  tag                                                                    Int
+  vFloat                                                                 Float?                 @default(0.0, map: "DF__pers_stan__vFloa__062DE679")
+  vInt                                                                   Int?                   @default(0, map: "DF__pers_stand__vInt__07220AB2")
+  vBool                                                                  Boolean?               @default(false, map: "DF__pers_stan__vBool__08162EEB")
+  vStr                                                                   String?                @db.VarChar(255)
+  vDateTime                                                              DateTime?              @default(now(), map: "DF__pers_stan__vDate__090A5324") @db.DateTime
+  vStamp                                                                 DateTime?              @default(now(), map: "DF__pers_stan__vStam__09FE775D") @db.DateTime
+  stampStart                                                             DateTime?              @default(now(), map: "DF__pers_stan__stamp__0AF29B96") @db.DateTime
+  stampEnd                                                               DateTime?              @default(now(), map: "DF__pers_stan__stamp__0BE6BFCF") @db.DateTime
+  tbf                                                                    Float?                 @default(0.0, map: "DF__pers_standa__tbf__0CDAE408") @db.Real
+  ttr                                                                    Float?                 @default(0.0, map: "DF__pers_standa__ttr__0DCF0841") @db.Real
+  error                                                                  Boolean?               @default(false, map: "DF__pers_stan__error__0EC32C7A")
+  errorMsg                                                               String?                @db.VarChar(512)
+  companies                                                              companies              @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_pers_standard_company")
+  tags                                                                   tags                   @relation(fields: [tag], references: [id], onUpdate: NoAction, map: "fk_pers_standard_tag")
+  pers_standard_limits_pers_standard_limits_pers_standardTopers_standard pers_standard_limits[] @relation("pers_standard_limits_pers_standardTopers_standard")
+
+  @@index([changed], map: "i_pers_standard_changed")
+  @@index([created], map: "i_pers_standard_created")
+  @@index([tag], map: "i_pers_standard_tag")
+  @@index([vBool], map: "i_pers_standard_vBool")
+  @@index([vDateTime], map: "i_pers_standard_vDateTime")
+  @@index([vFloat], map: "i_pers_standard_vFloat")
+  @@index([vInt], map: "i_pers_standard_vInt")
+  @@index([vStamp], map: "i_pers_standard_vStamp")
+  @@index([vStr], map: "i_pers_standard_vStr")
+  @@index([company, tag], map: "ui_pers_standard_company_tag")
+}
+
+model pers_standard_limits {
+  id                                                              Int                 @id(map: "pk_pers_standard_limits_id") @unique(map: "ui_pers_standard_limits_id") @default(autoincrement())
+  deleted                                                         Boolean?            @default(false, map: "DF__pers_stan__delet__70FDBF69")
+  created                                                         DateTime?           @default(now(), map: "DF__pers_stan__creat__71F1E3A2") @db.DateTime
+  changed                                                         DateTime?           @default(now(), map: "DF__pers_stan__chang__72E607DB") @db.DateTime
+  company                                                         Int
+  tag                                                             Int
+  pers_standard                                                   Int
+  name                                                            String?             @db.VarChar(255)
+  value                                                           Float?              @default(0.0, map: "DF__pers_stan__value__74CE504D")
+  comparator                                                      Int
+  delay                                                           Int?                @default(0, map: "DF__pers_stan__delay__75C27486")
+  hysteresis                                                      Float?              @default(0.0, map: "DF__pers_stan__hyste__76B698BF")
+  group                                                           Int?
+  sort                                                            Int?
+  hit                                                             Boolean?            @default(false, map: "DF__pers_standa__hit__7993056A")
+  reached                                                         Boolean?            @default(false, map: "DF__pers_stan__reach__7A8729A3")
+  companies                                                       companies           @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_pers_standard_limits_company")
+  meas_comparators                                                meas_comparators    @relation(fields: [comparator], references: [id], onUpdate: NoAction, map: "fk_pers_standard_limits_comparator")
+  meas_limits_groups                                              meas_limits_groups? @relation(fields: [group], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pers_standard_limits_group")
+  pers_standard_pers_standard_limits_pers_standardTopers_standard pers_standard       @relation("pers_standard_limits_pers_standardTopers_standard", fields: [pers_standard], references: [id], onUpdate: NoAction, map: "fk_pers_standard_limits_pers_standard")
+  tags                                                            tags                @relation(fields: [tag], references: [id], onUpdate: NoAction, map: "fk_pers_standard_limits_tag")
+
+  @@index([changed], map: "i_pers_standard_limits_changed")
+  @@index([company], map: "i_pers_standard_limits_company")
+  @@index([created], map: "i_pers_standard_limits_created")
+  @@index([group], map: "i_pers_standard_limits_group")
+  @@index([hit], map: "i_pers_standard_limits_hit")
+  @@index([pers_standard], map: "i_pers_standard_limits_pers_standard")
+  @@index([reached], map: "i_pers_standard_limits_reached")
+  @@index([tag], map: "i_pers_standard_limits_tag")
+  @@index([company, tag], map: "ui_pers_standard_limits_business_company")
+}
+
+model persistence {
+  id          Int         @id(map: "pk_persistence_id") @unique(map: "ui_persistence_id") @default(autoincrement())
+  deleted     Boolean?    @default(false, map: "DF__persisten__delet__77DFC722")
+  created     DateTime?   @default(now(), map: "DF__persisten__creat__78D3EB5B") @db.DateTime
+  changed     DateTime?   @default(now(), map: "DF__persisten__chang__79C80F94") @db.DateTime
+  company     Int
+  tag         Int
+  method      Int
+  activate    Boolean?    @default(false, map: "DF__persisten__activ__7ABC33CD")
+  comment     String?     @db.VarChar(512)
+  companies   companies   @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_persistence_company")
+  pers_method pers_method @relation(fields: [method], references: [id], onUpdate: NoAction, map: "fk_persistence_method")
+  tags        tags        @relation(fields: [tag], references: [id], onUpdate: NoAction, map: "fk_persistence_tag")
+
+  @@unique([company, tag, method], map: "ui_persistence_company_tag_method")
+  @@index([changed], map: "i_persistence_changed")
+  @@index([created], map: "i_persistence_created")
+  @@index([method], map: "i_persistence_method")
+  @@index([tag], map: "i_persistence_tag")
+}
+
+model tags {
+  id                   Int                    @id(map: "pk_tags_id") @unique(map: "ui_tags_id") @default(autoincrement())
+  deleted              Boolean?               @default(false, map: "DF__tags__deleted__37FA4C37")
+  created              DateTime?              @default(now(), map: "DF__tags__created__38EE7070") @db.DateTime
+  changed              DateTime?              @default(now(), map: "DF__tags__changed__39E294A9") @db.DateTime
+  company              Int
+  table                Int?
+  name                 String                 @db.VarChar(255)
+  machine              Int
+  type                 Int
+  memory               Int
+  db                   Int?                   @default(0, map: "DF__tags__db__3AD6B8E2")
+  byte                 Int?                   @default(0, map: "DF__tags__byte__3BCADD1B")
+  bit                  Int?                   @default(0, map: "DF__tags__bit__3CBF0154")
+  active               Boolean?               @default(false, map: "DF__tags__active__3DB3258D")
+  cycle                Int?                   @default(1, map: "DF__tags__cycle__3EA749C6")
+  delta                Boolean?               @default(false, map: "DF__tags__delta__3F9B6DFF")
+  deltaFloat           Float?                 @default(0.0, map: "DF__tags__deltaFloat__408F9238")
+  deltaInt             Int?                   @default(0, map: "DF__tags__deltaInt__4183B671")
+  deltaBool            Int?                   @default(0, map: "DF__tags__deltaBool__4277DAAA")
+  deltaDateTime        BigInt?                @default(0, map: "DF__tags__deltaDateT__436BFEE3")
+  vFloat               Float?                 @default(0.0, map: "DF__tags__vFloat__4460231C")
+  vInt                 Int?                   @default(0, map: "DF__tags__vInt__45544755")
+  vBool                Boolean?               @default(false, map: "DF__tags__vBool__46486B8E")
+  vStr                 String?                @db.VarChar(255)
+  vDateTime            DateTime?              @default(now(), map: "DF__tags__vDateTime__473C8FC7") @db.DateTime
+  vStamp               DateTime?              @default(now(), map: "DF__tags__vStamp__4830B400") @db.DateTime
+  vDefault             Boolean?               @default(false, map: "DF__tags__vDefault__4924D839")
+  vFloatDefault        Float?                 @default(0.0, map: "DF__tags__vFloatDefa__4A18FC72")
+  vIntDefault          Int?                   @default(0, map: "DF__tags__vIntDefaul__4B0D20AB")
+  vBoolDefault         Boolean?               @default(false, map: "DF__tags__vBoolDefau__4C0144E4")
+  vStrDefault          String?                @db.VarChar(255)
+  vDateTimeDefault     DateTime?              @default(now(), map: "DF__tags__vDateTimeD__4CF5691D") @db.DateTime
+  vStampDefault        DateTime?              @default(now(), map: "DF__tags__vStampDefa__4DE98D56") @db.DateTime
+  counter              Boolean?               @default(false, map: "DF__tags__counter__4EDDB18F")
+  counterType          Int?                   @default(0, map: "DF__tags__counterTyp__4FD1D5C8")
+  mesure               Boolean?               @default(false, map: "DF__tags__mesure__50C5FA01")
+  mesureMin            Float?                 @default(0.0, map: "DF__tags__mesureMin__51BA1E3A")
+  mesureMax            Float?                 @default(1.0, map: "DF__tags__mesureMax__52AE4273")
+  measureUnit          Int?
+  mqtt_topic           String?                @db.VarChar(512)
+  webhook              String?                @db.VarChar(512)
+  laboratory           Boolean?               @default(false, map: "DF__tags__laboratory__567ED357")
+  formula              Boolean?               @default(false, map: "DF__tags__formula__5772F790")
+  formCalculus         String?                @db.VarChar(4096)
+  formProcessing       Int?
+  error                Boolean?               @default(false, map: "DF__tags__error__5A4F643B")
+  errorMsg             String?                @db.VarChar(512)
+  errorStamp           DateTime?              @default(now(), map: "DF__tags__errorStamp__5C37ACAD") @db.DateTime
+  alarmEnable          Boolean?               @default(false, map: "DF__tags__alarmEnabl__5D2BD0E6")
+  alarm                Int?                   @default(0, map: "DF__tags__alarm__5E1FF51F")
+  persistenceEnable    Boolean?               @default(false, map: "DF__tags__persistenc__5F141958")
+  persOffsetEnable     Boolean?               @default(false, map: "DF__tags__persOffset__60083D91")
+  persOffsetFloat      Float?                 @default(0.0, map: "DF__tags__persOffset__60FC61CA")
+  persOffsetInt        Int?                   @default(0, map: "DF__tags__persOffset__61F08603")
+  persOffsetBool       Boolean?               @default(false, map: "DF__tags__persOffset__62E4AA3C")
+  persOffsetDateTime   DateTime?              @default(now(), map: "DF__tags__persOffset__63D8CE75") @db.DateTime
+  comment              String?                @db.VarChar(512)
+  list                 Int?
+  analyse_allowed      analyse_allowed[]
+  meas_limits          meas_limits[]
+  pers_standard        pers_standard[]
+  pers_standard_limits pers_standard_limits[]
+  persistence          persistence[]
+  alarms               alarms?                @relation(fields: [alarm], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tags_alarms")
+  companies            companies              @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_tags_company")
+  tags_lists           tags_lists?            @relation(fields: [list], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tags_lists")
+  machines             machines               @relation(fields: [machine], references: [id], onUpdate: NoAction, map: "fk_tags_machine")
+  meas_units           meas_units?            @relation(fields: [measureUnit], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tags_meas_units")
+  tags_memories        tags_memories          @relation(fields: [memory], references: [id], onUpdate: NoAction, map: "fk_tags_memory")
+  tags_tables          tags_tables?           @relation(fields: [table], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tags_table")
+  tags_types           tags_types             @relation(fields: [type], references: [id], onUpdate: NoAction, map: "fk_tags_type")
+
+  @@index([byte], map: "i_tags_byte")
+  @@index([changed], map: "i_tags_changed")
+  @@index([company], map: "i_tags_company")
+  @@index([created], map: "i_tags_created")
+  @@index([db], map: "i_tags_db")
+  @@index([machine], map: "i_tags_machine")
+  @@index([memory], map: "i_tags_memory")
+  @@index([name], map: "i_tags_name")
+  @@index([table], map: "i_tags_tables")
+  @@index([type], map: "i_tags_type")
+}
+
+model tags_lists {
+  id                 Int                  @id(map: "pk_tags_lists_id") @unique(map: "ui_tags_lists_id") @default(autoincrement())
+  deleted            Boolean?             @default(false, map: "DF__tags_list__delet__0F824689")
+  created            DateTime?            @default(now(), map: "DF__tags_list__creat__10766AC2") @db.DateTime
+  changed            DateTime?            @default(now(), map: "DF__tags_list__chang__116A8EFB") @db.DateTime
+  company            Int
+  type               Int?
+  list               String               @db.VarChar(45)
+  designation        String?              @db.VarChar(255)
+  comment            String?              @db.VarChar(512)
+  tags               tags[]
+  companies          companies            @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_tags_lists_company")
+  tags_lists_types   tags_lists_types?    @relation(fields: [type], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tags_lists_type")
+  tags_lists_content tags_lists_content[]
+
+  @@unique([company, list], map: "ui_tags_lists_company_list")
+  @@index([changed], map: "i_tags_lists_changed")
+  @@index([company], map: "i_tags_lists_company")
+  @@index([created], map: "i_tags_lists_created")
+  @@index([list], map: "i_tags_lists_list")
+  @@index([type], map: "i_tags_lists_type")
+}
+
+model tags_lists_content {
+  id         Int        @id(map: "pk_tags_lists_content_id") @unique(map: "ui_tags_lists_content_id") @default(autoincrement())
+  deleted    Boolean?   @default(false, map: "DF__tags_list__delet__2C1E8537")
+  created    DateTime?  @default(now(), map: "DF__tags_list__creat__2D12A970") @db.DateTime
+  changed    DateTime?  @default(now(), map: "DF__tags_list__chang__2E06CDA9") @db.DateTime
+  company    Int
+  list       Int
+  content    Int
+  value      String?    @default("", map: "DF__tags_list__value__2EFAF1E2") @db.VarChar(255)
+  default    Boolean?   @default(false, map: "DF__tags_list__defau__2FEF161B")
+  width      Float?     @default(1.0, map: "DF__tags_list__width__30E33A54")
+  height     Float?     @default(1.0, map: "DF__tags_list__heigh__31D75E8D")
+  comment    String?    @db.VarChar(512)
+  companies  companies  @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_tags_lists_content_company")
+  tags_lists tags_lists @relation(fields: [list], references: [id], onUpdate: NoAction, map: "fk_tags_lists_content_list")
+
+  @@unique([company, list, content], map: "ui_tags_lists_content_company_list")
+  @@index([changed], map: "i_tags_lists_content_changed")
+  @@index([company], map: "i_tags_lists_content_company")
+  @@index([content], map: "i_tags_lists_content_content")
+  @@index([created], map: "i_tags_lists_content_created")
+  @@index([list], map: "i_tags_lists_content_list")
+}
+
+model tags_lists_types {
+  id          Int          @id(map: "pk_tags_lists_types_id") @unique(map: "ui_tags_lists_types_id") @default(autoincrement())
+  deleted     Boolean?     @default(false, map: "DF__tags_list__delet__06ED0088")
+  created     DateTime?    @default(now(), map: "DF__tags_list__creat__07E124C1") @db.DateTime
+  changed     DateTime?    @default(now(), map: "DF__tags_list__chang__08D548FA") @db.DateTime
+  designation String?      @db.VarChar(255)
+  comment     String?      @db.VarChar(512)
+  tags_lists  tags_lists[]
+
+  @@index([changed], map: "i_tags_lists_types_changed")
+  @@index([created], map: "i_tags_lists_types_created")
+  @@index([designation], map: "i_tags_lists_types_designation")
+}
+
+model tags_memories {
+  id      Int       @id(map: "pk_tags_memories_id") @unique(map: "ui_tags_memories_id") @default(autoincrement())
+  deleted Boolean?  @default(false, map: "DF__tags_memo__delet__30592A6F")
+  created DateTime? @default(now(), map: "DF__tags_memo__creat__314D4EA8") @db.DateTime
+  changed DateTime? @default(now(), map: "DF__tags_memo__chang__324172E1") @db.DateTime
+  name    String    @db.VarChar(45)
+  comment String?   @db.VarChar(255)
+  tags    tags[]
+
+  @@index([changed], map: "i_tags_memories_changed")
+  @@index([created], map: "i_tags_memories_created")
+  @@index([name], map: "i_tags_memories_name")
+}
+
+model tags_tables {
+  id          Int       @id(map: "pk_tags_tables_id") @unique(map: "ui_tags_tables_id") @default(autoincrement())
+  deleted     Boolean?  @default(false, map: "DF__tags_tabl__delet__1B5E0D89")
+  created     DateTime? @default(now(), map: "DF__tags_tabl__creat__1C5231C2") @db.DateTime
+  changed     DateTime? @default(now(), map: "DF__tags_tabl__chang__1D4655FB") @db.DateTime
+  company     Int
+  table       String    @db.VarChar(45)
+  designation String?   @db.VarChar(255)
+  comment     String?   @db.VarChar(512)
+  tags        tags[]
+  companies   companies @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_tags_tables_company")
+
+  @@unique([company, table], map: "ui_tags_tables_company_table")
+  @@index([changed], map: "i_tags_tables_changed")
+  @@index([company], map: "i_tags_tables_company")
+  @@index([created], map: "i_tags_tables_created")
+  @@index([table], map: "i_tags_tables_table")
+}
+
+model tags_types {
+  id          Int       @id(map: "pk_tags_types_id") @unique(map: "ui_tags_types_id") @default(autoincrement())
+  deleted     Boolean?  @default(false, map: "DF__tags_type__delet__24E777C3")
+  created     DateTime? @default(now(), map: "DF__tags_type__creat__25DB9BFC") @db.DateTime
+  changed     DateTime? @default(now(), map: "DF__tags_type__chang__26CFC035") @db.DateTime
+  type        String    @db.VarChar(45)
+  designation String?   @db.VarChar(45)
+  bit         Int?      @default(0, map: "DF__tags_types__bit__28B808A7")
+  byte        Int?      @default(0, map: "DF__tags_types__byte__29AC2CE0")
+  word        Int?      @default(0, map: "DF__tags_types__word__2AA05119")
+  group       String?   @default("std", map: "DF__tags_type__group__2B947552") @db.VarChar(45)
+  tags        tags[]
+
+  @@index([changed], map: "i_tags_types_changed")
+  @@index([created], map: "i_tags_types_created")
+  @@index([group], map: "i_tags_types_group")
+  @@index([type], map: "i_tags_types_type")
+}
+
+model user_account {
+  id                Int                 @id(map: "pk_user_account_id") @unique(map: "ui_user_account_id") @default(autoincrement())
+  deleted           Boolean?            @default(false, map: "DF__user_acco__delet__6BE40491")
+  created           DateTime?           @default(now(), map: "DF__user_acco__creat__6CD828CA") @db.DateTime
+  changed           DateTime?           @default(now(), map: "DF__user_acco__chang__6DCC4D03") @db.DateTime
+  firstName         String              @db.VarChar(45)
+  lastName          String              @db.VarChar(45)
+  middleName        String?             @db.VarChar(45)
+  initialLetter     String?             @db.VarChar(45)
+  genre             String              @db.Char(1)
+  dateOfBirth       DateTime            @db.Date
+  user_account_role user_account_role[]
+
+  @@index([changed], map: "i_user_account_changed")
+  @@index([created], map: "i_user_account_created")
+  @@index([dateOfBirth], map: "i_user_account_dateOfBirth")
+  @@index([firstName], map: "i_user_account_firstName")
+  @@index([genre], map: "i_user_account_genre")
+  @@index([lastName], map: "i_user_account_lastName")
+}
+
+model user_account_role {
+  id           Int          @id(map: "pk_user_account_role_id") @unique(map: "ui_user_account_role_id") @default(autoincrement())
+  deleted      Boolean?     @default(false, map: "DF__user_acco__delet__72910220")
+  created      DateTime?    @default(now(), map: "DF__user_acco__creat__73852659") @db.DateTime
+  changed      DateTime?    @default(now(), map: "DF__user_acco__chang__74794A92") @db.DateTime
+  user         Int
+  role         Int
+  user_roles   user_roles   @relation(fields: [role], references: [id], onUpdate: NoAction, map: "fk_user_account_role_role")
+  user_account user_account @relation(fields: [user], references: [id], onUpdate: NoAction, map: "fk_user_account_role_user")
+
+  @@index([changed], map: "i_user_account_role_changed")
+  @@index([created], map: "i_user_account_role_created")
+  @@index([role], map: "i_user_account_role_role")
+  @@index([user], map: "i_user_account_role_user")
+}
+
+model user_email_verified {
+  id                Int               @id(map: "pk_user_email_verified_id") @unique(map: "ui_user_email_verified_id") @default(autoincrement())
+  deleted           Boolean?          @default(false, map: "DF__user_emai__delet__2CF2ADDF")
+  created           DateTime?         @default(now(), map: "DF__user_emai__creat__2DE6D218") @db.DateTime
+  changed           DateTime?         @default(now(), map: "DF__user_emai__chang__2EDAF651") @db.DateTime
+  statusDescription String?           @db.VarChar(45)
+  user_login_data   user_login_data[]
+
+  @@index([changed], map: "i_user_email_verified_changed")
+  @@index([created], map: "i_user_email_verified_created")
+  @@index([statusDescription], map: "i_user_email_verified_statusDescription")
+}
+
+model user_external_providers {
+  id                       Int                        @id(map: "pk_user_external_providers_id") @unique(map: "ui_user_external_providers_id") @default(autoincrement())
+  deleted                  Boolean?                   @default(false, map: "DF__user_exte__delet__40058253")
+  created                  DateTime?                  @default(now(), map: "DF__user_exte__creat__40F9A68C") @db.DateTime
+  changed                  DateTime?                  @default(now(), map: "DF__user_exte__chang__41EDCAC5") @db.DateTime
+  name                     String                     @db.VarChar(45)
+  wsEndPoint               String?                    @db.VarChar(255)
+  user_login_data_external user_login_data_external[]
+
+  @@index([changed], map: "i_user_external_providers_changed")
+  @@index([created], map: "i_user_external_providers_created")
+  @@index([name], map: "i_user_external_providers_statusDescription")
+}
+
+model user_hashing_algorithms {
+  id              Int               @id(map: "pk_user_hashing_algorithms_id") @unique(map: "ui_user_hashing_algorithms_id") @default(autoincrement())
+  deleted         Boolean?          @default(false, map: "DF__user_hash__delet__25518C17")
+  created         DateTime?         @default(now(), map: "DF__user_hash__creat__2645B050") @db.DateTime
+  changed         DateTime?         @default(now(), map: "DF__user_hash__chang__2739D489") @db.DateTime
+  algorithmName   String            @db.VarChar(10)
+  designation     String?           @db.VarChar(255)
+  user_login_data user_login_data[]
+
+  @@index([changed], map: "i_user_hashing_algorithms_changed")
+  @@index([created], map: "i_user_hashing_algorithms_created")
+  @@index([algorithmName], map: "i_user_hashing_algorithms_name")
+}
+
+model user_login_data {
+  id                      Int                     @id(map: "pk_user_login_data_id") @unique(map: "ui_user_login_data_id") @default(autoincrement())
+  deleted                 Boolean?                @default(false, map: "DF__user_logi__delet__3493CFA7")
+  created                 DateTime?               @default(now(), map: "DF__user_logi__creat__3587F3E0") @db.DateTime
+  changed                 DateTime?               @default(now(), map: "DF__user_logi__chang__367C1819") @db.DateTime
+  loginName               String                  @db.VarChar(20)
+  passwordHash            String                  @db.VarChar(255)
+  passwordSalt            String                  @db.VarChar(255)
+  hashAlgorithm           Int
+  email                   String                  @db.VarChar(255)
+  emailVerified           Int?
+  tokenConfirmation       String?                 @db.VarChar(255)
+  tokenGenerationTime     DateTime?               @db.DateTime
+  tokenPasswordRecovery   String?                 @db.VarChar(255)
+  tokenTimeRecovery       DateTime?               @db.DateTime
+  image                   String?                 @db.VarChar(1024)
+  user_email_verified     user_email_verified?    @relation(fields: [emailVerified], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_login_data_emailStatus")
+  user_hashing_algorithms user_hashing_algorithms @relation(fields: [hashAlgorithm], references: [id], onUpdate: NoAction, map: "fk_user_login_data_hashAlgorithm")
+
+  @@index([changed], map: "i_user_login_data_changed")
+  @@index([created], map: "i_user_login_data_created")
+  @@index([email], map: "i_user_login_data_email")
+  @@index([loginName], map: "i_user_login_data_loginName")
+}
+
+model user_login_data_external {
+  id                      Int                     @id(map: "pk_user_login_data_external_id") @unique(map: "ui_user_login_data_external_id") @default(autoincrement())
+  deleted                 Boolean?                @default(false, map: "DF__user_logi__delet__47A6A41B")
+  created                 DateTime?               @default(now(), map: "DF__user_logi__creat__489AC854") @db.DateTime
+  changed                 DateTime?               @default(now(), map: "DF__user_logi__chang__498EEC8D") @db.DateTime
+  externalProvider        Int
+  tokenExternalProvider   String                  @db.VarChar(255)
+  user_external_providers user_external_providers @relation(fields: [externalProvider], references: [id], onUpdate: NoAction, map: "fk_user_login_data_external_externalProvider")
+
+  @@index([changed], map: "i_user_login_data_external_changed")
+  @@index([created], map: "i_user_login_data_external_created")
+  @@index([externalProvider], map: "i_user_login_data_external_loginName")
+}
+
+model user_permissions {
+  id                     Int                     @id(map: "pk_user_permissions_id") @unique(map: "ui_user_permissions_id") @default(autoincrement())
+  deleted                Boolean?                @default(false, map: "DF__user_perm__delet__4F47C5E3")
+  created                DateTime?               @default(now(), map: "DF__user_perm__creat__503BEA1C") @db.DateTime
+  changed                DateTime?               @default(now(), map: "DF__user_perm__chang__51300E55") @db.DateTime
+  name                   String                  @db.VarChar(45)
+  designation            String?                 @db.VarChar(255)
+  parent                 Int?
+  user_permissions       user_permissions?       @relation("user_permissionsTouser_permissions", fields: [parent], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_permissions_parent")
+  other_user_permissions user_permissions[]      @relation("user_permissionsTouser_permissions")
+  user_role_permissions  user_role_permissions[]
+
+  @@index([changed], map: "i_user_permissions_changed")
+  @@index([created], map: "i_user_permissions_created")
+  @@index([designation], map: "i_user_permissions_designation")
+  @@index([name], map: "i_user_permissions_name")
+  @@index([parent], map: "i_user_permissions_parent")
+}
+
+model user_role_permissions {
+  id               Int              @id(map: "pk_user_role_permissions_id") @unique(map: "ui_user_role_permissions_id") @default(autoincrement())
+  deleted          Boolean?         @default(false, map: "DF__user_role__delet__607251E5")
+  created          DateTime?        @default(now(), map: "DF__user_role__creat__6166761E") @db.DateTime
+  changed          DateTime?        @default(now(), map: "DF__user_role__chang__625A9A57") @db.DateTime
+  entity           String?          @db.VarChar(45)
+  business         Int?
+  comapny          Int?
+  permission       Int
+  role             Int
+  businesses       businesses?      @relation(fields: [business], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_role_permissions_business")
+  companies        companies?       @relation(fields: [comapny], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_role_permissions_company")
+  entities         entities?        @relation(fields: [entity], references: [entity], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_role_permissions_entity")
+  user_permissions user_permissions @relation(fields: [permission], references: [id], onUpdate: NoAction, map: "fk_user_role_permissions_permission")
+  user_roles       user_roles       @relation(fields: [role], references: [id], onUpdate: NoAction, map: "fk_user_role_permissions_role")
+
+  @@index([business], map: "i_user_role_permissions_business")
+  @@index([changed], map: "i_user_role_permissions_changed")
+  @@index([comapny], map: "i_user_role_permissions_comapny")
+  @@index([created], map: "i_user_role_permissions_created")
+  @@index([entity], map: "i_user_role_permissions_entity")
+  @@index([permission], map: "i_user_role_permissions_permission")
+  @@index([role], map: "i_user_role_permissions_role")
+}
+
+model user_roles {
+  id                    Int                     @id(map: "pk_user_roles_id") @unique(map: "ui_user_roles_id") @default(autoincrement())
+  deleted               Boolean?                @default(false, map: "DF__user_role__delet__56E8E7AB")
+  created               DateTime?               @default(now(), map: "DF__user_role__creat__57DD0BE4") @db.DateTime
+  changed               DateTime?               @default(now(), map: "DF__user_role__chang__58D1301D") @db.DateTime
+  entity                String?                 @db.VarChar(45)
+  business              Int?
+  comapny               Int?
+  name                  String                  @db.VarChar(45)
+  description           String?                 @db.VarChar(255)
+  user_account_role     user_account_role[]
+  user_role_permissions user_role_permissions[]
+  businesses            businesses?             @relation(fields: [business], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_roles_business")
+  companies             companies?              @relation(fields: [comapny], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_roles_company")
+  entities              entities?               @relation(fields: [entity], references: [entity], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_roles_entity")
+
+  @@index([entity, business, comapny], map: "i_user_role_permissions_ent_bui_com")
+  @@index([business], map: "i_user_roles_business")
+  @@index([changed], map: "i_user_roles_changed")
+  @@index([comapny], map: "i_user_roles_comapny")
+  @@index([created], map: "i_user_roles_created")
+  @@index([description], map: "i_user_roles_description")
+  @@index([entity, business, comapny], map: "i_user_roles_ent_bui_com")
+  @@index([entity], map: "i_user_roles_entity")
+  @@index([name], map: "i_user_roles_name")
+}

@@ -1,0 +1,486 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Swagger ISM Express API",
+    "version": "1.0.0",
+    "description": "This is a CRUD API application for ISM made with Express and documented with Swagger",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "contact": {
+      "name": "r.hendrick",
+      "url": "https://IndustrialSystemManager.com",
+      "email": "info@IndustrialSystemManager.com"
+    }
+  },
+  "host": "localhost:7023",
+  "servers": [
+    {
+      "url": "https://localhost:7023/api/v1/docs"
+    }
+  ],
+  "basePath": "/api/v1",
+  "tags": [
+    {
+      "name": "Home",
+      "description": "Default Service Display Status"
+    },
+    {
+      "name": "Admin/Entreprises",
+      "description": "The administration entreprise part of the application"
+    },
+    {
+      "name": "Admin/Companies",
+      "description": "The administration companies part of the application"
+    },
+    {
+      "name": "HR/Staffs",
+      "description": "The human resources staffs part of the application"
+    },
+    {
+      "name": "HR",
+      "description": "The human resources part of the application"
+    }
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "name": "api_key",
+      "in": "header"
+    }
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json",
+    "text/json",
+    "text/plain",
+    "text/html"
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "Home"
+        ],
+        "summary": "Default Swagger ISM API Documentation",
+        "description": "## Description <br /> Allow you to confirm API service stated",
+        "produces": [
+          "text/html"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/": {
+      "get": {
+        "tags": [
+          "Home"
+        ],
+        "summary": "Default Swagger ISM API Documentation",
+        "description": "## Description <br /> Allow you to confirm API service stated",
+        "produces": [
+          "text/html"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/admin/entreprises": {
+      "get": {
+        "tags": [
+          "Admin/Entreprises"
+        ],
+        "summary": "find All Entreprises",
+        "description": "Entreprises <br /> Allow to find all entreprises",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/admin/entreprise/{id}": {
+      "get": {
+        "tags": [
+          "Admin/Entreprises"
+        ],
+        "summary": "find by specified id the Entreprises",
+        "description": "Entreprises <br />allow to find entreprise by specified id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "entreprise id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entrprises object",
+            "schema": {
+              "$ref": "#/definitions/Entreprises"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin/Entreprises"
+        ],
+        "summary": "Update entreprise",
+        "description": "\r  Entreprises <br />\r  update an entreprise by specifying following tags :\r  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Admin/Entreprises"
+        ],
+        "summary": "Update entreprise",
+        "description": "\r  Entreprises <br />\r  update an entreprise by specifying following tags :\r  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin/Entreprises"
+        ],
+        "summary": "remove entreprise",
+        "description": "\r  Entreprises <br />\r  remove an entreprise by specifying corresponding e_id\r  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/admin/entreprise/pk/{pk}": {
+      "get": {
+        "tags": [
+          "Admin/Entreprises"
+        ],
+        "summary": "Find content by primary key which can be combined with other.",
+        "description": "   Entreprises <br />   Allow to find entreprise by specified primary key",
+        "parameters": [
+          {
+            "name": "pk",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "   entreprise primary key described by    e_entreprise in a json object like    ex : {'e_entreprise':'BRAS'}   "
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/admin/entreprise": {
+      "post": {
+        "tags": [
+          "Admin/Entreprises"
+        ],
+        "summary": "Create entreprise with only require content",
+        "description": "\r  Entreprises <br />\r  Create an entreprise by specifying following tags :\r  e_entreprise : 'entreprise code'\r  ,e_designation: 'entreprise designation'\r  ,e_builded: 'entreprise builded year'\r  ,e_main: 'entreprise specified as main'\r  ,e_activated: 'entreprise activated for use'\r  ",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/admin/companies": {
+      "get": {
+        "tags": [
+          "Admin/Companies"
+        ],
+        "summary": "Find All Companies",
+        "description": "\r  Companies <br />\r  Allow to find all companies\r  ",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/admin/company/{id}": {
+      "get": {
+        "tags": [
+          "Admin/Companies"
+        ],
+        "summary": "find by company id number",
+        "description": "\r  Companies <br />\r  Allow to find a company by specifying a number of the record\r  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "company item id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin/Companies"
+        ],
+        "summary": "Update company",
+        "description": "\r  Companies <br />\r  update an company by specifying following tags :\r  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Admin/Companies"
+        ],
+        "summary": "Update company",
+        "description": "\r  Companies <br />\r  update an company by specifying following tags :\r  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin/Companies"
+        ],
+        "summary": "remove company",
+        "description": "\r  Company <br />\r  remove an company by specifying corresponding e_id\r  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/admin/company/pk/{pk}": {
+      "get": {
+        "tags": [
+          "Admin/Companies"
+        ],
+        "summary": "Find content by primary key which can be combined with other.",
+        "description": "   Company <br />   Allow to find company by specified primary key",
+        "parameters": [
+          {
+            "name": "pk",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "   company primary key described by    c_company and c_entreprise in a json object like   ex : {'c_company':'39','c_entreprise':'BRAS'}   "
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/admin/company": {
+      "post": {
+        "tags": [
+          "Admin/Companies"
+        ],
+        "summary": "Create company with only require content",
+        "description": "\r  Companies <br />\r  Create an company by specifying following tags :\r  {\r  ",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Entreprises": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "example": "object"
+        },
+        "object": {
+          "type": "array",
+          "example": [
+            "e_id",
+            "e_entreprise",
+            "e_designation",
+            "e_builded",
+            "e_main",
+            "e_activated",
+            "e_deleted",
+            "e_created",
+            "e_changed"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "required": {
+          "type": "object",
+          "properties": {
+            "e_entreprise": {
+              "type": "string",
+              "example": "entreprise code"
+            },
+            "e_designation": {
+              "type": "string",
+              "example": "entreprise designation"
+            },
+            "e_builded": {
+              "type": "string",
+              "example": "entreprise builded year"
+            },
+            "e_main": {
+              "type": "string",
+              "example": "entreprise specified as main"
+            },
+            "e_activated": {
+              "type": "string",
+              "example": "entreprise activated for use"
+            }
+          }
+        },
+        "e_id": {
+          "type": "number",
+          "example": 1
+        },
+        "e_entreprise": {
+          "type": "string",
+          "example": "Entreprise code"
+        },
+        "e_designation": {
+          "type": "string",
+          "example": "Entreprise Designation"
+        }
+      }
+    }
+  },
+  "apis": [
+    "app/routes/*.js"
+  ]
+}
