@@ -1,9 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Swagger ISM Express API",
+    "title": "Swagger OBI Express API",
     "version": "1.0.0",
-    "description": "This is a CRUD API application for ISM made with Express and documented with Swagger",
+    "description": "This is a CRUD API application for OBI made with Express and documented with Swagger",
     "license": {
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -26,27 +26,26 @@
       "name": "Home",
       "description": "Default Service Display Status"
     },
+
     {
-      "name": "Admin/Entreprises",
-      "description": "The administration entreprise part of the application"
+      "name": "Businesses/Entities",
+      "description": "The administration ENTITIES part of the application"
     },
     {
-      "name": "Admin/Companies",
-      "description": "The administration companies part of the application"
+      "name": "Businesses/Businesses",
+      "description": "The administration BUSINESSES part of the application"
     },
     {
-      "name": "HR/Staffs",
-      "description": "The human resources staffs part of the application"
+      "name": "Businesses/Companies",
+      "description": "The human resources COMPANIES part of the application"
     },
+
     {
       "name": "HR",
       "description": "The human resources part of the application"
     }
   ],
-  "schemes": [
-    "https",
-    "http"
-  ],
+  "schemes": ["https", "http"],
   "securityDefinitions": {
     "api_key": {
       "type": "apiKey",
@@ -54,26 +53,15 @@
       "in": "header"
     }
   },
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json",
-    "text/json",
-    "text/plain",
-    "text/html"
-  ],
+  "consumes": ["application/json"],
+  "produces": ["application/json", "text/json", "text/plain", "text/html"],
   "paths": {
     "/": {
       "get": {
-        "tags": [
-          "Home"
-        ],
-        "summary": "Default Swagger ISM API Documentation",
+        "tags": ["Home"],
+        "summary": "Default Swagger OBI API Documentation",
         "description": "## Description <br /> Allow you to confirm API service stated",
-        "produces": [
-          "text/html"
-        ],
+        "produces": ["text/html"],
         "responses": {
           "200": {
             "description": "OK"
@@ -81,16 +69,13 @@
         }
       }
     },
+
     "/api/v1/": {
       "get": {
-        "tags": [
-          "Home"
-        ],
-        "summary": "Default Swagger ISM API Documentation",
+        "tags": ["Home"],
+        "summary": "Default Swagger OBI API Documentation",
         "description": "## Description <br /> Allow you to confirm API service stated",
-        "produces": [
-          "text/html"
-        ],
+        "produces": ["text/html"],
         "responses": {
           "200": {
             "description": "OK"
@@ -98,16 +83,13 @@
         }
       }
     },
-    "/admin/entreprises": {
+
+    "/businesses/entities/count": {
       "get": {
-        "tags": [
-          "Admin/Entreprises"
-        ],
-        "summary": "find All Entreprises",
-        "description": "Entreprises <br /> Allow to find all entreprises",
-        "produces": [
-          "application/json"
-        ],
+        "tags": ["Businesses/Entities"],
+        "summary": "count all businesses ENTITIES",
+        "description": "Count <br /> Allow to find all entities",
+        "produces": ["application/json"],
         "responses": {
           "200": {
             "description": "OK"
@@ -118,12 +100,28 @@
         }
       }
     },
-    "/admin/entreprise/{id}": {
+
+    "/businesses/entities": {
       "get": {
-        "tags": [
-          "Admin/Entreprises"
-        ],
-        "summary": "find by specified id the Entreprises",
+        "tags": ["Businesses/Entities"],
+        "summary": "Find all businesses ENTITIES",
+        "description": "Entities <br /> Allow to find all entities",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+
+    "/businesses/entities/{id}": {
+      "get": {
+        "tags": ["Businesses/Entities"],
+        "summary": "find by specified id entities",
         "description": "Entreprises <br />allow to find entreprise by specified id",
         "parameters": [
           {
@@ -147,9 +145,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Admin/Entreprises"
-        ],
+        "tags": ["Admin/Entreprises"],
         "summary": "Update entreprise",
         "description": "\r  Entreprises <br />\r  update an entreprise by specifying following tags :\r  ",
         "parameters": [
@@ -170,9 +166,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "Admin/Entreprises"
-        ],
+        "tags": ["Admin/Entreprises"],
         "summary": "Update entreprise",
         "description": "\r  Entreprises <br />\r  update an entreprise by specifying following tags :\r  ",
         "parameters": [
@@ -193,9 +187,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Admin/Entreprises"
-        ],
+        "tags": ["Admin/Entreprises"],
         "summary": "remove entreprise",
         "description": "\r  Entreprises <br />\r  remove an entreprise by specifying corresponding e_id\r  ",
         "parameters": [
@@ -218,9 +210,7 @@
     },
     "/admin/entreprise/pk/{pk}": {
       "get": {
-        "tags": [
-          "Admin/Entreprises"
-        ],
+        "tags": ["Admin/Entreprises"],
         "summary": "Find content by primary key which can be combined with other.",
         "description": "   Entreprises <br />   Allow to find entreprise by specified primary key",
         "parameters": [
@@ -244,9 +234,7 @@
     },
     "/admin/entreprise": {
       "post": {
-        "tags": [
-          "Admin/Entreprises"
-        ],
+        "tags": ["Admin/Entreprises"],
         "summary": "Create entreprise with only require content",
         "description": "\r  Entreprises <br />\r  Create an entreprise by specifying following tags :\r  e_entreprise : 'entreprise code'\r  ,e_designation: 'entreprise designation'\r  ,e_builded: 'entreprise builded year'\r  ,e_main: 'entreprise specified as main'\r  ,e_activated: 'entreprise activated for use'\r  ",
         "responses": {
@@ -261,9 +249,7 @@
     },
     "/admin/companies": {
       "get": {
-        "tags": [
-          "Admin/Companies"
-        ],
+        "tags": ["Admin/Companies"],
         "summary": "Find All Companies",
         "description": "\r  Companies <br />\r  Allow to find all companies\r  ",
         "responses": {
@@ -278,9 +264,7 @@
     },
     "/admin/company/{id}": {
       "get": {
-        "tags": [
-          "Admin/Companies"
-        ],
+        "tags": ["Admin/Companies"],
         "summary": "find by company id number",
         "description": "\r  Companies <br />\r  Allow to find a company by specifying a number of the record\r  ",
         "parameters": [
@@ -302,9 +286,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Admin/Companies"
-        ],
+        "tags": ["Admin/Companies"],
         "summary": "Update company",
         "description": "\r  Companies <br />\r  update an company by specifying following tags :\r  ",
         "parameters": [
@@ -325,9 +307,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "Admin/Companies"
-        ],
+        "tags": ["Admin/Companies"],
         "summary": "Update company",
         "description": "\r  Companies <br />\r  update an company by specifying following tags :\r  ",
         "parameters": [
@@ -348,9 +328,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Admin/Companies"
-        ],
+        "tags": ["Admin/Companies"],
         "summary": "remove company",
         "description": "\r  Company <br />\r  remove an company by specifying corresponding e_id\r  ",
         "parameters": [
@@ -373,9 +351,7 @@
     },
     "/admin/company/pk/{pk}": {
       "get": {
-        "tags": [
-          "Admin/Companies"
-        ],
+        "tags": ["Admin/Companies"],
         "summary": "Find content by primary key which can be combined with other.",
         "description": "   Company <br />   Allow to find company by specified primary key",
         "parameters": [
@@ -399,9 +375,7 @@
     },
     "/admin/company": {
       "post": {
-        "tags": [
-          "Admin/Companies"
-        ],
+        "tags": ["Admin/Companies"],
         "summary": "Create company with only require content",
         "description": "\r  Companies <br />\r  Create an company by specifying following tags :\r  {\r  ",
         "responses": {
@@ -480,7 +454,5 @@
       }
     }
   },
-  "apis": [
-    "app/routes/*.js"
-  ]
+  "apis": ["app/routes/*.js"]
 }

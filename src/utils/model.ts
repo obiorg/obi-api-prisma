@@ -25,18 +25,19 @@ export class Model {
       if (j > 0) {
         if (filters.hasOwnProperty(filter)) {
           const v: string = filters[filter].constraints[0].value;
-        //   console.log("p0", v);
+          //   console.log("p0", v);
 
           if (v === null) {
             // console.log("p1", "va est null");
           } else {
             let value = filters[filter].constraints[0].value;
             // Converti les nombres en nombre
-            if (!isNaN(parseFloat(value)) && isFinite(value)) { // could have been replace by numIs
-            //   console.log("est un nombre = oui " + value);
+            if (!isNaN(parseFloat(value)) && isFinite(value)) {
+              // could have been replace by numIs
+              //   console.log("est un nombre = oui " + value);
               value = parseFloat(value);
             } else {
-            //   console.log("est un nombre = non");
+              //   console.log("est un nombre = non");
             }
             // console.log("S1", v);
 
@@ -48,6 +49,14 @@ export class Model {
             f[field] = a;
           }
         }
+      } else {
+        // Global filter
+        // if (filters.global.value !== null) {
+        //   filtersStr =
+        //     " CONCAT('.', e_id, '.', e_entreprise, '.', e_designation, '.', e_builded, '.', 'e_main', '.', 'e_activated', '.', 'e_deleted', '.', 'e_created', '.', 'e_changed')  LIKE '%" +
+        //     filters.global.value +
+        //     "%' ";
+        // }
       }
       j++;
     }
@@ -67,9 +76,4 @@ export class Model {
     }));
     return t;
   }
-
-
-  
-
-
 }

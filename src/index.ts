@@ -51,10 +51,15 @@ const swaggerFile = require('./docs/swagger.json');
  * API Reference
  */
 import { entitiesRouter } from "./entities/entities.router";
+import { companiesRouter } from "./routes/businesses/companies.router";
+import { businessesRouter } from "./routes/businesses/businesses.router";
 // import { locCountriesRouter } from "./loc_countries/loc_countries.router";
 
-import { persistenceRouter } from "./persistence/persistence.router";
-import { pers_standardRouter } from "./persistence/pers_standard.router";
+import { persistencesRouter } from "./routes/persistences/persistences.router";
+import { persStandardsRouter } from "./routes/persistences/persStandards.router";
+
+import { machinesDriversRouter } from "./routes/connexions/machinesDrivers.router";
+import { machinesRouter } from "./routes/connexions/machines.router";
 
 
 
@@ -73,11 +78,21 @@ app.use(express.json());
 /**
  * Swagger API endpoint
  */
-app.use("/api/entities", entitiesRouter)
-// app.use("/api/loc_countries", locCountriesRouter)
 
-app.use("/api/persistence", persistenceRouter);
-app.use("/api/pers_standard", pers_standardRouter);
+
+/** Businesses */
+app.use("/api/v1/businesses/entities", entitiesRouter);
+app.use("/api/v1/businesses/businesses", businessesRouter);
+app.use("/api/v1/businesses/companies", companiesRouter);
+
+/** Connexions */
+app.use("/api/v1/connexions/machines/drivers", machinesDriversRouter);
+app.use("/api/v1/connexions/machines", machinesRouter);
+
+/** Persistence */
+app.use("/api/v1/persistences", persistencesRouter);
+app.use("/api/v1/persistences/standards", persStandardsRouter);
+
 
 
  
