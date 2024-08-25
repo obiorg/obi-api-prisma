@@ -10,17 +10,14 @@ const prisma = new PrismaClient();
 export const machinesRouter = express.Router();
 
 // Get : count
-machinesRouter.get(
-  "/count",
-  async (request: Request, response: Response) => {
-    try {
-      const count = await prisma.machines.count();
-      return response.status(200).json(count);
-    } catch (error: any) {
-      return response.status(500).json(error.message);
-    }
+machinesRouter.get("/count", async (request: Request, response: Response) => {
+  try {
+    const count = await prisma.machines.count();
+    return response.status(200).json(count);
+  } catch (error: any) {
+    return response.status(500).json(error.message);
   }
-);
+});
 
 // GET : findAll
 machinesRouter.get("/", async (request: Request, response: Response) => {
@@ -39,7 +36,7 @@ machinesRouter.get("/", async (request: Request, response: Response) => {
   } catch (error: any) {
     return response.status(500).json(error.message);
   }
-}); 
+});
 
 // GET : findById
 machinesRouter.get("/:id", async (request: Request, response: Response) => {
@@ -60,8 +57,6 @@ machinesRouter.get("/:id", async (request: Request, response: Response) => {
     return response.status(500).json(error.message);
   }
 });
-
-
 
 // GET : getLazy
 machinesRouter.get(
@@ -144,29 +139,32 @@ machinesRouter.get(
   }
 );
 
-
 // POST : Create
 // Params : deleted, entity, designation, main, activated
 machinesRouter.post(
   "/",
-  body("deleted").isBoolean(),
-  body("entity").isString(),
-  body("designation").isString(),
-  body("main").isBoolean(),
-  body("activated").isBoolean(),
+  // body("entity").isString(),
   async (request: Request, response: Response) => {
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
       return response.status(400).json({ errors: errors.array() });
     }
-    // try {
-    //   const entity = request.body;
-    //   const newEntity = await prisma.machines.create(entity);
-    //   return response.status(201).json(newEntity);
-    // } catch (error: any) {
-    //   return response.status(500).json(error.message);
-    // }
-    return response.status(400).json({ errors: "No implemented !" });
+
+    // const entity = request.body;
+    // console.log(entity);
+    try {
+      const entity = request.body;
+      // console.log(entity);
+      const newEntity = await prisma.machines.create({ data: entity });
+      // console.log("new entity ", newEntity);
+      return response.status(201).json(newEntity);
+    } catch (error: any) {
+      // console.log("error creating", error.message);
+      return response.status(500).json(error.message);
+    }
+    // return response
+    //   .status(200)
+    //   .json({ errors: "No implemented for : ", val: entity });
   }
 );
 
@@ -198,17 +196,14 @@ machinesRouter.put(
 );
 
 // DELETE
-machinesRouter.delete(
-  "/:id",
-  async (request: Request, response: Response) => {
-    const id: number = parseInt(request.params.id, 10);
+machinesRouter.delete("/:id", async (request: Request, response: Response) => {
+  const id: number = parseInt(request.params.id, 10);
 
-    // try {
-    //   await prisma.machines.delete(id);
-    //   return response.status(204).json("Entity has been successfully deleted");
-    // } catch (error: any) {
-    //   return response.status(500).json(error.message);
-    // }
-    return response.status(400).json({ errors: "No implemented !" });
-  }
-);
+  // try {
+  //   await prisma.machines.delete(id);
+  //   return response.status(204).json("Entity has been successfully deleted");
+  // } catch (error: any) {
+  //   return response.status(500).json(error.message);
+  // }
+  return response.status(400).json({ errors: "No implemented !" });
+});

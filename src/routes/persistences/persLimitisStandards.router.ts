@@ -116,8 +116,8 @@ mach_driversRouter.get(
 
     // Manage Filters and sorting
     const model = new Model();
-    console.log("Request Filters", reqFilter.filters);
-    console.log("Request Sorting", reqFilter.multiSortMetaData);
+    // console.log("Request Filters", reqFilter.filters);
+    // console.log("Request Sorting", reqFilter.multiSortMetaData);
     const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
     const sortingClause = model.convSortingReactToPrisma(
       reqFilter.multiSortMeta
@@ -133,7 +133,7 @@ mach_driversRouter.get(
       });
 
       if (all) {
-        console.log(all);
+        // console.log(all);
         return response.status(200).json(all);
       } else {
         return response.status(400).json("entity is empty");

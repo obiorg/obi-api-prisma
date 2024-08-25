@@ -5,22 +5,23 @@ import { body, validationResult } from "express-validator";
 import { PrismaClient } from "@prisma/client";
 import { Model } from "../../utils/model";
 
+import { validateData, entityValidate } from "../../middleware/validationMDW";
+import { entitiesCreateSchema } from "../../schemas/businesses/entitiesSchema";
+import { entityRegister } from "../../controllers/businesses/entitiesController";
+
 const prisma = new PrismaClient();
 
 export const entitiesRouter = express.Router();
 
 // Get : count
-entitiesRouter.get(
-  "/count",
-  async (request: Request, response: Response) => {
-    try {
-      const count = await prisma.entities.count();
-      return response.status(200).json(count);
-    } catch (error: any) {
-      return response.status(500).json(error.message);
-    }
+entitiesRouter.get("/count", async (request: Request, response: Response) => {
+  try {
+    const count = await prisma.entities.count();
+    return response.status(200).json(count);
+  } catch (error: any) {
+    return response.status(500).json(error.message);
   }
-);
+});
 
 // GET : findAll
 entitiesRouter.get("/", async (request: Request, response: Response) => {
@@ -39,7 +40,7 @@ entitiesRouter.get("/", async (request: Request, response: Response) => {
   } catch (error: any) {
     return response.status(500).json(error.message);
   }
-}); 
+});
 
 // GET : findById
 entitiesRouter.get("/:id", async (request: Request, response: Response) => {
@@ -60,8 +61,6 @@ entitiesRouter.get("/:id", async (request: Request, response: Response) => {
     return response.status(500).json(error.message);
   }
 });
-
-
 
 // GET : getLazy
 entitiesRouter.get(
@@ -144,30 +143,35 @@ entitiesRouter.get(
   }
 );
 
-
 // POST : Create
 // Params : deleted, entity, designation, main, activated
+// entitiesRouter.post(
+//   "/",
+//   body("deleted").isBoolean(),
+//   body("entity").isString(),
+//   body("designation").isString(),
+//   body("main").isBoolean(),
+//   body("activated").isBoolean(),
+//   async (request: Request, response: Response) => {
+//     const errors = validationResult(request);
+//     if (!errors.isEmpty()) {
+//       return response.status(400).json({ errors: errors.array() });
+//     }
+//     // try {
+//     //   const entity = request.body;
+//     //   const newEntity = await prisma.entities.create(entity);
+//     //   return response.status(201).json(newEntity);
+//     // } catch (error: any) {
+//     //   return response.status(500).json(error.message);
+//     // }
+//     return response.status(400).json({ errors: "No implemented !" });
+//   }
+// );
+
 entitiesRouter.post(
   "/",
-  body("deleted").isBoolean(),
-  body("entity").isString(),
-  body("designation").isString(),
-  body("main").isBoolean(),
-  body("activated").isBoolean(),
-  async (request: Request, response: Response) => {
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) {
-      return response.status(400).json({ errors: errors.array() });
-    }
-    // try {
-    //   const entity = request.body;
-    //   const newEntity = await prisma.entities.create(entity);
-    //   return response.status(201).json(newEntity);
-    // } catch (error: any) {
-    //   return response.status(500).json(error.message);
-    // }
-    return response.status(400).json({ errors: "No implemented !" });
-  }
+  entityValidate(entitiesCreateSchema),
+  entityRegister
 );
 
 // POST : Update
@@ -198,17 +202,14 @@ entitiesRouter.put(
 );
 
 // DELETE
-entitiesRouter.delete(
-  "/:id",
-  async (request: Request, response: Response) => {
-    const id: number = parseInt(request.params.id, 10);
+entitiesRouter.delete("/:id", async (request: Request, response: Response) => {
+  const id: number = parseInt(request.params.id, 10);
 
-    // try {
-    //   await prisma.entities.delete(id);
-    //   return response.status(204).json("Entity has been successfully deleted");
-    // } catch (error: any) {
-    //   return response.status(500).json(error.message);
-    // }
-    return response.status(400).json({ errors: "No implemented !" });
-  }
-);
+  // try {
+  //   await prisma.entities.delete(id);
+  //   return response.status(204).json("Entity has been successfully deleted");
+  // } catch (error: any) {
+  //   return response.status(500).json(error.message);
+  // }
+  return response.status(400).json({ errors: "No implemented !" });
+});

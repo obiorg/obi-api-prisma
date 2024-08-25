@@ -67,8 +67,8 @@ persStandardsRouter.get(
 
     // Manage Filters and sorting
     const model = new Model();
-    console.log("Request Filters", reqFilter.filters);
-    console.log("Request Sorting", reqFilter.multiSortMetaData);
+    // console.log("Request Filters", reqFilter.filters);
+    // console.log("Request Sorting", reqFilter.multiSortMetaData);
     const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
     const sortingClause = model.convSortingReactToPrisma(
       reqFilter.multiSortMeta
@@ -110,8 +110,8 @@ persStandardsRouter.get(
 
     // Manage Filters and sorting
     const model = new Model();
-    console.log("Request Filters", reqFilter.filters);
-    console.log("Request Sorting", reqFilter.multiSortMetaData);
+    // console.log("Request Filters", reqFilter.filters);
+    // console.log("Request Sorting", reqFilter.multiSortMetaData);
     const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
     const sortingClause = model.convSortingReactToPrisma(
       reqFilter.multiSortMeta
@@ -127,7 +127,7 @@ persStandardsRouter.get(
       });
 
       if (all) {
-        console.log(all);
+        // console.log('count ' , all);
         return response.status(200).json(all);
       } else {
         return response.status(400).json("entity is empty");
@@ -143,16 +143,16 @@ persStandardsRouter.get(
   "/tags/:tagId",
   async (request: Request, response: Response) => {
     const id: number = parseInt(request.params.tagId, 10);
-    console.log("call !");
+    // console.log("call !");
     try {
       const getEntities = await prisma.pers_standard.findMany({
         where: {
           tag: id,
         },
       });
-      console.log("Call finish", getEntities);
+      // console.log("Call finish", getEntities);
       if (getEntities) {
-        console.log(response.json(getEntities));
+        // console.log(response.json(getEntities));
         return response.status(200).json(getEntities);
       } else {
         return response

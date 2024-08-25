@@ -25,6 +25,7 @@ persistencesRouter.get(
 // GET : findAll
 persistencesRouter.get("/", async (request: Request, response: Response) => {
   try {
+    // console.log('try to find all')
     const all = await prisma.persistence.findMany({
       // include: {
       //   tags: {
@@ -39,7 +40,7 @@ persistencesRouter.get("/", async (request: Request, response: Response) => {
   } catch (error: any) {
     return response.status(500).json(error.message);
   }
-}); 
+});
 
 // GET : findById
 persistencesRouter.get("/:id", async (request: Request, response: Response) => {
@@ -60,8 +61,6 @@ persistencesRouter.get("/:id", async (request: Request, response: Response) => {
     return response.status(500).json(error.message);
   }
 });
-
-
 
 // GET : getLazy
 persistencesRouter.get(
@@ -106,6 +105,55 @@ persistencesRouter.get(
   }
 );
 
+// GET : getLazyInc
+persistencesRouter.get(
+  "/lazyInc/:filter",
+  async (request: Request, response: Response) => {
+    
+
+    // Get Request react filter
+    const reqFilter: any = JSON.parse(request.params.filter);
+    // console.log(reqFilter);
+
+    // Manage Filters and sorting
+    const model = new Model();
+    // console.log("Request Filters", reqFilter.filters);
+    // console.log("Request Sorting", reqFilter.multiSortMetaData);
+    const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
+    const sortingClause = model.convSortingReactToPrisma(
+      reqFilter.multiSortMeta
+    );
+
+    // console.log("whereClause", whereClause);
+    // console.log("sortingClause", sortingClause);
+
+    /**
+     * Process request
+     */
+    try {
+      const result = await prisma.persistence.findMany({
+        skip: parseInt(reqFilter.page, 10) * parseInt(reqFilter.rows, 10),
+        take: parseInt(reqFilter.rows),
+        where: whereClause,
+        orderBy: sortingClause,
+        include: {
+          tags: true,
+        },
+      });
+
+      if (result) {
+        const res = JSON.stringify(result, (_, v) => typeof v === 'bigint' ? v.toString() : v);
+        return response.status(200).json(JSON.parse(res));
+      } else {
+        const status400 = '{ "status": 400, "message": "Bad request" }';
+        return response.status(400).json(status400);
+      }
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
 // GET : getLazy count
 persistencesRouter.get(
   "/lazy/count/:filter",
@@ -116,8 +164,8 @@ persistencesRouter.get(
 
     // Manage Filters and sorting
     const model = new Model();
-    console.log("Request Filters", reqFilter.filters);
-    console.log("Request Sorting", reqFilter.multiSortMetaData);
+    // console.log("Request Filters", reqFilter.filters);
+    // console.log("Request Sorting", reqFilter.multiSortMetaData);
     const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
     const sortingClause = model.convSortingReactToPrisma(
       reqFilter.multiSortMeta
@@ -133,7 +181,7 @@ persistencesRouter.get(
       });
 
       if (all) {
-        console.log(all);
+        // console.log(all);
         return response.status(200).json(all);
       } else {
         return response.status(400).json("entity is empty");
@@ -143,7 +191,6 @@ persistencesRouter.get(
     }
   }
 );
-
 
 // POST : Create
 // Params : deleted, entity, designation, main, activated

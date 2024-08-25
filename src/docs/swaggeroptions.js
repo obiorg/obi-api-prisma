@@ -6,10 +6,10 @@ const swaggeroptions = {
     definition: {
         openapi: "3.1.0",
         info: {
-            title: "Swagger ISM Express API",
+            title: "Swagger OBI Express API",
             version: "1.0.0",
             description:
-                "This is a CRUD API application for ISM made with Express and documented with Swagger",
+                "This is a CRUD API application for OBI made with Express and documented with Swagger",
             license: {
                 name: "Apache 2.0",
                 url: "http://www.apache.org/licenses/LICENSE-2.0.html",
@@ -22,7 +22,7 @@ const swaggeroptions = {
         },
         servers: [
             {
-                url: "https://localhost:" + config.port + "/api/v1/docs",
+                url: "https://localhost:" + config.port + "/api/" + config.version + "/docs",
             },
         ],
         tags: [

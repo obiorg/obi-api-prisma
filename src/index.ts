@@ -50,7 +50,7 @@ const swaggerFile = require('./docs/swagger.json');
 /**
  * API Reference
  */
-import { entitiesRouter } from "./entities/entities.router";
+import { entitiesRouter } from "./routes/businesses/entities.router";
 import { companiesRouter } from "./routes/businesses/companies.router";
 import { businessesRouter } from "./routes/businesses/businesses.router";
 // import { locCountriesRouter } from "./loc_countries/loc_countries.router";
@@ -61,6 +61,7 @@ import { persStandardsRouter } from "./routes/persistences/persStandards.router"
 import { machinesDriversRouter } from "./routes/connexions/machinesDrivers.router";
 import { machinesRouter } from "./routes/connexions/machines.router";
 
+import { tagsRouter } from "./routes/tags/tags.router";
 
 
 /**
@@ -93,7 +94,8 @@ app.use("/api/v1/connexions/machines", machinesRouter);
 app.use("/api/v1/persistences", persistencesRouter);
 app.use("/api/v1/persistences/standards", persStandardsRouter);
 
-
+/** Tags */
+app.use("/api/v1/tags", tagsRouter);
 
  
 
