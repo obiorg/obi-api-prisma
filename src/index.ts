@@ -55,6 +55,8 @@ import { companiesRouter } from "./routes/businesses/companies.router";
 import { businessesRouter } from "./routes/businesses/businesses.router";
 // import { locCountriesRouter } from "./loc_countries/loc_countries.router";
 
+import { locationsRouter } from "./routes/localisations/locations.router";
+
 import { persistencesRouter } from "./routes/persistences/persistences.router";
 import { persStandardsRouter } from "./routes/persistences/persStandards.router";
 
@@ -85,6 +87,9 @@ app.use(express.json());
 app.use("/api/v1/businesses/entities", entitiesRouter);
 app.use("/api/v1/businesses/businesses", businessesRouter);
 app.use("/api/v1/businesses/companies", companiesRouter);
+
+/** Localisations */
+app.use("/api/v1/localisations/locations", locationsRouter);
 
 /** Connexions */
 app.use("/api/v1/connexions/machines/drivers", machinesDriversRouter);

@@ -11,13 +11,13 @@ export const entitiesCreateSchema = z.object({
     // changed: z.date(),
     entity: z.string().min(3, {message: "L'entité doit avoir au moins 3 caractères !"}),
     designation: z.string().min(3, {message: "La désignation doit avoir au moins 3 caractères !"}),
-    builded: z.optional(z.number().int({message: "Spécifier un nombre !"}).min(1900, {message: "Spécifier un nombre supérieur à 1900 !"})),
+    builded: z.number().int({message: "Spécifier un nombre !"}).min(1900, {message: "Spécifier un nombre supérieur à 1900 !"}).optional(),
     main: z.optional(z.boolean()),
     activated: z.boolean(),
     logoPath: z.optional(z.string().url()),
     location: z.optional(z.string()),
   
-}); 
+});  
 
 
 

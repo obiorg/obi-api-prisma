@@ -11,3 +11,11 @@ obi api based on prisma tools to generate quick database access
 npm install express body-parser zod
 npm install http-status-codes --save
 
+
+## To use controller
+# Based on https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/routes
+npm install express-async-handler
+
+
+
+

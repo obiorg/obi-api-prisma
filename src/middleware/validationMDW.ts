@@ -32,8 +32,8 @@ export function entityValidate(schema: z.ZodObject<any, any>) {
     const result = schema.safeParse({
       ...req.body,
     });
-    console.log("result ", result);
-    console.log("result ", result.error);
+    // console.log("result ", result);
+    // console.log("result ", result.error);
     // If validation fails, return the errors
     if (!result.success) {
       const err = {
@@ -43,7 +43,32 @@ export function entityValidate(schema: z.ZodObject<any, any>) {
       };
       // return err;
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }else{
+        next();
     }
-    next();
+  };
+}
+
+export function validateSchema(schema: z.ZodObject<any, any>) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    console.log("Validation body", req.body);
+
+    const result = schema.safeParse({
+      ...req.body,
+    });
+    // console.log("result ", result);
+    // console.log("result ", result.error);
+    // If validation fails, return the errors
+    if (!result.success) {
+      const err = {
+        // The flatten method is used to convert the validation errors into a flat object structure
+        // that can be easily displayed in the form.
+        errors: result.error.flatten().fieldErrors,
+      };
+      // return err;
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }else{
+        next();
+    }
   };
 }

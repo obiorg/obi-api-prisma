@@ -4,17 +4,21 @@ import { body, validationResult } from "express-validator";
 
 import { PrismaClient } from "@prisma/client";
 import { Model } from "../../utils/model";
+import { validateSchema } from "../../middleware/validationMDW";
+import { LocationsCreateSchema } from "../../schemas/localisationsSchema";
+import { Locations_getLazy, registerLocations } from "../../controllers/localisations/LocationsController";
 
-import { validateData, entityValidate } from "../../middleware/validationMDW";
-import { entitiesCreateSchema } from "../../schemas/businesses/entitiesSchema";
-import { entityRegister } from "../../controllers/businesses/EntitiesController";
+
+
 
 const prisma = new PrismaClient();
+// Require controller modules.
+const controller = require("../controllers/localisations/LocationsController");
 
-export const entitiesRouter = express.Router();
+export const locationsRouter = express.Router();
 
 // Get : count
-entitiesRouter.get("/count", async (request: Request, response: Response) => {
+locationsRouter.get("/count", async (request: Request, response: Response) => {
   try {
     const count = await prisma.entities.count();
     return response.status(200).json(count);
@@ -24,7 +28,7 @@ entitiesRouter.get("/count", async (request: Request, response: Response) => {
 });
 
 // GET : findAll
-entitiesRouter.get("/", async (request: Request, response: Response) => {
+locationsRouter.get("/", async (request: Request, response: Response) => {
   try {
     const all = await prisma.entities.findMany({
       // include: {
@@ -43,7 +47,7 @@ entitiesRouter.get("/", async (request: Request, response: Response) => {
 });
 
 // GET : findById
-entitiesRouter.get("/:id", async (request: Request, response: Response) => {
+locationsRouter.get("/:id", async (request: Request, response: Response) => {
   const id: number = parseInt(request.params.id, 10);
   try {
     const byId = await prisma.entities.findUnique({
@@ -63,50 +67,13 @@ entitiesRouter.get("/:id", async (request: Request, response: Response) => {
 });
 
 // GET : getLazy
-entitiesRouter.get(
+locationsRouter.get(
   "/lazy/:filter",
-  async (request: Request, response: Response) => {
-    // Get Request react filter
-    const reqFilter: any = JSON.parse(request.params.filter);
-    // console.log(reqFilter);
-
-    // Manage Filters and sorting
-    const model = new Model();
-    // console.log("Request Filters", reqFilter.filters);
-    // console.log("Request Sorting", reqFilter.multiSortMetaData);
-    const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
-    const sortingClause = model.convSortingReactToPrisma(
-      reqFilter.multiSortMeta
-    );
-
-    // console.log("whereClause", whereClause);
-    // console.log("sortingClause", sortingClause);
-
-    /**
-     * Process request
-     */
-    try {
-      const result = await prisma.entities.findMany({
-        skip: parseInt(reqFilter.page, 10) * parseInt(reqFilter.rows, 10),
-        take: parseInt(reqFilter.rows),
-        where: whereClause,
-        orderBy: sortingClause,
-      });
-
-      if (result) {
-        return response.status(200).json(result);
-      } else {
-        const status400 = '{ "status": 400, "message": "Bad request" }';
-        return response.status(400).json(status400);
-      }
-    } catch (error: any) {
-      return response.status(500).json(error.message);
-    }
-  }
+  Locations_getLazy
 );
 
 // GET : getLazy count
-entitiesRouter.get(
+locationsRouter.get(
   "/lazy/count/:filter",
   async (request: Request, response: Response) => {
     // Get Request react filter
@@ -145,7 +112,7 @@ entitiesRouter.get(
 
 // POST : Create
 // Params : deleted, entity, designation, main, activated
-// entitiesRouter.post(
+// locationsRouter.post(
 //   "/",
 //   body("deleted").isBoolean(),
 //   body("entity").isString(),
@@ -168,15 +135,15 @@ entitiesRouter.get(
 //   }
 // );
 
-entitiesRouter.post(
+locationsRouter.post(
   "/",
-  entityValidate(entitiesCreateSchema),
-  entityRegister
+  validateSchema(LocationsCreateSchema),
+  controller.getLazy
 );
 
 // POST : Update
 //
-entitiesRouter.put(
+locationsRouter.put(
   "/:id",
   body("deleted").isBoolean(),
   body("entity").isString(),
@@ -202,7 +169,7 @@ entitiesRouter.put(
 );
 
 // DELETE
-entitiesRouter.delete("/:id", async (request: Request, response: Response) => {
+locationsRouter.delete("/:id", async (request: Request, response: Response) => {
   const id: number = parseInt(request.params.id, 10);
 
   // try {
