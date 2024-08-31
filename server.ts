@@ -29,6 +29,10 @@ if (!process.env.PORT_HTTPS) {
 const portHttp: number = parseInt(process.env.PORT_HTTP as string, 10);
 const portHttps: number = parseInt(process.env.PORT_HTTPS as string, 10);
 
+const hostUrlHttp: string = process.env.HOST_URL_HTTP as string;
+const hostUrlHttps: string = process.env.HOST_URL_HTTPS as string;
+
+
 /**
  * Manage safety
  */
@@ -54,6 +58,6 @@ httpServer.listen(portHttp);
 httpsServer.listen(portHttps);
 console.log(
   "Server is running!\n",
-  `API listening on port  ${portHttps} + ! Go to https://[::1]:${portHttps} \n`,
-  `API Documentation listening on port  + port + ! Go to https://[::1]:${portHttps}/api/v1/docs`
+  `API listening on port  ${portHttp} + ! Go to ${hostUrlHttp} \n`,
+  `API listening on port  ${portHttps} + ! Go to ${hostUrlHttps} \n`
 );

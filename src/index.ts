@@ -81,26 +81,28 @@ app.use(express.json());
 /**
  * Swagger API endpoint
  */
-
+const path_home = "/obi";
+const path_home_api = path_home + "/api";
+const path_api_v1 = path_home_api + "/v1";
 
 /** Businesses */
-app.use("/api/v1/businesses/entities", entitiesRouter);
-app.use("/api/v1/businesses/businesses", businessesRouter);
-app.use("/api/v1/businesses/companies", companiesRouter);
+app.use(path_api_v1 + "/businesses/entities", entitiesRouter);
+app.use(path_api_v1 + "/businesses/businesses", businessesRouter);
+app.use(path_api_v1 + "/businesses/companies", companiesRouter);
 
 /** Localisations */
-app.use("/api/v1/localisations/locations", locationsRouter);
+app.use(path_api_v1 + "/localisations/locations", locationsRouter);
 
 /** Connexions */
-app.use("/api/v1/connexions/machines/drivers", machinesDriversRouter);
-app.use("/api/v1/connexions/machines", machinesRouter);
+app.use(path_api_v1 + "/connexions/machines/drivers", machinesDriversRouter);
+app.use(path_api_v1 + "/connexions/machines", machinesRouter);
 
 /** Persistence */
-app.use("/api/v1/persistences", persistencesRouter);
-app.use("/api/v1/persistences/standards", persStandardsRouter);
+app.use(path_api_v1 + "/persistences", persistencesRouter);
+app.use(path_api_v1 + "/persistences/standards", persStandardsRouter);
 
 /** Tags */
-app.use("/api/v1/tags", tagsRouter);
+app.use(path_api_v1 + "/tags", tagsRouter);
 
  
 
@@ -109,7 +111,7 @@ app.use("/api/v1/tags", tagsRouter);
  * Setup swagger API documentation
  */
 app.use(
-  "/api/v1/docs",
+  path_api_v1 + "/docs",
   swaggerUi.serve,
   //swaggerUi.setup(swaggerFile)            // without a search bar 
   swaggerUi.setup(swaggerFile, { explorer: true })  // add a search bar
@@ -135,31 +137,3 @@ module.exports = app;
 
 
 
-
-
-
-
-
-
-// import { PrismaClient } from '@prisma/client'
-
-// const prisma = new PrismaClient()
-
-// async function main() {
-//   // ... you will write your Prisma Client queries here
-//   const allTagsTypes = await prisma.tags_types.findMany();
-//   console.log(allTagsTypes);
-
-//    const countCountries = await prisma.loc_countries.findFirst();
-//    console.log('countCountries', countCountries);
-// }
-
-// main()
-//   .then(async () => {
-//     await prisma.$disconnect()
-//   })
-//   .catch(async (e) => {
-//     console.error(e)
-//     await prisma.$disconnect()
-//     process.exit(1)
-//   })
