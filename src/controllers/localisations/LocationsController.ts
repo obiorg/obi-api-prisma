@@ -1,57 +1,219 @@
 import { Request, Response } from "express";
 import { Model } from "../../utils/model";
 import { PrismaClient } from "@prisma/client";
+import { body, validationResult } from "express-validator";
 
-
-
+// Import the module
+const asyncHandler = require("express-async-handler");
 
 const prisma = new PrismaClient();
 
-
-
-export const registerLocations = (req: Request, res: Response) => {
-  // Handle user registration logic using validated data from req.body
-
-  console.log("resquested !'");
-  res.json({
-    message: "Register locations processed successfully",
-    data: req.body,
-  });
-};
-
-export const Locations_getLazy = async (req: Request, res: Response) => {
-  // Get Request react filter
-  const reqFilter: any = JSON.parse(req.params.filter);
-  // console.log(reqFilter);
-
-  // Manage Filters and sorting
-  const model = new Model();
-  // console.log("Request Filters", reqFilter.filters);
-  // console.log("Request Sorting", reqFilter.multiSortMetaData);
-  const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
-  const sortingClause = model.convSortingReactToPrisma(reqFilter.multiSortMeta);
-
-  // console.log("whereClause", whereClause);
-  // console.log("sortingClause", sortingClause);
-
-  /**
-   * Process request
-   */
-  try {
-    const result = await prisma.locations.findMany({
-      skip: parseInt(reqFilter.page, 10) * parseInt(reqFilter.rows, 10),
-      take: parseInt(reqFilter.rows),
-      where: whereClause,
-      orderBy: sortingClause,
-    });
-
-    if (result) {
-      return res.status(200).json(result);
-    } else {
-      const status400 = '{ "status": 400, "message": "Bad request" }';
-      return res.status(400).json(status400);
+// Display list of all catalog.
+exports.list = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    try {
+      const all = await prisma.locations.findMany({});
+      return response.status(200).json(all);
+    } catch (error: any) {
+      return response.status(500).json(error.message);
     }
-  } catch (error: any) {
-    return res.status(500).json(error.message);
   }
-};
+);
+
+// Display count of all catalog.
+exports.list_count = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    try {
+      const count = await prisma.locations.count();
+      return response.status(200).json(count);
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
+// Display list of all catalog (lazy loading).
+exports.list_lazy = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // Get request react filter
+    const requestFilter: any = JSON.parse(request.params.filter);
+
+    // Manage Filters and sorting
+    const model = new Model();
+
+    const whereClause = model.convFilterReactToPrisma(requestFilter.filters);
+    const sortingClause = model.convSortingReactToPrisma(
+      requestFilter.multiSortMeta
+    );
+
+    /**
+     * Process request
+     */
+    try {
+      const result = await prisma.locations.findMany({
+        skip:
+          parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
+        take: parseInt(requestFilter.rows),
+        where: whereClause,
+        orderBy: sortingClause,
+      });
+
+      if (result) {
+        return response.status(200).json(result);
+      } else {
+        const status400 = '{ "status": 400, "message": "Bad request" }';
+        return response.status(400).json(status400);
+      }
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
+// Display count of all catalog (lazy loading).
+exports.list_lazy_count = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // Get Request react filter
+    const reqFilter: any = JSON.parse(request.params.filter);
+
+    // Manage Filters and sorting
+    const model = new Model();
+    const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
+    const sortingClause = model.convSortingReactToPrisma(
+      reqFilter.multiSortMeta
+    );
+
+    try {
+      const all = await prisma.entities.count({
+        where: whereClause,
+        orderBy: sortingClause,
+      });
+
+      if (all) {
+        // console.log(all);
+        return response.status(200).json(all);
+      } else {
+        return response.status(400).json("location is empty");
+      }
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
+// Display detail page for a specific catalog.
+exports.detail = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    response.send(`NOT IMPLEMENTED: Catalog detail: ${request.params.id}`);
+
+    const id: number = parseInt(request.params.id, 10);
+    try {
+      const byId = await prisma.entities.findUnique({
+        where: {
+          id: id,
+        },
+      });
+
+      if (byId) {
+        return response.status(200).json(byId);
+      } else {
+        return response
+          .status(400)
+          .json("catalog location with id(" + id + ") not found");
+      }
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
+// Display catalog create form on GET.
+exports.create_get = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    response.send("NOT IMPLEMENTED: Catalog create GET");
+  }
+);
+
+// Handle catalog create on POST.
+
+// POST : Create
+// Params : deleted, entity, designation, main, activated
+exports.create_post = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // body("deleted").isBoolean(),
+    // body("entity").isString(),
+    // body("designation").isString(),
+    // body("main").isBoolean(),
+    // body("activated").isBoolean();
+
+    // const errors = validationResult(request);
+    // if (!errors.isEmpty()) {
+    //   return response.status(400).json({ errors: errors.array() });
+    // }
+    // try {
+    //   const entity = request.body;
+    //   const newEntity = await prisma.entities.create(entity);
+    //   return response.status(201).json(newEntity);
+    // } catch (error: any) {
+    //   return response.status(500).json(error.message);
+    // }
+    return response
+      .status(400)
+      .json({ errors: "Locations create not implemented !" });
+  }
+);
+
+// Display catalog update form on GET.
+exports.update_get = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    response.send("NOT IMPLEMENTED: Catalog update GET");
+  }
+);
+
+// Handle catalog update on POST.
+exports.update_post = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    //   body("deleted").isBoolean(),
+    //   body("entity").isString(),
+    //   body("designation").isString(),
+    //   body("main").isBoolean(),
+    //   body("activated").isBoolean(),
+    //   async (request: Request, response: Response) => {
+    //     const errors = validationResult(request);
+    //     if (!errors.isEmpty()) {
+    //       return response.status(400).json({ errors: errors.array() });
+    //     }
+    //     const id: number = parseInt(request.params.id, 10);
+    //     // try {
+    //     //   const entity = request.body;
+    //     //   const updateEntity = await prisma.entities.update(entity, id);
+    //     //   return response.status(200).json(updateEntity);
+    //     // } catch (error: any) {
+    //     //   return response.status(500).json(error.message);
+    //     // }
+    //     return response.status(400).json({ errors: "No implemented !" });
+    //   }
+  }
+);
+
+// Display catalog delete form on GET.
+exports.delete_get = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    response.send("NOT IMPLEMENTED: Catalog delete GET");
+  }
+);
+
+// Handle catalog delete on POST.
+exports.delete_post = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    const id: number = parseInt(request.params.id, 10);
+
+    // try {
+    //   await prisma.entities.delete(id);
+    //   return response.status(204).json("Entity has been successfully deleted");
+    // } catch (error: any) {
+    //   return response.status(500).json(error.message);
+    // }
+    return response.status(400).json({ errors: "No implemented !" });
+  }
+);
