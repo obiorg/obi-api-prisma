@@ -6,7 +6,9 @@ import { body, validationResult } from "express-validator";
 // Import the module
 const asyncHandler = require("express-async-handler");
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  // log: ["query"],
+});
 
 // Display list of all catalog.
 exports.list = asyncHandler(
@@ -46,16 +48,23 @@ exports.list_lazy = asyncHandler(
       requestFilter.multiSortMeta
     );
 
+    //console.log(requestFilter)
     /**
      * Process request
      */
     try {
       const result = await prisma.locations.findMany({
+        
         skip:
           parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
         take: parseInt(requestFilter.rows),
         where: whereClause,
         orderBy: sortingClause,
+        include: {
+          loc_countries: true,
+          loc_states: true,
+          loc_cities: true,
+        }
       });
 
       if (result) {
@@ -84,7 +93,7 @@ exports.list_lazy_count = asyncHandler(
     );
 
     try {
-      const all = await prisma.entities.count({
+      const all = await prisma.locations.count({
         where: whereClause,
         orderBy: sortingClause,
       });
@@ -104,11 +113,11 @@ exports.list_lazy_count = asyncHandler(
 // Display detail page for a specific catalog.
 exports.detail = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    response.send(`NOT IMPLEMENTED: Catalog detail: ${request.params.id}`);
+    // response.send(`NOT IMPLEMENTED: Catalog detail: ${request.params.id}`);
 
     const id: number = parseInt(request.params.id, 10);
     try {
-      const byId = await prisma.entities.findUnique({
+      const byId = await prisma.locations.findUnique({
         where: {
           id: id,
         },
@@ -134,34 +143,50 @@ exports.create_get = asyncHandler(
   }
 );
 
+
 // Handle catalog create on POST.
 
-// POST : Create
-// Params : deleted, entity, designation, main, activated
+// POST : Create post
 exports.create_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    // body("deleted").isBoolean(),
-    // body("entity").isString(),
-    // body("designation").isString(),
-    // body("main").isBoolean(),
-    // body("activated").isBoolean();
 
-    // const errors = validationResult(request);
-    // if (!errors.isEmpty()) {
-    //   return response.status(400).json({ errors: errors.array() });
-    // }
-    // try {
-    //   const entity = request.body;
-    //   const newEntity = await prisma.entities.create(entity);
-    //   return response.status(201).json(newEntity);
-    // } catch (error: any) {
-    //   return response.status(500).json(error.message);
-    // }
-    return response
-      .status(400)
-      .json({ errors: "Locations create not implemented !" });
+
+    // check duplicates
+    const existing = await prisma.locations.findFirst({
+      where: {
+        location: request.body.location,
+      },
+    });
+    if (existing) {
+      const error =  { errors : {
+        location: ['Doublon ! ...déjà spécifié !']
+      }}
+      return response
+       .status(400)
+       .json(error);
+    }
+
+    // If not duplicates
+    try {
+      const catalog = request.body;
+      delete catalog.id;
+      delete catalog.created;
+      delete catalog.changed;
+      if(catalog.floor === null || catalog.floor === undefined) catalog['floor'] = undefined;
+      // console.log("catalog", catalog);
+
+      const catalogResult = await prisma.locations.create({
+        data: {
+          ...catalog, 
+        }
+      });
+      return response.status(201).json(catalogResult);
+    } catch (error: any) {
+      console.log("locationsController create_post", error.message);
+      return response.status(500).json(error.message);
+    }
   }
-);
+); 
 
 // Display catalog update form on GET.
 exports.update_get = asyncHandler(
@@ -186,7 +211,7 @@ exports.update_post = asyncHandler(
     //     const id: number = parseInt(request.params.id, 10);
     //     // try {
     //     //   const entity = request.body;
-    //     //   const updateEntity = await prisma.entities.update(entity, id);
+    //     //   const updateEntity = await prisma.locations.update(entity, id);
     //     //   return response.status(200).json(updateEntity);
     //     // } catch (error: any) {
     //     //   return response.status(500).json(error.message);
@@ -209,7 +234,7 @@ exports.delete_post = asyncHandler(
     const id: number = parseInt(request.params.id, 10);
 
     // try {
-    //   await prisma.entities.delete(id);
+    //   await prisma.locations.delete(id);
     //   return response.status(204).json("Entity has been successfully deleted");
     // } catch (error: any) {
     //   return response.status(500).json(error.message);

@@ -531,7 +531,7 @@ model locations {
   @@index([location], map: "i_locations_location")
   @@index([state], map: "i_locations_state")
 }
-
+ 
 model mach_drivers {
   id          Int        @id(map: "pk_mach_drivers_id") @unique(map: "ui_mach_drivers_id") @default(autoincrement())
   deleted     Boolean?   @default(false, map: "DF__mach_driv__delet__7B264821")

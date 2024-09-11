@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+
+  p 
+    | This is main page for #{title}, it only show that API is running ! 
+    br
+    | You can there for access all endpoints. 
+
+  ul
+    li http request can be process as following : #{host}
+    li https request can be process as following : 
+    li Swagger documentation can be found : a(href='https://[::1]') OBI Documentation
+
+

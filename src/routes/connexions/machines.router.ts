@@ -64,7 +64,7 @@ machinesRouter.get(
   async (request: Request, response: Response) => {
     // Get Request react filter
     const reqFilter: any = JSON.parse(request.params.filter);
-    // console.log(reqFilter);
+    console.log(reqFilter);
 
     // Manage Filters and sorting
     const model = new Model();

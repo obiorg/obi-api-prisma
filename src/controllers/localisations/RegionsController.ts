@@ -12,19 +12,19 @@ const prisma = new PrismaClient();
 exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
-      const all = await prisma.entities.findMany({});
+      const all = await prisma.loc_regions.findMany({});
       return response.status(200).json(all);
     } catch (error: any) {
       return response.status(500).json(error.message);
     }
   }
 );
-
+ 
 // Display count of all catalog.
 exports.list_count = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
-      const count = await prisma.entities.count();
+      const count = await prisma.loc_regions.count();
       return response.status(200).json(count);
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -36,7 +36,6 @@ exports.list_count = asyncHandler(
 exports.list_lazy = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // Get request react filter
-    console.log("list_lazy")
     const requestFilter: any = JSON.parse(request.params.filter);
 
     // Manage Filters and sorting
@@ -52,7 +51,7 @@ exports.list_lazy = asyncHandler(
      * Process request
      */
     try {
-      const result = await prisma.entities.findMany({
+      const result = await prisma.loc_regions.findMany({
         skip:
           parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
         take: parseInt(requestFilter.rows),
@@ -86,7 +85,7 @@ exports.list_lazy_count = asyncHandler(
     );
 
     try {
-      const all = await prisma.entities.count({
+      const all = await prisma.loc_regions.count({
         where: whereClause,
         orderBy: sortingClause,
       });
@@ -95,7 +94,7 @@ exports.list_lazy_count = asyncHandler(
         // console.log(all);
         return response.status(200).json(all);
       } else {
-        return response.status(400).json("Entity is empty");
+        return response.status(400).json("loc_regions is empty");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -110,7 +109,7 @@ exports.detail = asyncHandler(
 
     const id: number = parseInt(request.params.id, 10);
     try {
-      const byId = await prisma.entities.findUnique({
+      const byId = await prisma.loc_regions.findUnique({
         where: {
           id: id,
         },
@@ -121,7 +120,7 @@ exports.detail = asyncHandler(
       } else {
         return response
           .status(400)
-          .json("catalog Entity with id(" + id + ") not found");
+          .json("catalog loc_regions with id(" + id + ") not found");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -154,14 +153,14 @@ exports.create_post = asyncHandler(
     // }
     // try {
     //   const entity = request.body;
-    //   const newEntity = await prisma.entities.create(entity);
+    //   const newEntity = await prisma.loc_regions.create(entity);
     //   return response.status(201).json(newEntity);
     // } catch (error: any) {
     //   return response.status(500).json(error.message);
     // }
     return response
       .status(400)
-      .json({ errors: "Entities create not implemented !" });
+      .json({ errors: "loc_regions create not implemented !" });
   }
 );
 
@@ -188,7 +187,7 @@ exports.update_post = asyncHandler(
     //     const id: number = parseInt(request.params.id, 10);
     //     // try {
     //     //   const entity = request.body;
-    //     //   const updateEntity = await prisma.entities.update(entity, id);
+    //     //   const updateEntity = await prisma.loc_regions.update(entity, id);
     //     //   return response.status(200).json(updateEntity);
     //     // } catch (error: any) {
     //     //   return response.status(500).json(error.message);
@@ -211,7 +210,7 @@ exports.delete_post = asyncHandler(
     const id: number = parseInt(request.params.id, 10);
 
     // try {
-    //   await prisma.entities.delete(id);
+    //   await prisma.loc_regions.delete(id);
     //   return response.status(204).json("Entity has been successfully deleted");
     // } catch (error: any) {
     //   return response.status(500).json(error.message);

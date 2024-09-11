@@ -6,25 +6,29 @@ import { body, validationResult } from "express-validator";
 // Import the module
 const asyncHandler = require("express-async-handler");
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  // log: ["query"],
+});
 
 // Display list of all catalog.
 exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
-      const all = await prisma.entities.findMany({});
+      const all = await prisma.loc_states.findMany({
+        orderBy: { name: "asc" },
+      });
       return response.status(200).json(all);
     } catch (error: any) {
       return response.status(500).json(error.message);
     }
-  }
+  } 
 );
 
 // Display count of all catalog.
 exports.list_count = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
-      const count = await prisma.entities.count();
+      const count = await prisma.loc_states.count();
       return response.status(200).json(count);
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -36,7 +40,6 @@ exports.list_count = asyncHandler(
 exports.list_lazy = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // Get request react filter
-    console.log("list_lazy")
     const requestFilter: any = JSON.parse(request.params.filter);
 
     // Manage Filters and sorting
@@ -47,14 +50,13 @@ exports.list_lazy = asyncHandler(
       requestFilter.multiSortMeta
     );
 
-    console.log(requestFilter)
     /**
      * Process request
      */
     try {
-      const result = await prisma.entities.findMany({
+      const result = await prisma.loc_states.findMany({
         skip:
-          parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
+          (parseInt(requestFilter.page, 10) -1)* parseInt(requestFilter.rows, 10),
         take: parseInt(requestFilter.rows),
         where: whereClause,
         orderBy: sortingClause,
@@ -86,16 +88,15 @@ exports.list_lazy_count = asyncHandler(
     );
 
     try {
-      const all = await prisma.entities.count({
+      const all = await prisma.loc_states.count({
         where: whereClause,
         orderBy: sortingClause,
       });
 
       if (all) {
-        // console.log(all);
         return response.status(200).json(all);
       } else {
-        return response.status(400).json("Entity is empty");
+        return response.status(400).json("states is empty");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -110,7 +111,7 @@ exports.detail = asyncHandler(
 
     const id: number = parseInt(request.params.id, 10);
     try {
-      const byId = await prisma.entities.findUnique({
+      const byId = await prisma.loc_states.findUnique({
         where: {
           id: id,
         },
@@ -121,7 +122,7 @@ exports.detail = asyncHandler(
       } else {
         return response
           .status(400)
-          .json("catalog Entity with id(" + id + ") not found");
+          .json("catalog states with id(" + id + ") not found");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -139,11 +140,11 @@ exports.create_get = asyncHandler(
 // Handle catalog create on POST.
 
 // POST : Create
-// Params : deleted, entity, designation, main, activated
+// Params : deleted, state, designation, main, activated
 exports.create_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // body("deleted").isBoolean(),
-    // body("entity").isString(),
+    // body("state").isString(),
     // body("designation").isString(),
     // body("main").isBoolean(),
     // body("activated").isBoolean();
@@ -153,15 +154,15 @@ exports.create_post = asyncHandler(
     //   return response.status(400).json({ errors: errors.array() });
     // }
     // try {
-    //   const entity = request.body;
-    //   const newEntity = await prisma.entities.create(entity);
-    //   return response.status(201).json(newEntity);
+    //   const state = request.body;
+    //   const newstate = await prisma.loc_states.create(state);
+    //   return response.status(201).json(newstate);
     // } catch (error: any) {
     //   return response.status(500).json(error.message);
     // }
     return response
       .status(400)
-      .json({ errors: "Entities create not implemented !" });
+      .json({ errors: "statess create not implemented !" });
   }
 );
 
@@ -176,7 +177,7 @@ exports.update_get = asyncHandler(
 exports.update_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     //   body("deleted").isBoolean(),
-    //   body("entity").isString(),
+    //   body("state").isString(),
     //   body("designation").isString(),
     //   body("main").isBoolean(),
     //   body("activated").isBoolean(),
@@ -187,9 +188,9 @@ exports.update_post = asyncHandler(
     //     }
     //     const id: number = parseInt(request.params.id, 10);
     //     // try {
-    //     //   const entity = request.body;
-    //     //   const updateEntity = await prisma.entities.update(entity, id);
-    //     //   return response.status(200).json(updateEntity);
+    //     //   const state = request.body;
+    //     //   const updatestate = await prisma.loc_states.update(state, id);
+    //     //   return response.status(200).json(updatestate);
     //     // } catch (error: any) {
     //     //   return response.status(500).json(error.message);
     //     // }
@@ -211,8 +212,8 @@ exports.delete_post = asyncHandler(
     const id: number = parseInt(request.params.id, 10);
 
     // try {
-    //   await prisma.entities.delete(id);
-    //   return response.status(204).json("Entity has been successfully deleted");
+    //   await prisma.loc_states.delete(id);
+    //   return response.status(204).json("state has been successfully deleted");
     // } catch (error: any) {
     //   return response.status(500).json(error.message);
     // }

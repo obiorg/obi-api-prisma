@@ -21,6 +21,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.7",
     "@types/node": "^20.12.12",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
@@ -42,6 +43,7 @@
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.30",
+    "cookie-parser": "^1.4.6",
     "esbuild-register": "^3.5.0",
     "express-async-handler": "^1.2.0",
     "http-status-codes": "^2.3.0",

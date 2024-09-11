@@ -47,8 +47,8 @@ var credentials = { key: privateKey, cert: certificate};
 /**
  * Add Middleware
  */
-app.use(morgan("dev"));
-
+// app.use(morgan("dev"));
+ 
 /**
  * Create the security configuration
  */

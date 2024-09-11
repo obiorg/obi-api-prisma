@@ -27,7 +27,7 @@ export function validateData(schema: z.ZodObject<any, any>) {
 
 export function entityValidate(schema: z.ZodObject<any, any>) {
   return (req: Request, res: Response, next: NextFunction) => {
-    console.log("Validation body", req.body);
+    // console.log("Validation body", req.body);
 
     const result = schema.safeParse({
       ...req.body,
@@ -51,7 +51,7 @@ export function entityValidate(schema: z.ZodObject<any, any>) {
 
 export function validateSchema(schema: z.ZodObject<any, any>) {
   return (req: Request, res: Response, next: NextFunction) => {
-    console.log("Validation body", req.body);
+    // console.log("Validation body", req.body);
 
     const result = schema.safeParse({
       ...req.body,
