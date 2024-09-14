@@ -110,8 +110,8 @@ export const LocationsUpdateSchema = z.object({
     .max(255, { message: "Nombre de caractères limité à 255 !" })
     .optional()
     .or(z.literal("")),
-  address3: z
-    .string()
+  address3: z 
+    .string() 
     .min(3, { message: "Définir minimum 3 caractères !" })
     .max(255, { message: "Nombre de caractères limité à 255 !" })
     .optional()
@@ -136,7 +136,7 @@ export const LocationsUpdateSchema = z.object({
 });
 
 export const LocationsDeleteSchema = z.object({
-  id: z.number(),
+  // id: z.number(),
 });
 
 export const CitiesCreateSchema = z.object({});
