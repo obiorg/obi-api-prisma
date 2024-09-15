@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { Model } from "../../utils/model";
 import { PrismaClient } from "@prisma/client";
-import { body, validationResult } from "express-validator";
 
 // Import the module
 const asyncHandler = require("express-async-handler");
@@ -48,15 +47,11 @@ exports.list_lazy = asyncHandler(
       requestFilter.multiSortMeta
     );
 
-    //console.log(requestFilter)
-    console.log('skip', (parseInt(requestFilter.page, 10)-1) * parseInt(requestFilter.rows, 10));
-    /**
-     * Process request
-     */
+    // Process request
     try {
       const result = await prisma.locations.findMany({
         skip:
-          (parseInt(requestFilter.page, 10)) * parseInt(requestFilter.rows, 10),
+          parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
         take: parseInt(requestFilter.rows),
         where: whereClause,
         orderBy: sortingClause,
@@ -255,7 +250,7 @@ exports.delete_post = asyncHandler(
       },
     });
     if (!existing) {
-      console.log('n existe pas !')
+      console.log("n existe pas !");
       const error = {
         errors: {
           location: ["Localisation n'existe plus !"],
@@ -268,11 +263,57 @@ exports.delete_post = asyncHandler(
       const catalogResult = await prisma.locations.delete({
         where: { id: id },
       });
-      
+
       return response.status(201).json(catalogResult);
     } catch (error: any) {
       console.log("locationsController update_post", error.message);
       return response.status(500).json(error);
+    }
+  }
+);
+
+// download csv lazy
+exports.download_lazy_csv = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // Get request react filter
+    const requestFilter: any = JSON.parse(request.params.filter);
+
+    // Manage Filters and sorting
+    const model = new Model();
+
+    const whereClause = model.convFilterReactToPrisma(requestFilter.filters);
+    const sortingClause = model.convSortingReactToPrisma(
+      requestFilter.multiSortMeta
+    );
+
+    // Get base information
+    const filename =
+      request.params.filename || "locations_" + Math.floor(Date.now() / 1000);
+    const fields = prisma.locations.fields;
+
+    // Process request
+    try {
+      const result = await prisma.locations.findMany({
+        // skip:
+        //   parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
+        // take: parseInt(requestFilter.rows),
+        where: whereClause,
+        orderBy: sortingClause,
+        // include: {
+        //   loc_countries: { select: { name: true}},
+        //   loc_states:  { select: { name: true}},
+        //   loc_cities:  { select: { name: true}},
+        // },
+      });
+
+      if (result) {
+        return response.status(200).json(result);
+      } else {
+        const status400 = '{ "status": 400, "message": "Bad request" }';
+        return response.status(400).json(status400);
+      }
+    } catch (error: any) {
+      return response.status(500).json(error.message); 
     }
   }
 );
