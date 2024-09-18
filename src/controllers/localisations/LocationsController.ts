@@ -47,6 +47,10 @@ exports.list_lazy = asyncHandler(
       requestFilter.multiSortMeta
     );
 
+    // console.log('requestFilter', requestFilter)
+    // console.log('created', requestFilter.filters.created)
+    // console.log('whereClause', whereClause)
+
     // Process request
     try {
       const result = await prisma.locations.findMany({
@@ -273,7 +277,7 @@ exports.delete_post = asyncHandler(
 );
 
 // download csv lazy
-exports.download_lazy_csv = asyncHandler(
+exports.download_lazy = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // Get request react filter
     const requestFilter: any = JSON.parse(request.params.filter);
@@ -294,16 +298,8 @@ exports.download_lazy_csv = asyncHandler(
     // Process request
     try {
       const result = await prisma.locations.findMany({
-        // skip:
-        //   parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
-        // take: parseInt(requestFilter.rows),
         where: whereClause,
         orderBy: sortingClause,
-        // include: {
-        //   loc_countries: { select: { name: true}},
-        //   loc_states:  { select: { name: true}},
-        //   loc_cities:  { select: { name: true}},
-        // },
       });
 
       if (result) {

@@ -1,20 +1,19 @@
 import * as dotenv from "dotenv";
-import * as assert from "assert";
 
-import express from "express";
+
+
 import * as fs from "fs";
 import * as http from "http";
 import * as https from "https";
 
-import cors from "cors";
+
 
 
 
 /**
  * Add Application Service
  */
-const app = require("./src");
-const morgan = require("morgan"); // use for logging
+const app = require("./src");// use for logging
 dotenv.config();
 
 if (!process.env.PORT_HTTP) {
@@ -47,7 +46,7 @@ var credentials = { key: privateKey, cert: certificate};
 /**
  * Add Middleware
  */
-// app.use(morgan("dev"));
+
  
 /**
  * Create the security configuration
