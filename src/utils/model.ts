@@ -7,6 +7,8 @@
 
 import { boolean } from "zod";
 
+const util = require("./util");
+
 export class Model {
   map = {} as Map<string, string>;
 
@@ -26,49 +28,89 @@ export class Model {
     /**
      * Loop over all the filters defined
      */
-    for (let filter in filters) {
-      // console.log("filter", filter);
-      // check if filter is equal to global in order to manage differently
-      if (filter !== "global") {
-        // Loop over all the constraints defined in the filter
-        for (let k = 0; k < filters[filter].constraints.length; k++) {// ex ===> constaints 0 { value: null, matchMode: 'equals' }
-          console.log('===> constaints ' + k, filters[filter].constraints[k]);
-          // Value of the constraint
-          let obj: any = filters[filter].constraints[k].value; 
-          
-          // Check if the constraint value is defined
-          if (obj !== null) { 
-            // Check if the constraint is a number
-            if (!isNaN(parseFloat(obj)) && isFinite(obj)) {  // could have been replace by numIs
-              obj = parseFloat(obj);
-            } else if ((new Date(obj)) instanceof Date && !isNaN((new Date(obj)).getTime())) {
-                let dateInput = new Date(obj);
-                console.log('Dectect object has a date !');
-                console.log('====> dateInput as toISOString', dateInput.toISOString());
-                console.log('====> dateInput as getDay', dateInput.getDay()); // jour semaine
-                console.log('====> dateInput as getFullYear', dateInput.getFullYear()); // 
-                console.log('====> dateInput as getMonth', dateInput.getMonth()+1);
-                console.log('====> dateInput as getTime', dateInput.getTime());
-                console.log('====> dateInput as getUTCDate', dateInput.getUTCDate());
-              
+    for (let field in filters) {
+      // Corresponding to field
 
-            }else if(obj instanceof boolean) {
-              
-              console.log('====> Detect boolean value for  : ' + filter + ' with value ' + obj);
+      // check if field is equal to global in order to manage differently
+      if (field !== "global") {
+        // Check if field have constraints
+        if (filters[field].constraints) {
+          // Loop over all the constraints of the field
+          for (let k = 0; k < filters[field].constraints.length; k++) {
+            // ex ===> constaints 0 { value: null, matchMode: 'equals' }
+            console.log(
+              "===> constaints for field: " + field + " > " + k,
+              filters[field].constraints[k]
+            );
+            // Value of the constraint
+            let obj: any = filters[field].constraints[k].value;
+            let matchMode: string = filters[field].constraints[k].matchMode;
 
-            }else{
+            // Check if the constraint value is defined
+            if (obj !== null) {
               
-              console.log('=====> Dectect undefined type object to filter for ' + filter + ' with value ' + obj);
+              // check if date
+              if (util.isValidDate(obj) && matchMode.startsWith('date')) {
+                console.log(
+                  "====> Detect Date value for  : " +
+                    field +
+                    " with value " +
+                    obj
+                );
+                // Ajust Date Time
+                let date = util.DateTimeAdjusteTimezone(new Date(obj));
+                obj = util.prismaDeclarationDateMatchMode(
+                  matchMode,
+                  date.toISOString()
+                );
+                matchMode = util.PRMatchModeToPrisma(matchMode);
+              } 
+              // otherwise is a number of a string
+              else if (!isNaN(parseFloat(obj)) && isFinite(obj)) {
+                // could have been replace by numIs
+                // obj =obj;
+              }
+              // Check if is a boolean 
+              // else if (obj instanceof boolean) {
+              //   console.log(
+              //     "====> Detect boolean value for  : " +
+              //       field +
+              //       " with value " +
+              //       obj
+              //   );
+              // } else {
+              //   console.log(
+              //     "=====> Dectect undefined type object to field for " +
+              //       field +
+              //       " with value " +
+              //       obj
+              //   );
+              // }
+              // console.log("S1", v);
 
+              const a: any = {};
+              a[matchMode] = obj;
+              f[field] = a;
+              console.log("f at k = " + k, f);
             }
-            // console.log("S1", v);
-
+          }
+        }
+        // SPECIAL FILTERS
+        else {
+          console.log(
+            "===> constaints for field: " +
+              field +
+              " >  direct constraint " +
+              filters[field]
+          );
+          // Value of the constraint
+          let obj: any = filters[field].value;
+          let matchMode: string = filters[field].matchMode;
+          if (obj !== null) {
             const a: any = {};
-            let field: string = filters[filter].constraints[k].matchMode;
-            a[field] = obj;
-            field = filter;
-            // console.log(field, a);
+            a[matchMode] = obj;
             f[field] = a;
+            console.log("f at field: " + field + " > " + f);
           }
         }
       } else {
@@ -84,7 +126,7 @@ export class Model {
       j++;
     }
 
-    // console.log("f", f);
+    console.log("f", f);
     return f;
   }
 

@@ -42,6 +42,8 @@ exports.list_lazy = asyncHandler(
     // Manage Filters and sorting
     const model = new Model();
 
+    console.log('request Filter ', requestFilter)
+
     const whereClause = model.convFilterReactToPrisma(requestFilter.filters);
     const sortingClause = model.convSortingReactToPrisma(
       requestFilter.multiSortMeta
@@ -49,7 +51,7 @@ exports.list_lazy = asyncHandler(
 
     // console.log('requestFilter', requestFilter)
     // console.log('created', requestFilter.filters.created)
-    // console.log('whereClause', whereClause)
+    console.log('whereClause', whereClause);
 
     // Process request
     try {
@@ -73,6 +75,7 @@ exports.list_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
+      console.log('error', error);
       return response.status(500).json(error.message);
     }
   }
