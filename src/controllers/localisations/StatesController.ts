@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { Model } from "../../utils/model";
 import { PrismaClient } from "@prisma/client";
-import { body, validationResult } from "express-validator";
 
 // Import the module
 const asyncHandler = require("express-async-handler");
@@ -14,14 +13,17 @@ const prisma = new PrismaClient({
 exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
-      const all = await prisma.loc_states.findMany({
-        orderBy: { name: "asc" },
+      let all = await prisma.loc_states.findMany({
+        orderBy: { id : "asc" },
+        include: {
+          loc_countries: true,
+        },
       });
       return response.status(200).json(all);
     } catch (error: any) {
       return response.status(500).json(error.message);
     }
-  } 
+  }
 );
 
 // Display count of all catalog.
@@ -45,21 +47,24 @@ exports.list_lazy = asyncHandler(
     // Manage Filters and sorting
     const model = new Model();
 
+    // console.log('request Filter ', requestFilter)
+
     const whereClause = model.convFilterReactToPrisma(requestFilter.filters);
     const sortingClause = model.convSortingReactToPrisma(
       requestFilter.multiSortMeta
     );
 
-    /**
-     * Process request
-     */
+    // Process request
     try {
       const result = await prisma.loc_states.findMany({
         skip:
-          (parseInt(requestFilter.page, 10) -1)* parseInt(requestFilter.rows, 10),
+          parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
         take: parseInt(requestFilter.rows),
         where: whereClause,
         orderBy: sortingClause,
+        include: {
+          loc_countries: true,
+        },
       });
 
       if (result) {
@@ -69,6 +74,7 @@ exports.list_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
+      console.log('error', error);
       return response.status(500).json(error.message);
     }
   }
@@ -94,9 +100,10 @@ exports.list_lazy_count = asyncHandler(
       });
 
       if (all) {
+        // console.log(all);
         return response.status(200).json(all);
       } else {
-        return response.status(400).json("states is empty");
+        return response.status(400).json("name is empty");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -107,13 +114,16 @@ exports.list_lazy_count = asyncHandler(
 // Display detail page for a specific catalog.
 exports.detail = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    response.send(`NOT IMPLEMENTED: Catalog detail: ${request.params.id}`);
+    // response.send(`NOT IMPLEMENTED: Catalog detail: ${request.params.id}`);
 
     const id: number = parseInt(request.params.id, 10);
     try {
       const byId = await prisma.loc_states.findUnique({
         where: {
           id: id,
+        },
+        include: {
+          loc_countries: true,
         },
       });
 
@@ -122,7 +132,7 @@ exports.detail = asyncHandler(
       } else {
         return response
           .status(400)
-          .json("catalog states with id(" + id + ") not found");
+          .json("catalog name with id(" + id + ") not found");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -139,30 +149,41 @@ exports.create_get = asyncHandler(
 
 // Handle catalog create on POST.
 
-// POST : Create
-// Params : deleted, state, designation, main, activated
+// POST : Create post
 exports.create_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    // body("deleted").isBoolean(),
-    // body("state").isString(),
-    // body("designation").isString(),
-    // body("main").isBoolean(),
-    // body("activated").isBoolean();
+    // check duplicates
+    const existing = await prisma.loc_states.findFirst({
+      where: {
+        name: request.body.name,
+      },
+    });
+    if (existing) {
+      const error = {
+        errors: {
+          name: ["Doublon ! ...déjà spécifié !"],
+        },
+      };
+      return response.status(400).json(error);
+    }
 
-    // const errors = validationResult(request);
-    // if (!errors.isEmpty()) {
-    //   return response.status(400).json({ errors: errors.array() });
-    // }
-    // try {
-    //   const state = request.body;
-    //   const newstate = await prisma.loc_states.create(state);
-    //   return response.status(201).json(newstate);
-    // } catch (error: any) {
-    //   return response.status(500).json(error.message);
-    // }
-    return response
-      .status(400)
-      .json({ errors: "statess create not implemented !" });
+    // If not duplicates
+    try {
+      const catalog = request.body;
+      delete catalog.id;
+      delete catalog.created_at;
+      delete catalog.updated_at;
+
+      const catalogResult = await prisma.loc_states.create({
+        data: {
+          ...catalog,
+        },
+      });
+      return response.status(201).json(catalogResult);
+    } catch (error: any) {
+      console.log("StatesController create_post", error.message);
+      return response.status(500).json(error.message);
+    }
   }
 );
 
@@ -176,26 +197,40 @@ exports.update_get = asyncHandler(
 // Handle catalog update on POST.
 exports.update_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    //   body("deleted").isBoolean(),
-    //   body("state").isString(),
-    //   body("designation").isString(),
-    //   body("main").isBoolean(),
-    //   body("activated").isBoolean(),
-    //   async (request: Request, response: Response) => {
-    //     const errors = validationResult(request);
-    //     if (!errors.isEmpty()) {
-    //       return response.status(400).json({ errors: errors.array() });
-    //     }
-    //     const id: number = parseInt(request.params.id, 10);
-    //     // try {
-    //     //   const state = request.body;
-    //     //   const updatestate = await prisma.loc_states.update(state, id);
-    //     //   return response.status(200).json(updatestate);
-    //     // } catch (error: any) {
-    //     //   return response.status(500).json(error.message);
-    //     // }
-    //     return response.status(400).json({ errors: "No implemented !" });
-    //   }
+    // check duplicates
+    const existing = await prisma.loc_states.findFirst({
+      where: {
+        name: request.body.name,
+      },
+    });
+    if (!existing) {
+      const error = {
+        errors: {
+          name: ["name n'existe plus !"],
+        },
+      };
+      return response.status(400).json(error);
+    }
+
+    // If not duplicates
+    try {
+      const catalog = request.body;
+      const id = catalog.id;
+      delete catalog.id;
+      delete catalog.created_at;
+      delete catalog.updated_at;
+
+      const catalogResult = await prisma.loc_states.update({
+        where: { id: id },
+        data: {
+          ...catalog,
+        },
+      });
+      return response.status(201).json(catalogResult);
+    } catch (error: any) {
+      console.log("StatesController update_post", error.message);
+      return response.status(500).json(error);
+    }
   }
 );
 
@@ -211,12 +246,69 @@ exports.delete_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     const id: number = parseInt(request.params.id, 10);
 
-    // try {
-    //   await prisma.loc_states.delete(id);
-    //   return response.status(204).json("state has been successfully deleted");
-    // } catch (error: any) {
-    //   return response.status(500).json(error.message);
-    // }
-    return response.status(400).json({ errors: "No implemented !" });
+    // check duplicates
+    const existing = await prisma.loc_states.findFirst({
+      where: {
+        id: id,
+      },
+    });
+    if (!existing) {
+      // console.log("n existe pas !");
+      const error = {
+        errors: {
+          name: [" n'existe plus !"],
+        },
+      };
+      return response.status(400).json(error);
+    }
+
+    try {
+      const catalogResult = await prisma.loc_states.delete({
+        where: { id: id },
+      });
+
+      return response.status(201).json(catalogResult);
+    } catch (error: any) {
+      console.log("StatesController update_post", error.message);
+      return response.status(500).json(error);
+    }
+  }
+);
+
+// download csv lazy
+exports.download_lazy = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // Get request react filter
+    const requestFilter: any = JSON.parse(request.params.filter);
+
+    // Manage Filters and sorting
+    const model = new Model();
+
+    const whereClause = model.convFilterReactToPrisma(requestFilter.filters);
+    const sortingClause = model.convSortingReactToPrisma(
+      requestFilter.multiSortMeta
+    );
+
+    // Get base information
+    const filename =
+      request.params.filename || "states_" + Math.floor(Date.now() / 1000);
+    const fields = prisma.loc_states.fields;
+
+    // Process request
+    try {
+      const result = await prisma.loc_states.findMany({
+        where: whereClause,
+        orderBy: sortingClause,
+      });
+
+      if (result) {
+        return response.status(200).json(result);
+      } else {
+        const status400 = '{ "status": 400, "message": "Bad request" }';
+        return response.status(400).json(status400);
+      }
+    } catch (error: any) {
+      return response.status(500).json(error.message); 
+    }
   }
 );
