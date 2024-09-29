@@ -13,11 +13,8 @@ const prisma = new PrismaClient({
 exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
-      let all = await prisma.entities.findMany({
+      let all = await prisma.mach_drivers.findMany({
         orderBy: { id : "asc" },
-        include: {
-          locations: true,
-        },
       });
       return response.status(200).json(all);
     } catch (error: any) {
@@ -30,7 +27,7 @@ exports.list = asyncHandler(
 exports.list_count = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
-      const count = await prisma.entities.count();
+      const count = await prisma.mach_drivers.count();
       return response.status(200).json(count);
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -53,15 +50,12 @@ exports.list_lazy = asyncHandler(
 
     // Process request
     try {
-      const result = await prisma.entities.findMany({
+      const result = await prisma.mach_drivers.findMany({
         skip:
           parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
         take: parseInt(requestFilter.rows),
         where: whereClause,
         orderBy: sortingClause,
-        include: {
-          locations: true,
-        },
       });
 
       if (result) {
@@ -91,7 +85,7 @@ exports.list_lazy_count = asyncHandler(
     );
 
     try {
-      const all = await prisma.entities.count({
+      const all = await prisma.mach_drivers.count({
         where: whereClause,
         orderBy: sortingClause,
       });
@@ -100,7 +94,7 @@ exports.list_lazy_count = asyncHandler(
         // console.log(all);
         return response.status(200).json(all);
       } else {
-        return response.status(400).json("entity is empty");
+        return response.status(400).json("driver is empty");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -115,12 +109,9 @@ exports.detail = asyncHandler(
 
     const id: number = parseInt(request.params.id, 10);
     try {
-      const byId = await prisma.entities.findUnique({
+      const byId = await prisma.mach_drivers.findUnique({
         where: {
           id: id,
-        },
-        include: {
-          locations: true,
         },
       });
 
@@ -129,7 +120,7 @@ exports.detail = asyncHandler(
       } else {
         return response
           .status(400)
-          .json("catalog entity with id(" + id + ") not found");
+          .json("catalog driver with id(" + id + ") not found");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -150,15 +141,15 @@ exports.create_get = asyncHandler(
 exports.create_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // check duplicates
-    const existing = await prisma.entities.findFirst({
+    const existing = await prisma.mach_drivers.findFirst({
       where: {
-        entity: request.body.entity,
+        driver: request.body.driver,
       },
     });
     if (existing) {
       const error = {
         errors: {
-          entity: ["Doublon ! ...déjà spécifié !"],
+          driver: ["Doublon ! ...déjà spécifié !"],
         },
       };
       return response.status(400).json(error);
@@ -171,14 +162,14 @@ exports.create_post = asyncHandler(
       delete catalog.created;
       delete catalog.changed;
 
-      const catalogResult = await prisma.entities.create({
+      const catalogResult = await prisma.mach_drivers.create({
         data: {
           ...catalog,
         },
       });
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("EntitiesController create_post", error.message);
+      console.log("MachinesDriversController create_post", error.message);
       return response.status(500).json(error.message);
     }
   }
@@ -195,15 +186,15 @@ exports.update_get = asyncHandler(
 exports.update_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // check duplicates
-    const existing = await prisma.entities.findFirst({
+    const existing = await prisma.mach_drivers.findFirst({
       where: {
-        entity: request.body.entity,
+        driver: request.body.driver,
       },
     });
     if (!existing) {
       const error = {
         errors: {
-          entity: [" n'existe plus !"],
+          driver: ["n'existe plus !"],
         },
       };
       return response.status(400).json(error);
@@ -217,7 +208,7 @@ exports.update_post = asyncHandler(
       delete catalog.created;
       delete catalog.changed;
 
-      const catalogResult = await prisma.entities.update({
+      const catalogResult = await prisma.mach_drivers.update({
         where: { id: id },
         data: {
           ...catalog,
@@ -225,7 +216,7 @@ exports.update_post = asyncHandler(
       });
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("EntitiesController update_post", error.message);
+      console.log("MachinesDriversController update_post", error.message);
       return response.status(500).json(error);
     }
   }
@@ -244,7 +235,7 @@ exports.delete_post = asyncHandler(
     const id: number = parseInt(request.params.id, 10);
 
     // check duplicates
-    const existing = await prisma.entities.findFirst({
+    const existing = await prisma.mach_drivers.findFirst({
       where: {
         id: id,
       },
@@ -253,20 +244,20 @@ exports.delete_post = asyncHandler(
       console.log("n existe pas !");
       const error = {
         errors: {
-          entity: [" n'existe plus !"],
+          driver: ["n'existe plus !"],
         },
       };
       return response.status(400).json(error);
     }
 
     try {
-      const catalogResult = await prisma.entities.delete({
+      const catalogResult = await prisma.mach_drivers.delete({
         where: { id: id },
       });
 
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("EntitiesController update_post", error.message);
+      console.log("MachinesDriversController update_post", error.message);
       return response.status(500).json(error);
     }
   }
@@ -288,12 +279,12 @@ exports.download_lazy = asyncHandler(
 
     // Get base information
     const filename =
-      request.params.filename || "entities_" + Math.floor(Date.now() / 1000);
-    const fields = prisma.entities.fields;
+      request.params.filename || "mach_drivers_" + Math.floor(Date.now() / 1000);
+    const fields = prisma.mach_drivers.fields;
 
     // Process request
     try {
-      const result = await prisma.entities.findMany({
+      const result = await prisma.mach_drivers.findMany({
         where: whereClause,
         orderBy: sortingClause,
       });
