@@ -35,6 +35,9 @@ export class Model {
       if (field !== "global") {
         // Check if field have constraints
         if (filters[field].constraints) {
+          const a: any = {};
+
+
           // Loop over all the constraints of the field
           for (let k = 0; k < filters[field].constraints.length; k++) {
             // ex ===> constaints 0 { value: null, matchMode: 'equals' }
@@ -48,9 +51,8 @@ export class Model {
 
             // Check if the constraint value is defined
             if (obj !== null) {
-              
               // check if date
-              if (util.isValidDate(obj) && matchMode.startsWith('date')) {
+              if (util.isValidDate(obj) && matchMode.startsWith("date")) {
                 console.log(
                   "====> Detect Date value for  : " +
                     field +
@@ -64,13 +66,13 @@ export class Model {
                   date.toISOString()
                 );
                 matchMode = util.PRMatchModeToPrisma(matchMode);
-              } 
+              }
               // otherwise is a number of a string
               else if (!isNaN(parseFloat(obj)) && isFinite(obj)) {
                 // could have been replace by numIs
                 // obj =obj;
               }
-              // Check if is a boolean 
+              // Check if is a boolean
               // else if (obj instanceof boolean) {
               //   console.log(
               //     "====> Detect boolean value for  : " +
@@ -88,12 +90,13 @@ export class Model {
               // }
               // console.log("S1", v);
 
-              const a: any = {};
               a[matchMode] = obj;
-              f[field] = a;
-              console.log("f at k = " + k, f);
+              // console.log("a at k = " + k, a);
             }
+            f[field] = a;
+            console.log("a at k = " + k, a);
           }
+
         }
         // SPECIAL FILTERS
         else {
@@ -114,14 +117,18 @@ export class Model {
           }
         }
       } else {
-        console.log("=====> gloabl filtering");
+        // console.log("=====> global filtering");
         // Global filter
-        // if (filters.global.value !== null) {
-        //   filtersStr =
-        //     " CONCAT('.', e_id, '.', e_entreprise, '.', e_designation, '.', e_builded, '.', 'e_main', '.', 'e_activated', '.', 'e_deleted', '.', 'e_created', '.', 'e_changed')  LIKE '%" +
-        //     filters.global.value +
-        //     "%' ";
-        // }
+        if (filters.global.value !== null) {
+          // filtersStr =
+          //   " CONCAT('.', e_id, '.', e_entreprise, '.', e_designation, '.', e_builded, '.', 'e_main', '.', 'e_activated', '.', 'e_deleted', '.', 'e_created', '.', 'e_changed')  LIKE '%" +
+          //   filters.global.value +
+          //   "%' ";
+          let globalWhere = this.doGlobalFilter(filters, filters.global.value);
+          // console.log("globalWhere", globalWhere);
+          f.OR = globalWhere.OR;
+          // console.log("f at field: " + field + " > " + f);
+        }
       }
       j++;
     }
@@ -140,5 +147,37 @@ export class Model {
       [field]: order === -1 ? "desc" : "asc",
     }));
     return t;
+  }
+
+  doGlobalFilter(filters: any, searchString: string): any {
+    // TODO
+    let fields: string[] = [];
+    for (let field in filters) {
+      if (field !== "global") {
+        fields.push(field);
+      }
+    }
+    let searchTerms = searchString.split(" ");
+
+    let arr: any[] = [];
+    searchTerms.forEach((term) => {
+      fields.forEach((field) => {
+        // console.log('Filter field: ' + field, filters[field].constraints[0]?.type);
+        if (filters[field].constraints[0]?.type === "text") {
+          arr.push({ [field]: { contains: term } });
+        }
+      });
+    });
+
+    // console.log("doGlobalFilter", arr);
+
+    return { OR: arr };
+    // return {
+    //   AND: searchTerms.map((term) => ({
+    //     OR: fields.map((field) => ({
+    //       [field]: { contains: term },
+    //     })),
+    //   })),
+    // };
   }
 }

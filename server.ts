@@ -8,7 +8,7 @@ import * as https from "https";
 
 
 
-
+  
 
 /**
  * Add Application Service
@@ -30,6 +30,8 @@ const portHttps: number = parseInt(process.env.PORT_HTTPS as string, 10);
 
 const hostUrlHttp: string = process.env.HOST_URL_HTTP as string;
 const hostUrlHttps: string = process.env.HOST_URL_HTTPS as string;
+const hostUrlDocsHttp: string = process.env.HOST_URL_DOCS_HTTP as string;
+const hostUrlDocsHttps: string = process.env.HOST_URL_DOCS_HTTPS as string;
 
 
 /**
@@ -58,5 +60,7 @@ httpsServer.listen(portHttps);
 console.log(
   "Server is running!\n",
   `API listening on port  ${portHttp} + ! Go to ${hostUrlHttp} \n`,
-  `API listening on port  ${portHttps} + ! Go to ${hostUrlHttps} \n`
+  `API listening on port  ${portHttps} + ! Go to ${hostUrlHttps} \n`,
+  `API Docs listening on port  ${portHttp} + ! Go to ${hostUrlDocsHttp} \n`,
+  `API Docs listening on port  ${portHttps} + ! Go to ${hostUrlDocsHttps} \n`,
 );

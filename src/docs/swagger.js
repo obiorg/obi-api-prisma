@@ -130,9 +130,57 @@ const doc = {
 const outputFile = "./app/docs/swagger.json";
 const endpointsFiles = [
   "./../routes/home.js",
-  "./../routes/businesses/entities.router.js",
+
+
+  "./../routes/alarms/alarms.router.js",
+  "./../routes/alarms/classes.router.js",
+  "./../routes/alarms/groupes.router.js",
+  "./../routes/alarms/renders.router.js",
+
+  "./../routes/analyses/allowed.router.js",
+  "./../routes/analyses/categories.router.js",
+  "./../routes/analyses/groupes.router.js",
+  "./../routes/analyses/methods.router.js",
+  "./../routes/analyses/points.router.js",
+  "./../routes/analyses/types.router.js",
+
   "./../routes/businesses/businesses.router.js",
   "./../routes/businesses/comapanies.router.js",
+  "./../routes/businesses/entities.router.js",
+
+  "./../routes/connexions/machines.router.js",
+  "./../routes/connexions/machinesDrivers.router.js",
+
+  "./../routes/localisations/locations.router.js",
+  "./../routes/localisations/locationsCities.router.js",
+  "./../routes/localisations/locationsCountries.router.js",
+  "./../routes/localisations/locationsRegions.router.js",
+  "./../routes/localisations/locationsStates.router.js",
+  "./../routes/localisations/locationsSubRegions.router.js",
+
+  "./../routes/maintenance/equExtDatas.router.js",
+  "./../routes/maintenance/equipements.router.js",
+  "./../routes/maintenance/equProvider.router.js",
+  
+  "./../routes/measures/comparators.router.js",
+  "./../routes/measures/limits.router.js",
+  "./../routes/measures/limitsGroups.router.js",
+  "./../routes/measures/units.router.js",
+
+  "./../routes/persistences/persistences.router.js",
+  "./../routes/persistences/persLimitsStandards.router.js",
+  "./../routes/persistences/persMethods.router.js",
+  "./../routes/persistences/persStandards.router.js",
+
+  "./../routes/tags/tags.router.js",
+  "./../routes/tags/tagsList.router.js",
+  "./../routes/tags/tagsListContents.router.js",
+  "./../routes/tags/tagsListType.router.js",
+  "./../routes/tags/tagsMemories.router.js",
+  "./../routes/tags/tagsTables.router.js",
+  "./../routes/tags/tagsTypes.router.js",
+
+  // "./../routes/users/tags.router.js",
 ];
 
 swaggerAutogen(outputFile, endpointsFiles, doc).then(() => {

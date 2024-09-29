@@ -42,7 +42,10 @@ const corsOptions = {
  * Swagger Configuration
  */
 const swaggerUi = require("swagger-ui-express");
-const swaggerFile = require("./docs/swagger.json");
+const swaggerJsdoc = require('swagger-jsdoc');
+// const swaggerFile = require("./docs/swagger.json");
+const swaggerOptions = require("./docs/swaggeroptions.ts")
+const specs = swaggerJsdoc(swaggerOptions);
 
 /**
  * API Reference
@@ -132,13 +135,13 @@ app.use(path_api_v1 + "/tags", tagsRouter);
 /**
  * Setup swagger API documentation
  */
-app.use(
-  path_api_v1 + "/docs",
-  swaggerUi.serve,
-  //swaggerUi.setup(swaggerFile)            // without a search bar
-  swaggerUi.setup(swaggerFile, { explorer: true }) // add a search bar
-);
-
+// app.use(
+//   path_api_v1 + "/docs",
+//   swaggerUi.serve,
+//   //swaggerUi.setup(swaggerFile)            // without a search bar
+//   swaggerUi.setup(swaggerFile, { explorer: true }) // add a search bar
+// );
+app.use(path_api_v1 + "/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 
 // catch 404 and forward to error handler

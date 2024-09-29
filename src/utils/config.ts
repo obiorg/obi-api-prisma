@@ -12,7 +12,7 @@ assert(PORT_HTTPS, 'PORT is required');
 assert(HOST, 'HOST is required');
 
 const config = {
-    port: PORT_HTTPS,
+    port: PORT_HTTPS, 
     host: HOST,
     url: HOST_URL,
     sql: {
@@ -37,4 +37,4 @@ const config = {
 };
 
 
-export { config };
+module.exports = config ;
