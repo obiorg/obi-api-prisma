@@ -1,214 +1,49 @@
 import express from "express";
-import type { Request, Response } from "express";
-import { body, validationResult } from "express-validator";
 
 import { PrismaClient } from "@prisma/client";
-import { Model } from "../../../utils/model";
+import { validateSchema } from "../../middleware/validationMDW";
+import { TagsListContentsCreateSchema, TagsListContentsDeleteSchema, TagsListContentsUpdateSchema } from "../../schemas/tagsSchema";
 
 const prisma = new PrismaClient();
+// Require controller modules.
+const controller = require("./../../controllers/tags/TagsListContentsController");
 
-export const mach_driversRouter = express.Router();
+export const tagsListContentsRouter = express.Router();
 
-// Get : count
-mach_driversRouter.get(
-  "/count",
-  async (request: Request, response: Response) => {
-    try {
-      const count = await prisma.mach_drivers.count();
-      return response.status(200).json(count);
-    } catch (error: any) {
-      return response.status(500).json(error.message);
-    }
-  }
-);
+// list of all catalog
+tagsListContentsRouter.get("/", controller.list);
 
-// GET : findAll
-mach_driversRouter.get("/", async (request: Request, response: Response) => {
-  try {
-    const all = await prisma.mach_drivers.findMany({
-      // include: {
-      //   tags: {
-      //     select: {
-      //       id: true,
-      //       name: true,
-      //     },
-      //   },
-      // },
-    });
-    return response.status(200).json(all);
-  } catch (error: any) {
-    return response.status(500).json(error.message);
-  }
-}); 
+// count of all catalog
+tagsListContentsRouter.get("/count", controller.list_count);
 
-// GET : findById
-mach_driversRouter.get("/:id", async (request: Request, response: Response) => {
-  const id: number = parseInt(request.params.id, 10);
-  try {
-    const byId = await prisma.mach_drivers.findUnique({
-      where: {
-        id: id,
-      },
-    });
+// list of filter catalog lazy loading
+tagsListContentsRouter.get("/lazy/:filter", controller.list_lazy);
 
-    if (byId) {
-      return response.status(200).json(byId);
-    } else {
-      return response.status(400).json("entity with id(" + id + ") not found");
-    }
-  } catch (error: any) {
-    return response.status(500).json(error.message);
-  }
-});
+// count list of filter catalog lazy loading
+tagsListContentsRouter.get("/lazy/count/:filter", controller.list_lazy_count);
 
+// detail of catalog defined by id
+tagsListContentsRouter.get("/:id", controller.detail);
 
+// create catalog rendering template
+tagsListContentsRouter.get("/create", controller.create_get);
 
-// GET : getLazy
-mach_driversRouter.get(
-  "/lazy/:filter",
-  async (request: Request, response: Response) => {
-    // Get Request react filter
-    const reqFilter: any = JSON.parse(request.params.filter);
-    // console.log(reqFilter);
+// create catalog 
+tagsListContentsRouter.post("/", validateSchema(TagsListContentsCreateSchema), controller.create_post);
 
-    // Manage Filters and sorting
-    const model = new Model();
-    // console.log("Request Filters", reqFilter.filters);
-    // console.log("Request Sorting", reqFilter.multiSortMetaData);
-    const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
-    const sortingClause = model.convSortingReactToPrisma(
-      reqFilter.multiSortMeta
-    );
+// update catalog rendering template
+tagsListContentsRouter.get("/update", controller.update_get);
 
-    // console.log("whereClause", whereClause);
-    // console.log("sortingClause", sortingClause);
+// update catalog 
+tagsListContentsRouter.put("/:id", validateSchema(TagsListContentsUpdateSchema), controller.update_post);
 
-    /**
-     * Process request
-     */
-    try {
-      const result = await prisma.mach_drivers.findMany({
-        skip: parseInt(reqFilter.page, 10) * parseInt(reqFilter.rows, 10),
-        take: parseInt(reqFilter.rows),
-        where: whereClause,
-        orderBy: sortingClause,
-      });
+// delete catalog rendering template 
+tagsListContentsRouter.get("/delete", controller.delete_get);
 
-      if (result) {
-        return response.status(200).json(result);
-      } else {
-        const status400 = '{ "status": 400, "message": "Bad request" }';
-        return response.status(400).json(status400);
-      }
-    } catch (error: any) {
-      return response.status(500).json(error.message);
-    }
-  }
-);
+// delete catalog 
+tagsListContentsRouter.delete("/:id", validateSchema(TagsListContentsDeleteSchema), controller.delete_post);
 
-// GET : getLazy count
-mach_driversRouter.get(
-  "/lazy/count/:filter",
-  async (request: Request, response: Response) => {
-    // Get Request react filter
-    const reqFilter: any = JSON.parse(request.params.filter);
-    // console.log(reqFilter);
+// download catalog rendering template
+tagsListContentsRouter.get("/download/:filter", controller.download_lazy);
 
-    // Manage Filters and sorting
-    const model = new Model();
-    console.log("Request Filters", reqFilter.filters);
-    console.log("Request Sorting", reqFilter.multiSortMetaData);
-    const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
-    const sortingClause = model.convSortingReactToPrisma(
-      reqFilter.multiSortMeta
-    );
-
-    // console.log("whereClause", whereClause);
-    // console.log("sortingClause", sortingClause);
-
-    try {
-      const all = await prisma.mach_drivers.count({
-        where: whereClause,
-        orderBy: sortingClause,
-      });
-
-      if (all) {
-        console.log(all);
-        return response.status(200).json(all);
-      } else {
-        return response.status(400).json("entity is empty");
-      }
-    } catch (error: any) {
-      return response.status(500).json(error.message);
-    }
-  }
-);
-
-
-// POST : Create
-// Params : deleted, entity, designation, main, activated
-mach_driversRouter.post(
-  "/",
-  body("deleted").isBoolean(),
-  body("entity").isString(),
-  body("designation").isString(),
-  body("main").isBoolean(),
-  body("activated").isBoolean(),
-  async (request: Request, response: Response) => {
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) {
-      return response.status(400).json({ errors: errors.array() });
-    }
-    // try {
-    //   const entity = request.body;
-    //   const newEntity = await prisma.mach_drivers.create(entity);
-    //   return response.status(201).json(newEntity);
-    // } catch (error: any) {
-    //   return response.status(500).json(error.message);
-    // }
-    return response.status(400).json({ errors: "No implemented !" });
-  }
-);
-
-// POST : Update
-//
-mach_driversRouter.put(
-  "/:id",
-  body("deleted").isBoolean(),
-  body("entity").isString(),
-  body("designation").isString(),
-  body("main").isBoolean(),
-  body("activated").isBoolean(),
-  async (request: Request, response: Response) => {
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) {
-      return response.status(400).json({ errors: errors.array() });
-    }
-
-    const id: number = parseInt(request.params.id, 10);
-    // try {
-    //   const entity = request.body;
-    //   const updateEntity = await prisma.mach_drivers.update(entity, id);
-    //   return response.status(200).json(updateEntity);
-    // } catch (error: any) {
-    //   return response.status(500).json(error.message);
-    // }
-    return response.status(400).json({ errors: "No implemented !" });
-  }
-);
-
-// DELETE
-mach_driversRouter.delete(
-  "/:id",
-  async (request: Request, response: Response) => {
-    const id: number = parseInt(request.params.id, 10);
-
-    // try {
-    //   await prisma.mach_drivers.delete(id);
-    //   return response.status(204).json("Entity has been successfully deleted");
-    // } catch (error: any) {
-    //   return response.status(500).json(error.message);
-    // }
-    return response.status(400).json({ errors: "No implemented !" });
-  }
-);
+ 
