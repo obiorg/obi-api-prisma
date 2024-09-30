@@ -46,4 +46,5 @@ statesRouter.get("/delete", controller.delete_get);
 // delete catalog 
 statesRouter.delete("/:id", validateSchema(StatesDeleteSchema), controller.delete_post);
 
-
+// download catalog rendering template
+statesRouter.get("/download/:filter", controller.download_lazy);

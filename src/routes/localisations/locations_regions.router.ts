@@ -46,4 +46,5 @@ regionsRouter.get("/delete", controller.delete_get);
 // delete catalog 
 regionsRouter.delete("/:id", validateSchema(RegionsDeleteSchema), controller.delete_post);
 
-
+// download catalog rendering template
+regionsRouter.get("/download/:filter", controller.download_lazy);

@@ -46,4 +46,8 @@ citiesRouter.get("/delete", controller.delete_get);
 // delete catalog 
 citiesRouter.delete("/:id", validateSchema(CitiesDeleteSchema), controller.delete_post);
 
+// download catalog rendering template
+citiesRouter.get("/download/:filter", controller.download_lazy);
+
+ 
 

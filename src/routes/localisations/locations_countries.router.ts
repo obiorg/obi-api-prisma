@@ -46,4 +46,8 @@ countriesRouter.get("/delete", controller.delete_get);
 // delete catalog 
 countriesRouter.delete("/:id", validateSchema(CountriesDeleteSchema), controller.delete_post);
 
+// download catalog rendering template
+countriesRouter.get("/download/:filter", controller.download_lazy);
+
+ 
 

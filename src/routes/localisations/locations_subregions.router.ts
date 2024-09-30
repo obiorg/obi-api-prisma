@@ -46,4 +46,5 @@ subRegionsRouter.get("/delete", controller.delete_get);
 // delete catalog 
 subRegionsRouter.delete("/:id", validateSchema(SubRegionsDeleteSchema), controller.delete_post);
 
-
+// download catalog rendering template
+subRegionsRouter.get("/download/:filter", controller.download_lazy);
