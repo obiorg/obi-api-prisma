@@ -83,7 +83,7 @@ export const PersistencesDeleteSchema = z.object({
   // id: z.number(),
 });
 
-export const PersistencesLimitsStandardsCreateSchema = z.object({
+export const PersistencesStandardsLimitsCreateSchema = z.object({
   // id: z.number(),
   deleted: z.optional(z.boolean()),
   // created: z.date(),
@@ -120,7 +120,7 @@ export const PersistencesLimitsStandardsCreateSchema = z.object({
     .or(z.literal("")),
 });
 
-export const PersistencesLimitsStandardsUpdateSchema = z.object({
+export const PersistencesStandardsLimitsUpdateSchema = z.object({
   id: z
     .number()
     .int({ message: "Définir un nombre !" })
@@ -162,7 +162,7 @@ export const PersistencesLimitsStandardsUpdateSchema = z.object({
     .or(z.literal("")),
 });
 
-export const PersistencesLimitsStandardsDeleteSchema = z.object({
+export const PersistencesStandardsLimitsDeleteSchema = z.object({
   // id: z.number(),
 });
 

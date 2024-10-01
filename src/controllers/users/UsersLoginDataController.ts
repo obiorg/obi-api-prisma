@@ -13,12 +13,11 @@ const prisma = new PrismaClient({
 exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
-      let all = await prisma.machines.findMany({
+      let all = await prisma.user_login_data.findMany({
         orderBy: { id : "asc" },
         include: {
-          companies: true,
-          mach_drivers: true,
-          tags: true,
+          user_email_verified: true,
+          user_hashing_algorithms: true,
         },
       });
       return response.status(200).json(all);
@@ -32,7 +31,7 @@ exports.list = asyncHandler(
 exports.list_count = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
-      const count = await prisma.machines.count();
+      const count = await prisma.user_login_data.count();
       return response.status(200).json(count);
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -55,16 +54,15 @@ exports.list_lazy = asyncHandler(
 
     // Process request
     try {
-      const result = await prisma.machines.findMany({
+      const result = await prisma.user_login_data.findMany({
         skip:
           parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
         take: parseInt(requestFilter.rows),
         where: whereClause,
         orderBy: sortingClause,
         include: {
-          companies: true,
-          mach_drivers: true,
-          tags: true,
+          user_email_verified: true,
+          user_hashing_algorithms: true,
         },
       });
 
@@ -95,7 +93,7 @@ exports.list_lazy_count = asyncHandler(
     );
 
     try {
-      const all = await prisma.machines.count({
+      const all = await prisma.user_login_data.count({
         where: whereClause,
         orderBy: sortingClause,
       });
@@ -104,7 +102,7 @@ exports.list_lazy_count = asyncHandler(
         // console.log(all);
         return response.status(200).json(all);
       } else {
-        return response.status(400).json("machine is empty");
+        return response.status(400).json("location is empty");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -119,14 +117,13 @@ exports.detail = asyncHandler(
 
     const id: number = parseInt(request.params.id, 10);
     try {
-      const byId = await prisma.machines.findUnique({
+      const byId = await prisma.user_login_data.findUnique({
         where: {
           id: id,
         },
         include: {
-          companies: true,
-          mach_drivers: true,
-          tags: true,
+          user_email_verified: true,
+          user_hashing_algorithms: true,
         },
       });
 
@@ -135,7 +132,7 @@ exports.detail = asyncHandler(
       } else {
         return response
           .status(400)
-          .json("catalog machine with id(" + id + ") not found");
+          .json("catalog location with id(" + id + ") not found");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -156,19 +153,21 @@ exports.create_get = asyncHandler(
 exports.create_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // check duplicates
-    const existing = await prisma.machines.findFirst({
+    const existing = await prisma.user_login_data.findFirst({
       where: {
-        company: request.body.company,
-        address: request.body.address,
-        driver: request.body.driver,
+        loginName: request.body.loginName,
+        email: request.body.email,
+        emailVerified: request.body.emailVerified,
+        hashAlgorithm: request.body.hashAlgorithm,
       },
     });
     if (existing) {
       const error = {
         errors: {
-          company: ["Doublon ! ...déjà spécifié !"],
-          address: ["Doublon ! ...déjà spécifié !"],
-          driver: ["Doublon ! ...déjà spécifié !"],
+          loginName: ["Doublon ! ...déjà spécifié !"],
+          email: ["Doublon ! ...déjà spécifié !"],
+          emailVerified: ["Doublon ! ...déjà spécifié !"],
+          hashAlgorithm: ["Doublon ! ...déjà spécifié !"],
         },
       };
       return response.status(400).json(error);
@@ -181,14 +180,14 @@ exports.create_post = asyncHandler(
       delete catalog.created;
       delete catalog.changed;
 
-      const catalogResult = await prisma.machines.create({
+      const catalogResult = await prisma.user_login_data.create({
         data: {
           ...catalog,
         },
       });
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("MachinesController create_post", error.message);
+      console.log("UserLoginDataController create_post", error.message);
       return response.status(500).json(error.message);
     }
   }
@@ -205,19 +204,21 @@ exports.update_get = asyncHandler(
 exports.update_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // check duplicates
-    const existing = await prisma.machines.findFirst({
+    const existing = await prisma.user_login_data.findFirst({
       where: {
-        company: request.body.company,
-        address: request.body.address,
-        driver: request.body.driver,
+        loginName: request.body.loginName,
+        email: request.body.email,
+        emailVerified: request.body.emailVerified,
+        hashAlgorithm: request.body.hashAlgorithm,
       },
     });
     if (!existing) {
       const error = {
         errors: {
-          company: [" n'existe plus !"],
-          address: [" n'existe plus !"],
-          driver: [" n'existe plus !"],
+          loginName: ["... n'existe plus !"],
+          email: ["... n'existe plus !"],
+          emailVerified: ["... n'existe plus !"],
+          hashAlgorithm: ["... n'existe plus !"],
         },
       };
       return response.status(400).json(error);
@@ -231,7 +232,7 @@ exports.update_post = asyncHandler(
       delete catalog.created;
       delete catalog.changed;
 
-      const catalogResult = await prisma.machines.update({
+      const catalogResult = await prisma.user_login_data.update({
         where: { id: id },
         data: {
           ...catalog,
@@ -239,7 +240,7 @@ exports.update_post = asyncHandler(
       });
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("MachinesController update_post", error.message);
+      console.log("UserLoginDataController update_post", error.message);
       return response.status(500).json(error);
     }
   }
@@ -258,7 +259,7 @@ exports.delete_post = asyncHandler(
     const id: number = parseInt(request.params.id, 10);
 
     // check duplicates
-    const existing = await prisma.machines.findFirst({
+    const existing = await prisma.user_login_data.findFirst({
       where: {
         id: id,
       },
@@ -266,22 +267,23 @@ exports.delete_post = asyncHandler(
     if (!existing) { 
       const error = {
         errors: {
-          company: [" n'existe plus !"],
-          address: [" n'existe plus !"],
-          driver: [" n'existe plus !"],
+          loginName: ["... n'existe plus !"],
+          email: ["... n'existe plus !"],
+          emailVerified: ["... n'existe plus !"],
+          hashAlgorithm: ["... n'existe plus !"],
         },
       };
       return response.status(400).json(error);
     }
 
     try {
-      const catalogResult = await prisma.machines.delete({
+      const catalogResult = await prisma.user_login_data.delete({
         where: { id: id },
       });
 
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("MachinesController update_post", error.message);
+      console.log("UserLoginDataController update_post", error.message);
       return response.status(500).json(error);
     }
   }
@@ -303,12 +305,12 @@ exports.download_lazy = asyncHandler(
 
     // Get base information
     const filename =
-      request.params.filename || "machines_" + Math.floor(Date.now() / 1000);
-    const fields = prisma.machines.fields;
+      request.params.filename || "userLoginData_" + Math.floor(Date.now() / 1000);
+    const fields = prisma.user_login_data.fields;
 
     // Process request
     try {
-      const result = await prisma.machines.findMany({
+      const result = await prisma.user_login_data.findMany({
         where: whereClause,
         orderBy: sortingClause,
       });

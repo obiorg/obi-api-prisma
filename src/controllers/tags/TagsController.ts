@@ -13,12 +13,17 @@ const prisma = new PrismaClient({
 exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
-      let all = await prisma.machines.findMany({
+      let all = await prisma.tags.findMany({
         orderBy: { id : "asc" },
         include: {
+          alarms: true,
           companies: true,
-          mach_drivers: true,
-          tags: true,
+          tags_lists: true,
+          machines: true,
+          meas_units: true,
+          tags_memories: true,
+          tags_tables: true,
+          tags_types: true,
         },
       });
       return response.status(200).json(all);
@@ -32,7 +37,7 @@ exports.list = asyncHandler(
 exports.list_count = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
-      const count = await prisma.machines.count();
+      const count = await prisma.tags.count();
       return response.status(200).json(count);
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -55,16 +60,21 @@ exports.list_lazy = asyncHandler(
 
     // Process request
     try {
-      const result = await prisma.machines.findMany({
+      const result = await prisma.tags.findMany({
         skip:
           parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
         take: parseInt(requestFilter.rows),
         where: whereClause,
         orderBy: sortingClause,
         include: {
+          alarms: true,
           companies: true,
-          mach_drivers: true,
-          tags: true,
+          tags_lists: true,
+          machines: true,
+          meas_units: true,
+          tags_memories: true,
+          tags_tables: true,
+          tags_types: true,
         },
       });
 
@@ -95,7 +105,7 @@ exports.list_lazy_count = asyncHandler(
     );
 
     try {
-      const all = await prisma.machines.count({
+      const all = await prisma.tags.count({
         where: whereClause,
         orderBy: sortingClause,
       });
@@ -104,7 +114,7 @@ exports.list_lazy_count = asyncHandler(
         // console.log(all);
         return response.status(200).json(all);
       } else {
-        return response.status(400).json("machine is empty");
+        return response.status(400).json("... is empty");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -119,14 +129,19 @@ exports.detail = asyncHandler(
 
     const id: number = parseInt(request.params.id, 10);
     try {
-      const byId = await prisma.machines.findUnique({
+      const byId = await prisma.tags.findUnique({
         where: {
           id: id,
         },
         include: {
+          alarms: true,
           companies: true,
-          mach_drivers: true,
-          tags: true,
+          tags_lists: true,
+          machines: true,
+          meas_units: true,
+          tags_memories: true,
+          tags_tables: true,
+          tags_types: true,
         },
       });
 
@@ -135,7 +150,7 @@ exports.detail = asyncHandler(
       } else {
         return response
           .status(400)
-          .json("catalog machine with id(" + id + ") not found");
+          .json("catalog ... with id(" + id + ") not found");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -156,19 +171,19 @@ exports.create_get = asyncHandler(
 exports.create_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // check duplicates
-    const existing = await prisma.machines.findFirst({
+    const existing = await prisma.tags.findFirst({
       where: {
         company: request.body.company,
-        address: request.body.address,
-        driver: request.body.driver,
+        name: request.body.name,
+        machine: request.body.machine,
       },
     });
     if (existing) {
       const error = {
         errors: {
           company: ["Doublon ! ...déjà spécifié !"],
-          address: ["Doublon ! ...déjà spécifié !"],
-          driver: ["Doublon ! ...déjà spécifié !"],
+          name: ["Doublon ! ...déjà spécifié !"],
+          machine: ["Doublon ! ...déjà spécifié !"],
         },
       };
       return response.status(400).json(error);
@@ -181,14 +196,14 @@ exports.create_post = asyncHandler(
       delete catalog.created;
       delete catalog.changed;
 
-      const catalogResult = await prisma.machines.create({
+      const catalogResult = await prisma.tags.create({
         data: {
           ...catalog,
         },
       });
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("MachinesController create_post", error.message);
+      console.log("TagsController create_post", error.message);
       return response.status(500).json(error.message);
     }
   }
@@ -205,19 +220,19 @@ exports.update_get = asyncHandler(
 exports.update_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // check duplicates
-    const existing = await prisma.machines.findFirst({
+    const existing = await prisma.tags.findFirst({
       where: {
         company: request.body.company,
-        address: request.body.address,
-        driver: request.body.driver,
+        name: request.body.name,
+        machine: request.body.machine,
       },
     });
     if (!existing) {
       const error = {
         errors: {
-          company: [" n'existe plus !"],
-          address: [" n'existe plus !"],
-          driver: [" n'existe plus !"],
+          company: ["... n'existe plus !"],
+          name: ["... n'existe plus !"],
+          machine: ["... n'existe plus !"],
         },
       };
       return response.status(400).json(error);
@@ -231,7 +246,7 @@ exports.update_post = asyncHandler(
       delete catalog.created;
       delete catalog.changed;
 
-      const catalogResult = await prisma.machines.update({
+      const catalogResult = await prisma.tags.update({
         where: { id: id },
         data: {
           ...catalog,
@@ -239,7 +254,7 @@ exports.update_post = asyncHandler(
       });
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("MachinesController update_post", error.message);
+      console.log("TagsController update_post", error.message);
       return response.status(500).json(error);
     }
   }
@@ -258,30 +273,31 @@ exports.delete_post = asyncHandler(
     const id: number = parseInt(request.params.id, 10);
 
     // check duplicates
-    const existing = await prisma.machines.findFirst({
+    const existing = await prisma.tags.findFirst({
       where: {
         id: id,
       },
     });
-    if (!existing) { 
+    if (!existing) {
+      console.log("n existe pas !");
       const error = {
         errors: {
-          company: [" n'existe plus !"],
-          address: [" n'existe plus !"],
-          driver: [" n'existe plus !"],
+          company: ["... n'existe plus !"],
+          name: ["... n'existe plus !"],
+          machine: ["... n'existe plus !"],
         },
       };
       return response.status(400).json(error);
     }
 
     try {
-      const catalogResult = await prisma.machines.delete({
+      const catalogResult = await prisma.tags.delete({
         where: { id: id },
       });
 
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("MachinesController update_post", error.message);
+      console.log("TagsController update_post", error.message);
       return response.status(500).json(error);
     }
   }
@@ -303,12 +319,12 @@ exports.download_lazy = asyncHandler(
 
     // Get base information
     const filename =
-      request.params.filename || "machines_" + Math.floor(Date.now() / 1000);
-    const fields = prisma.machines.fields;
+      request.params.filename || "tags_" + Math.floor(Date.now() / 1000);
+    const fields = prisma.tags.fields;
 
     // Process request
     try {
-      const result = await prisma.machines.findMany({
+      const result = await prisma.tags.findMany({
         where: whereClause,
         orderBy: sortingClause,
       });

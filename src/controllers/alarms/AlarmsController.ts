@@ -14,7 +14,7 @@ exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
       let all = await prisma.alarms.findMany({
-        orderBy: { id : "asc" },
+        orderBy: { id: "asc" },
         include: {
           alarm_classes: true,
           alarm_groups: true,
@@ -75,7 +75,7 @@ exports.list_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      console.log('error', error);
+      console.log("error", error);
       return response.status(500).json(error.message);
     }
   }
@@ -158,12 +158,14 @@ exports.create_post = asyncHandler(
     // check duplicates
     const existing = await prisma.alarms.findFirst({
       where: {
+        company: request.body.company,
         alarm: request.body.alarm,
       },
     });
     if (existing) {
       const error = {
         errors: {
+          company: ["Doublon ! ...déjà spécifié !"],
           alarm: ["Doublon ! ...déjà spécifié !"],
         },
       };
@@ -203,12 +205,14 @@ exports.update_post = asyncHandler(
     // check duplicates
     const existing = await prisma.alarms.findFirst({
       where: {
+        company: request.body.company,
         alarm: request.body.alarm,
       },
     });
     if (!existing) {
       const error = {
         errors: {
+          company: ["n'existe plus !"],
           alarm: ["n'existe plus !"],
         },
       };
@@ -256,9 +260,9 @@ exports.delete_post = asyncHandler(
       },
     });
     if (!existing) {
-      console.log("n existe pas !");
       const error = {
         errors: {
+          company: ["n'existe plus !"],
           alarm: ["n'existe plus !"],
         },
       };
@@ -311,7 +315,7 @@ exports.download_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      return response.status(500).json(error.message); 
+      return response.status(500).json(error.message);
     }
   }
 );

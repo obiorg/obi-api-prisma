@@ -249,8 +249,7 @@ exports.delete_post = asyncHandler(
         id: id,
       },
     });
-    if (!existing) {
-      console.log("n existe pas !");
+    if (!existing) { 
       const error = {
         errors: {
           entity: [" n'existe plus !"],

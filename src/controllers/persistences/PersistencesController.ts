@@ -59,7 +59,7 @@ exports.list_lazy = asyncHandler(
 
     // console.log('requestFilter', requestFilter)
     // console.log('created', requestFilter.filters.created)
-    console.log("whereClause", whereClause);
+    // console.log("whereClause", whereClause);
 
     // Process request
     try {
@@ -169,7 +169,9 @@ exports.create_post = asyncHandler(
     if (existing) {
       const error = {
         errors: {
-          persistence: ["Doublon ! ...déjà spécifié !"],
+          company: ["Doublon ! ...déjà spécifié !"],
+          tag: ["Doublon ! ...déjà spécifié !"],
+          method: ["Doublon ! ...déjà spécifié !"],
         },
       };
       return response.status(400).json(error);
@@ -181,9 +183,6 @@ exports.create_post = asyncHandler(
       delete catalog.id;
       delete catalog.created;
       delete catalog.changed;
-      // if (catalog.floor === null || catalog.floor === undefined)
-      //   catalog["floor"] = null;
-      // console.log("catalog", catalog);
 
       const catalogResult = await prisma.persistence.create({
         data: {
@@ -213,12 +212,15 @@ exports.update_post = asyncHandler(
       where: {
         company: request.body.company,
         tag: request.body.tag,
+        method: request.body.method,
       },
     });
     if (!existing) {
       const error = {
         errors: {
-          persistence: ["Persistence n'existe plus !"],
+          company: ["... n'existe plus !"],
+          tag: ["... n'existe plus !"],
+          method: ["... n'existe plus !"],
         },
       };
       return response.status(400).json(error);
@@ -231,9 +233,6 @@ exports.update_post = asyncHandler(
       delete catalog.id;
       delete catalog.created;
       delete catalog.changed;
-      // if (catalog.floor === null || catalog.floor === undefined)
-      //   catalog["floor"] = null;
-      // console.log("catalog", catalog);
 
       const catalogResult = await prisma.persistence.update({
         where: { id: id },
@@ -268,10 +267,11 @@ exports.delete_post = asyncHandler(
       },
     });
     if (!existing) {
-      console.log("n existe pas !");
       const error = {
         errors: {
-          persistence: ["Persistence n'existe plus !"],
+          company: ["... n'existe plus !"],
+          tag: ["... n'existe plus !"],
+          method: ["... n'existe plus !"],
         },
       };
       return response.status(400).json(error);

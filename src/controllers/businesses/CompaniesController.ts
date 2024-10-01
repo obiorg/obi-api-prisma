@@ -156,11 +156,13 @@ exports.create_post = asyncHandler(
     const existing = await prisma.companies.findFirst({
       where: {
         company: request.body.company,
+        business: request.body.business,
       },
     });
     if (existing) {
       const error = {
         errors: {
+          business: ["Doublon ! ...déjà spécifié !"],
           company: ["Doublon ! ...déjà spécifié !"],
         },
       };
@@ -201,12 +203,14 @@ exports.update_post = asyncHandler(
     const existing = await prisma.companies.findFirst({
       where: {
         company: request.body.company,
+        business: request.body.business,
       },
     });
     if (!existing) {
       const error = {
         errors: {
           company: [" n'existe plus !"],
+          business: [" n'existe plus !"],
         },
       };
       return response.status(400).json(error);
@@ -252,11 +256,11 @@ exports.delete_post = asyncHandler(
         id: id,
       },
     });
-    if (!existing) {
-      console.log("n existe pas !");
+    if (!existing) { 
       const error = {
         errors: {
           company: [" n'existe plus !"],
+          business: [" n'existe plus !"],
         },
       };
       return response.status(400).json(error);

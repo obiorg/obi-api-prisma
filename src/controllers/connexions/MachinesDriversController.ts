@@ -15,6 +15,9 @@ exports.list = asyncHandler(
     try {
       let all = await prisma.mach_drivers.findMany({
         orderBy: { id : "asc" },
+        include: {
+          machines: true,
+        },
       });
       return response.status(200).json(all);
     } catch (error: any) {
@@ -56,6 +59,9 @@ exports.list_lazy = asyncHandler(
         take: parseInt(requestFilter.rows),
         where: whereClause,
         orderBy: sortingClause,
+        include: {
+          machines: true,
+        },
       });
 
       if (result) {
@@ -112,6 +118,9 @@ exports.detail = asyncHandler(
       const byId = await prisma.mach_drivers.findUnique({
         where: {
           id: id,
+        },
+        include: {
+          machines: true,
         },
       });
 
@@ -240,8 +249,7 @@ exports.delete_post = asyncHandler(
         id: id,
       },
     });
-    if (!existing) {
-      console.log("n existe pas !");
+    if (!existing) { 
       const error = {
         errors: {
           driver: ["n'existe plus !"],
