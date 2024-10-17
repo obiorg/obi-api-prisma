@@ -9,6 +9,15 @@ const controller = require("./../../controllers/alarms/AlarmsController");
 
 export const alarmsRouter = express.Router();
 
+/**
+ * @swagger
+ * /alarms 
+ *   get:
+ *     summary: return the full list of alarms 
+ *     responses:
+ *       200:
+ *         description: Full list of alarms 
+ */
 // list of all catalog
 alarmsRouter.get("/", controller.list);
 

@@ -6,7 +6,24 @@ import { PrismaClient } from "@prisma/client";
 const asyncHandler = require("express-async-handler");
 
 const prisma = new PrismaClient({
-  // log: ["query"],
+  log: [
+    {
+      emit: "event",
+      level: "query",
+    },
+    {
+      emit: "stdout",
+      level: "error",
+    },
+    {
+      emit: "stdout",
+      level: "info",
+    },
+    {
+      emit: "stdout",
+      level: "warn",
+    },
+  ],
 });
 
 // Display list of all catalog.
@@ -57,8 +74,7 @@ exports.list_lazy = asyncHandler(
     try {
       const result = await prisma.loc_cities.findMany({
         skip:
-          (parseInt(requestFilter.page, 10) - 1) *
-          parseInt(requestFilter.rows, 10),
+          parseInt(requestFilter.page, 10) * parseInt(requestFilter.rows, 10),
         take: parseInt(requestFilter.rows),
         where: whereClause,
         orderBy: sortingClause,
@@ -222,7 +238,6 @@ exports.update_post = asyncHandler(
       delete catalog.created_at;
       delete catalog.updated_at;
 
-
       const catalogResult = await prisma.loc_cities.update({
         where: { id: id },
         data: {
@@ -277,8 +292,6 @@ exports.delete_post = asyncHandler(
   }
 );
 
-
-
 // download csv lazy
 exports.download_lazy = asyncHandler(
   async (request: Request, response: Response, next: any) => {
@@ -312,7 +325,7 @@ exports.download_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      return response.status(500).json(error.message); 
+      return response.status(500).json(error.message);
     }
   }
 );

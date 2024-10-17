@@ -1,5 +1,8 @@
 const swaggerAutogen = require("swagger-autogen")();
 
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+
 const doc = {
   info: {
     title: "Swagger OBI Express API",
@@ -183,6 +186,25 @@ const endpointsFiles = [
   // "./../routes/users/tags.router.js",
 ];
 
-swaggerAutogen(outputFile, endpointsFiles, doc).then(() => {
-  require("../../server.ts/index.js");
-});
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'OAP API Reference',
+      version: '1.0.0',
+      description: 'One Brewery Industry - Express API power by prisma',
+    },
+  },
+  apis: ['./../routes/*.js'], // Path to your API routes
+};
+const specs = swaggerJsdoc(options);
+
+// swaggerAutogen(outputFile, endpointsFiles, doc).then(() => {
+//   require("../../server.ts/index.js");
+// });
+
+module.exports = {
+  specs,
+  swaggerUi,
+};

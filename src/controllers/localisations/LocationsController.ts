@@ -6,7 +6,25 @@ import { PrismaClient } from "@prisma/client";
 const asyncHandler = require("express-async-handler");
 
 const prisma = new PrismaClient({
-  // log: ["query"],
+  log: [
+    "query",
+    {
+      emit: "event",
+      level: "query",
+    },
+    {
+      emit: "stdout",
+      level: "error",
+    },
+    {
+      emit: "stdout",
+      level: "info",
+    },
+    {
+      emit: "stdout",
+      level: "warn",
+    },
+  ],
 });
 
 // Display list of all catalog.
@@ -14,7 +32,7 @@ exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
       let all = await prisma.locations.findMany({
-        orderBy: { id : "asc" },
+        orderBy: { id: "asc" },
         include: {
           loc_countries: true,
           loc_states: true,
@@ -53,6 +71,8 @@ exports.list_lazy = asyncHandler(
       requestFilter.multiSortMeta
     );
 
+    // console.log("location where clause: " + whereClause);
+
     // Process request
     try {
       const result = await prisma.locations.findMany({
@@ -75,7 +95,7 @@ exports.list_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      console.log('error', error);
+      console.log("error", error);
       return response.status(500).json(error.message);
     }
   }
@@ -156,6 +176,7 @@ exports.create_get = asyncHandler(
 exports.create_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // check duplicates
+    // console.log('check if existing');
     const existing = await prisma.locations.findFirst({
       where: {
         location: request.body.location,
@@ -167,6 +188,7 @@ exports.create_post = asyncHandler(
           location: ["Doublon ! ...déjà spécifié !"],
         },
       };
+      console.error(error);
       return response.status(400).json(error);
     }
 
@@ -190,6 +212,61 @@ exports.create_post = asyncHandler(
       console.log("locationsController create_post", error.message);
       return response.status(500).json(error.message);
     }
+  }
+);
+
+// POST : Create post
+exports.createMany_post = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // Check duplication
+    let catalogs = request.body.map((item: any) => item.location);
+    const existing = await prisma.locations.findMany({
+      where: {
+        location: { in: catalogs },
+      },
+    });
+    const existingLocations = existing.map((item: any) => item.locations);
+    // console.log("ids", catalogs, existingLocations);
+    // check duplicates
+
+    if (existing?.length > 0) {
+      const error = {
+        errors: {
+          status: 500,
+          message: "Doublon ! ...déjà spécifié !",
+          location: true,
+          items: existing,
+        },
+      };
+      // console.error(error);
+      return response.status(400).json(error);
+    }
+
+    // If not duplicates
+    try {
+      catalogs = request.body;
+      catalogs.forEach((catalog: any) => {
+        delete catalog.transaction;
+        delete catalog.index;
+        delete catalog.comment;
+        delete catalog.id;
+        delete catalog.created;
+        delete catalog.changed;
+        if (catalog.floor === null || catalog.floor === undefined)
+          catalog["floor"] = null;
+        // console.log("catalog", catalog);
+      });
+
+      const catalogResult = await prisma.locations.createMany({
+        data: catalogs,
+      });
+      return response.status(201).json(catalogResult);
+    } catch (error: any) {
+      // console.log("locationsController create_post", error.message);
+      return response.status(500).json(error.message);
+    }
+
+    // return response.status(200).json("success");
   }
 );
 
@@ -222,6 +299,9 @@ exports.update_post = asyncHandler(
     try {
       const catalog = request.body;
       const id = catalog.id;
+      delete catalog.transaction;
+      delete catalog.index;
+      delete catalog.comment;
       delete catalog.id;
       delete catalog.created;
       delete catalog.changed;
@@ -238,6 +318,84 @@ exports.update_post = asyncHandler(
       return response.status(201).json(catalogResult);
     } catch (error: any) {
       console.log("locationsController update_post", error.message);
+      return response.status(500).json(error);
+    }
+  }
+);
+
+async function updater(catalog: any): Promise<any> {
+  // check catalog exists to be updated
+  const existing = await prisma.locations.findFirst({
+    where: {
+      location: catalog.location,
+    },
+  });
+  if (!existing) {
+    const error = {
+      errors: {
+        location: ["Localisation n'existe plus !"],
+      },
+    };
+    return error;
+  }
+
+  // If catalog already exists
+  const savedCatalog = {...catalog};
+  // console.log('saved catalog', savedCatalog);
+  try {
+    const id = catalog.id;
+    delete catalog.transaction;
+    delete catalog.index;
+    delete catalog.comment;
+    delete catalog.id;
+    delete catalog.created;
+    delete catalog.changed;
+    if (catalog.floor === null || catalog.floor === undefined)
+      catalog["floor"] = null;
+    // console.log("catalog", catalog);
+
+    let catalogResult = await prisma.locations.update({
+      where: { id: id },
+      data: {
+        ...catalog,
+      },
+    });
+    console.log("savedCatalog", savedCatalog);
+    let result = {
+      ...catalogResult,
+      transaction: savedCatalog.transaction,
+      index: savedCatalog.index,
+      comment: savedCatalog.comment,
+    };
+    return result;
+  } catch (error: any) {
+    // console.log("Updater error: " + error);
+    let result = {
+      error: error,
+      transaction: savedCatalog.transaction,
+      index: savedCatalog.index,
+      comment: savedCatalog.comment,
+    };
+    return result;
+  }
+}
+// Handle catalog update on POST.
+exports.updateMany_post = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    console.log("in updateManyPost");
+    const catalogs = request.body;
+    // console.log("catalogs", catalogs);
+
+    try {
+      let res = await Promise.all(
+        catalogs.map((catalog: any) => {
+          return updater(catalog);
+        })
+      );
+      console.log("res", res);
+      return response.status(201).json(res);
+    } catch (error: any) {
+      console.log("locationsController updateMany_post", error.message);
       return response.status(500).json(error);
     }
   }
@@ -284,6 +442,49 @@ exports.delete_post = asyncHandler(
   }
 );
 
+// Handle catalog delete on POST.
+exports.deleteMany_post = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+
+    // Check if catalogs exists
+    let ids = request.body.map((item: any) => parseInt(item.id, 10));
+    
+    const existing = await prisma.locations.findMany({
+      where: {
+        id: { in: ids },
+      },
+    });
+    const existingIds = existing.map((item: any) => item.ids);
+    console.log('ids', ids, 'existingIds', existing);
+
+    // check duplicates
+    if (existing?.length < ids.length) {
+      const error = {
+        errors: {
+          status: 500,
+          message: "Localisation n'existe plus !",
+          id: true,
+          items: existing,
+        },
+      };
+      // console.error(error);
+      return response.status(400).json(error);
+    }
+
+    try {
+      const catalogResult = await prisma.locations.deleteMany({
+        where: {
+           id: { in :  ids },
+        }
+      });
+      return response.status(201).json(catalogResult);
+    } catch (error: any) {
+      console.log("locationsController detleteMany", error.message);
+      return response.status(500).json(error);
+    }
+  }
+);
+
 // download csv lazy
 exports.download_lazy = asyncHandler(
   async (request: Request, response: Response, next: any) => {
@@ -317,7 +518,7 @@ exports.download_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      return response.status(500).json(error.message); 
+      return response.status(500).json(error.message);
     }
   }
 );

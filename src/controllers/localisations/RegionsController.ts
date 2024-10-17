@@ -44,8 +44,6 @@ exports.list_lazy = asyncHandler(
     // Manage Filters and sorting
     const model = new Model();
 
-    console.log('request Filter ', requestFilter)
-
     const whereClause = model.convFilterReactToPrisma(requestFilter.filters);
     const sortingClause = model.convSortingReactToPrisma(
       requestFilter.multiSortMeta

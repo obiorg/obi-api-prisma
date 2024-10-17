@@ -41,12 +41,12 @@ const corsOptions = {
 /**
  * Swagger Configuration
  */
-const swaggerUi = require("swagger-ui-express");
-const swaggerJsdoc = require("swagger-jsdoc");
-// const swaggerFile = require("./docs/swagger.json");
-const swaggerOptions = require("./docs/swaggeroptions.ts");
-const specs = swaggerJsdoc(swaggerOptions);
-
+// const swaggerUi = require("swagger-ui-express");
+// const swaggerJsdoc = require("swagger-jsdoc");
+// // const swaggerFile = require("./docs/swagger.json");
+// const swaggerOptions = require("./docs/swaggeroptions.ts");
+// const specs = swaggerJsdoc(swaggerOptions);
+const { specs, swaggerUi } = require('./docs/swagger');
 /**
  * API Reference
  */
@@ -100,7 +100,7 @@ import { persistencesStandardsLimitsRouter } from "./routes/persistences/pers_st
 import { persistencesStandardsRouter } from "./routes/persistences/pers_standards.router";
 import { persistencesRouter } from "./routes/persistences/persistences.router";
 
-// PERSISTENCES
+// TAGS
 import { tagsListContentsRouter } from "./routes/tags/tags_list_contents.router";
 import { tagsListTypeRouter } from "./routes/tags/tags_list_type.router";
 import { tagsListRouter } from "./routes/tags/tags_list.router";
@@ -172,8 +172,8 @@ app.use(path_api_v1 + "/businesses/companies", companiesRouter);
 app.use(path_api_v1 + "/businesses/entities", entitiesRouter);
 
 // CONNEXIONS
-app.use(path_api_v1 + "/machines/", machinesRouter);
-app.use(path_api_v1 + "/machines/drivers", machinesDriversRouter);
+app.use(path_api_v1 + "/connexions/machines/", machinesRouter);
+app.use(path_api_v1 + "/connexions/machines/drivers", machinesDriversRouter);
 
 // LOCALISATIONS
 app.use(path_api_v1 + "/localisations/cities", citiesRouter);
@@ -194,7 +194,7 @@ app.use(path_api_v1 + "/measures/limitsgroups", measuresLimitsGroupsRouter);
 app.use(path_api_v1 + "/measures/limits", measuresLimitsRouter);
 app.use(path_api_v1 + "/measures/units", measuresUnitsRouter);
 
-// PERSISTENCES
+// PERSISTENCES 
 app.use(path_api_v1 + "/persistences/methods", persistencesMethodsRouter);
 app.use(path_api_v1 + "/persistences/standardslimits", persistencesStandardsLimitsRouter);
 app.use(path_api_v1 + "/persistences/standards", persistencesStandardsRouter);
@@ -221,29 +221,6 @@ app.use(path_api_v1 + "/users/permissions", usersPermissionsRouter);
 app.use(path_api_v1 + "/users/rolepermissions", usersRolePermissionsRouter);
 app.use(path_api_v1 + "/users/roles", usersRolesRouter);
 
-// /** Businesses */
-// app.use(path_api_v1 + "/businesses/entities", entitiesRouter);
-// app.use(path_api_v1 + "/businesses/businesses", businessesRouter);
-// app.use(path_api_v1 + "/businesses/companies", companiesRouter);
-
-// /** Localisations */
-// app.use(path_api_v1 + "/localisations/locations", locationsRouter);
-// app.use(path_api_v1 + "/localisations/cities", citiesRouter);
-// app.use(path_api_v1 + "/localisations/countries", countriesRouter);
-// app.use(path_api_v1 + "/localisations/regions", regionsRouter);
-// app.use(path_api_v1 + "/localisations/states", statesRouter);
-// app.use(path_api_v1 + "/localisations/subregions", subRegionsRouter);
-
-// /** Connexions */
-// app.use(path_api_v1 + "/connexions/machines/drivers", machinesDriversRouter);
-// app.use(path_api_v1 + "/connexions/machines", machinesRouter);
-
-// /** Persistence */
-// app.use(path_api_v1 + "/persistences", persistencesRouter);
-// app.use(path_api_v1 + "/persistences/standards", persistencesStandardsRouter);
-
-// /** Tags */
-// app.use(path_api_v1 + "/tags", tagsRouter);
 
 /**
  * Setup swagger API documentation

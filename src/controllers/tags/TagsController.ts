@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Model } from "../../utils/model";
 import { PrismaClient } from "@prisma/client";
+import json from "../../utils/helper/json";
 
 // Import the module
 const asyncHandler = require("express-async-handler");
@@ -26,7 +27,7 @@ exports.list = asyncHandler(
           tags_types: true,
         },
       });
-      return response.status(200).json(all);
+      return response.status(200).send(json(all));
     } catch (error: any) {
       return response.status(500).json(error.message);
     }
@@ -79,7 +80,7 @@ exports.list_lazy = asyncHandler(
       });
 
       if (result) {
-        return response.status(200).json(result);
+        return response.status(200).send(json(result));
       } else {
         const status400 = '{ "status": 400, "message": "Bad request" }';
         return response.status(400).json(status400);
@@ -100,21 +101,20 @@ exports.list_lazy_count = asyncHandler(
     // Manage Filters and sorting
     const model = new Model();
     const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
-    const sortingClause = model.convSortingReactToPrisma(
-      reqFilter.multiSortMeta
-    );
+
 
     try {
       const all = await prisma.tags.count({
         where: whereClause,
-        orderBy: sortingClause,
       });
 
       if (all) {
         // console.log(all);
         return response.status(200).json(all);
       } else {
-        return response.status(400).json("... is empty");
+        const status400 = '{ "status": 400, "message": "Bad request", "object": all }';
+        return response.status(400).json(status400);
+        // return response.status(400).json("... is empty");
       }
     } catch (error: any) {
       return response.status(500).json(error.message);

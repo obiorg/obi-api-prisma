@@ -6,15 +6,36 @@ import { PrismaClient } from "@prisma/client";
 const asyncHandler = require("express-async-handler");
 
 const prisma = new PrismaClient({
-  // log: ["query"],
+  log: [
+    {
+      emit: "event",
+      level: "query",
+    },
+    {
+      emit: "stdout",
+      level: "error",
+    },
+    {
+      emit: "stdout",
+      level: "info",
+    },
+    {
+      emit: "stdout",
+      level: "warn",
+    },
+  ],
 });
-
+prisma.$on("query", (e) => {
+  console.log("Query: " + e.query);
+  console.log("Params: " + e.params);
+  console.log("Duration: " + e.duration + "ms");
+});
 // Display list of all catalog.
 exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
       let all = await prisma.loc_states.findMany({
-        orderBy: { id : "asc" },
+        orderBy: { id: "asc" },
         include: {
           loc_countries: true,
         },
@@ -47,8 +68,6 @@ exports.list_lazy = asyncHandler(
     // Manage Filters and sorting
     const model = new Model();
 
-    // console.log('request Filter ', requestFilter)
-
     const whereClause = model.convFilterReactToPrisma(requestFilter.filters);
     const sortingClause = model.convSortingReactToPrisma(
       requestFilter.multiSortMeta
@@ -68,13 +87,14 @@ exports.list_lazy = asyncHandler(
       });
 
       if (result) {
+        console.log("result: " + result);
         return response.status(200).json(result);
       } else {
         const status400 = '{ "status": 400, "message": "Bad request" }';
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      console.log('error', error);
+      console.log("error", error);
       return response.status(500).json(error.message);
     }
   }
@@ -308,7 +328,7 @@ exports.download_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      return response.status(500).json(error.message); 
+      return response.status(500).json(error.message);
     }
   }
 );

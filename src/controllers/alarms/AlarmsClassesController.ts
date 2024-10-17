@@ -9,6 +9,16 @@ const prisma = new PrismaClient({
   // log: ["query"],
 });
 
+
+/**
+ * @swagger
+ * /alarms 
+ *   get:
+ *     summary: return the full list of alarms 
+ *     responses:
+ *       200:
+ *         description: Full list of alarms 
+ */
 // Display list of all catalog.
 exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {

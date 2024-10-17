@@ -1,7 +1,7 @@
 import express from "express";
 
 import { PrismaClient } from "@prisma/client";
-import { validateSchema } from "../../middleware/validationMDW";
+import { validateSchema, validateSchemas } from "../../middleware/validationMDW";
 import { LocationsCreateSchema, LocationsDeleteSchema, LocationsUpdateSchema } from "../../schemas/localisationsSchema";
 
 const prisma = new PrismaClient();
@@ -31,17 +31,26 @@ locationsRouter.get("/create", controller.create_get);
 // create catalog 
 locationsRouter.post("/", validateSchema(LocationsCreateSchema), controller.create_post);
 
+// create catalogs
+locationsRouter.post("/create", validateSchemas(LocationsCreateSchema), controller.createMany_post);
+
 // update catalog rendering template
 locationsRouter.get("/update", controller.update_get);
 
 // update catalog 
 locationsRouter.put("/:id", validateSchema(LocationsUpdateSchema), controller.update_post);
 
+// update catalogs
+locationsRouter.post("/update", validateSchemas(LocationsUpdateSchema), controller.updateMany_post);
+
 // delete catalog rendering template 
 locationsRouter.get("/delete", controller.delete_get);
 
 // delete catalog 
 locationsRouter.delete("/:id", validateSchema(LocationsDeleteSchema), controller.delete_post);
+
+// update catalogs
+locationsRouter.post("/delete", validateSchemas(LocationsDeleteSchema), controller.deleteMany_post);
 
 // download catalog rendering template
 locationsRouter.get("/download/:filter", controller.download_lazy);

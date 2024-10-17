@@ -1,12 +1,30 @@
 import { Request, Response } from "express";
 import { Model } from "../../utils/model";
 import { PrismaClient } from "@prisma/client";
+import json from "../../utils/helper/json";
 
 // Import the module
 const asyncHandler = require("express-async-handler");
 
 const prisma = new PrismaClient({
-  // log: ["query"],
+  log: [
+    {
+      emit: "event",
+      level: "query",
+    },
+    {
+      emit: "stdout",
+      level: "error",
+    },
+    {
+      emit: "stdout",
+      level: "info",
+    },
+    {
+      emit: "stdout",
+      level: "warn",
+    },
+  ],
 });
 
 // Display list of all catalog.
@@ -21,7 +39,7 @@ exports.list = asyncHandler(
           tags: true,
         },
       });
-      return response.status(200).json(all);
+      return response.status(200).send(json(all));
     } catch (error: any) {
       return response.status(500).json(error.message);
     }
@@ -52,6 +70,7 @@ exports.list_lazy = asyncHandler(
     const sortingClause = model.convSortingReactToPrisma(
       requestFilter.multiSortMeta
     );
+    console.log('Request filter', requestFilter);
 
     // Process request
     try {
@@ -69,7 +88,7 @@ exports.list_lazy = asyncHandler(
       });
 
       if (result) {
-        return response.status(200).json(result);
+        return response.status(200).send(json(result));
       } else {
         const status400 = '{ "status": 400, "message": "Bad request" }';
         return response.status(400).json(status400);
@@ -86,6 +105,8 @@ exports.list_lazy_count = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // Get Request react filter
     const reqFilter: any = JSON.parse(request.params.filter);
+
+    console.log(reqFilter);
 
     // Manage Filters and sorting
     const model = new Model();
