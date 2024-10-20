@@ -50,6 +50,7 @@ exports.list_lazy = asyncHandler(
     const sortingClause = model.convSortingReactToPrisma(
       requestFilter.multiSortMeta
     );
+    console.log(requestFilter)
 
     // Process request
     try {

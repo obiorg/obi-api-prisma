@@ -172,8 +172,8 @@ app.use(path_api_v1 + "/businesses/companies", companiesRouter);
 app.use(path_api_v1 + "/businesses/entities", entitiesRouter);
 
 // CONNEXIONS
-app.use(path_api_v1 + "/connexions/machines/", machinesRouter);
-app.use(path_api_v1 + "/connexions/machines/drivers", machinesDriversRouter);
+app.use(path_api_v1 + "/connexions/machines", machinesRouter);
+app.use(path_api_v1 + "/connexions/drivers", machinesDriversRouter);
 
 // LOCALISATIONS
 app.use(path_api_v1 + "/localisations/cities", citiesRouter);
