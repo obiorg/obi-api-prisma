@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 import { Model } from "../../utils/model";
 import { PrismaClient } from "@prisma/client";
-import json from "../../utils/helper/json";
+import { JsonHelper } from "../../utils/helper/JsonHelper";
 
-// Import the module
 const asyncHandler = require("express-async-handler");
 
 const prisma = new PrismaClient({
@@ -27,7 +26,7 @@ exports.list = asyncHandler(
           tags_types: true,
         },
       });
-      return response.status(200).send(json(all));
+      return response.status(200).send(JsonHelper.mngBigInt(all));
     } catch (error: any) {
       return response.status(500).json(error.message);
     }
@@ -80,7 +79,7 @@ exports.list_lazy = asyncHandler(
       });
 
       if (result) {
-        return response.status(200).send(json(result));
+        return response.status(200).send(JsonHelper.mngBigInt(result));
       } else {
         const status400 = '{ "status": 400, "message": "Bad request" }';
         return response.status(400).json(status400);
@@ -128,6 +127,7 @@ exports.detail = asyncHandler(
     // response.send(`NOT IMPLEMENTED: Catalog detail: ${request.params.id}`);
 
     const id: number = parseInt(request.params.id, 10);
+    console.log('details for id ' + id);
     try {
       const byId = await prisma.tags.findUnique({
         where: {
@@ -146,13 +146,56 @@ exports.detail = asyncHandler(
       });
 
       if (byId) {
-        return response.status(200).json(byId);
+        return response.status(200).send(JsonHelper.mngBigInt(byId));
       } else {
+        console.log('error 500 : ' + JsonHelper.mngBigInt(response));
         return response
           .status(400)
           .json("catalog ... with id(" + id + ") not found");
       }
     } catch (error: any) {
+      console.log('error 500 : ' + error.message);
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
+// Display detail page for a specific catalog.
+exports.details = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // response.send(`NOT IMPLEMENTED: Catalog detail: ${request.params.id}`);
+
+    const ids: string[] = request.params.ids.split(',');
+    const idInt: number[] = ids.map((idStr: string) => parseInt(idStr, 10));
+    // console.log('catalog id :' + idInt);
+
+    try {
+      const byId = await prisma.tags.findMany({
+        where: {
+          id: { in: idInt } ,
+        },
+        include: {
+          alarms: true,
+          companies: true,
+          tags_lists: true,
+          machines: true,
+          meas_units: true,
+          tags_memories: true,
+          tags_tables: true,
+          tags_types: true,
+        },
+      });
+
+      if (byId) {
+        return response.status(200).send(JsonHelper.mngBigInt(byId));
+      } else {
+        console.log('error 500 : ' + JsonHelper.mngBigInt(response));
+        return response
+          .status(400)
+          .json("catalog ... with id(" + idInt + ") not found");
+      }
+    } catch (error: any) {
+      console.log('error 500 : ' + error.message);
       return response.status(500).json(error.message);
     }
   }
@@ -330,7 +373,7 @@ exports.download_lazy = asyncHandler(
       });
 
       if (result) {
-        return response.status(200).json(result);
+        return response.status(200).send(JsonHelper.mngBigInt(result));
       } else {
         const status400 = '{ "status": 400, "message": "Bad request" }';
         return response.status(400).json(status400);

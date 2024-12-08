@@ -25,6 +25,9 @@ tagsRouter.get("/lazy/count/:filter", controller.list_lazy_count);
 // detail of catalog defined by id
 tagsRouter.get("/:id", controller.detail);
 
+// detail of catalog defined by id
+tagsRouter.get("/in/:ids", controller.details);
+
 // create catalog rendering template
 tagsRouter.get("/create", controller.create_get);
 

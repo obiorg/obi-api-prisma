@@ -13,6 +13,9 @@ export const persistencesStandardsRouter = express.Router();
 // list of all catalog
 persistencesStandardsRouter.get("/", controller.list);
 
+// list of all catalog on field from, to, sortByField, sortOrder
+persistencesStandardsRouter.get("/tag/:tag/from/:from/to/:to/sortField/:sortField/order/:order", controller.dedicatedCatalogByTag);
+
 // count of all catalog
 persistencesStandardsRouter.get("/count", controller.list_count);
 

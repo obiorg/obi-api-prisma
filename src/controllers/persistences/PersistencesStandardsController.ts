@@ -7,7 +7,7 @@ import json from "../../utils/helper/json";
 const asyncHandler = require("express-async-handler");
 
 const prisma = new PrismaClient({
-  // log: ["query"],
+  log: ["query"],
 });
 
 // Display list of all catalog.
@@ -15,11 +15,50 @@ exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
       let all = await prisma.pers_standard.findMany({
-        orderBy: { id : "asc" },
+        orderBy: { id: "asc" },
         include: {
           companies: true,
           tags: true,
-          pers_standard_limits_pers_standard_limits_pers_standardTopers_standard: true,
+          pers_standard_limits_pers_standard_limits_pers_standardTopers_standard:
+            true,
+        },
+      });
+      return response.status(200).send(json(all));
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
+exports.dedicatedCatalogByTag = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    console.log(request.params);
+    const tag: any = JSON.parse(request.params.tag);
+    const from: any = parseInt(request.params.from, 10);
+    const to: any = parseInt(request.params.to, 10);
+    const sortField: any = request.params.sortField;
+    const sortOrder: any = request.params.order;
+    const sort = {
+      [sortField]: sortOrder === "asc" ? "asc" : "desc",
+    };
+
+    console.log(tag, from, to, sortField, sortOrder);
+
+    try {
+      let all = await prisma.pers_standard.findMany({
+        orderBy: sort,
+        skip: from,
+        take: to - from + 1,
+        where: {
+          AND: {
+            tag: tag,
+          },
+        },
+        include: {
+          companies: true,
+          tags: true,
+          pers_standard_limits_pers_standard_limits_pers_standardTopers_standard:
+            true,
         },
       });
       return response.status(200).send(json(all));
@@ -65,7 +104,8 @@ exports.list_lazy = asyncHandler(
         include: {
           companies: true,
           tags: true,
-          pers_standard_limits_pers_standard_limits_pers_standardTopers_standard: true,
+          pers_standard_limits_pers_standard_limits_pers_standardTopers_standard:
+            true,
         },
       });
 
@@ -76,7 +116,7 @@ exports.list_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      console.log('error', error);
+      console.log("error", error);
       return response.status(500).json(error.message);
     }
   }
@@ -127,7 +167,8 @@ exports.detail = asyncHandler(
         include: {
           companies: true,
           tags: true,
-          pers_standard_limits_pers_standard_limits_pers_standardTopers_standard: true,
+          pers_standard_limits_pers_standard_limits_pers_standardTopers_standard:
+            true,
         },
       });
 
@@ -258,7 +299,7 @@ exports.delete_post = asyncHandler(
         id: id,
       },
     });
-    if (!existing) { 
+    if (!existing) {
       const error = {
         errors: {
           location: ["n'existe plus !"],
@@ -296,7 +337,8 @@ exports.download_lazy = asyncHandler(
 
     // Get base information
     const filename =
-      request.params.filename || "pers_standard_" + Math.floor(Date.now() / 1000);
+      request.params.filename ||
+      "pers_standard_" + Math.floor(Date.now() / 1000);
     const fields = prisma.pers_standard.fields;
 
     // Process request
@@ -313,7 +355,7 @@ exports.download_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      return response.status(500).json(error.message); 
+      return response.status(500).json(error.message);
     }
   }
 );
