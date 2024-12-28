@@ -28,6 +28,9 @@ tagsListContentsRouter.get("/:id", controller.detail);
 // detail of catalog defined by list and content
 tagsListContentsRouter.get("/list/:list/content/:content", controller.detailListContent);
 
+// detail of catalog defined by list and content
+tagsListContentsRouter.get("/list/:list/company/:company", controller.detailList);
+
 // create catalog rendering template
 tagsListContentsRouter.get("/create", controller.create_get);
 

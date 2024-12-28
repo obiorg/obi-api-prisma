@@ -173,6 +173,39 @@ exports.detailListContent = asyncHandler(
   }
 );
 
+// Display detail page for a specific catalog.
+exports.detailList = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // response.send(`NOT IMPLEMENTED: Catalog detail: ${request.params.id}`);
+
+    const list: number = parseInt(request.params.list, 10);
+    const company: number = parseInt(request.params.company, 10);
+    try {
+      const listContent = await prisma.tags_lists_content.findMany({
+        where: {
+          list: list,
+          company: company,
+
+        },
+        include: {
+          companies: true,
+          tags_lists: true,
+        },
+      });
+
+      if (listContent) {
+        return response.status(200).json(listContent);
+      } else {
+        return response
+          .status(400)
+          .json("catalog ... with id(" + listContent + ") not found");
+      }
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
 // Display catalog create form on GET.
 exports.create_get = asyncHandler(
   async (request: Request, response: Response, next: any) => {
