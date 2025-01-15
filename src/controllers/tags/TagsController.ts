@@ -6,7 +6,25 @@ import { JsonHelper } from "../../utils/helper/JsonHelper";
 const asyncHandler = require("express-async-handler");
 
 const prisma = new PrismaClient({
-  // log: ["query"],
+  // log: [
+  //   "query",
+  //   {
+  //     emit: "event",
+  //     level: "query",
+  //   },
+  //   {
+  //     emit: "stdout",
+  //     level: "error",
+  //   },
+  //   {
+  //     emit: "stdout",
+  //     level: "info",
+  //   },
+  //   {
+  //     emit: "stdout",
+  //     level: "warn",
+  //   },
+  // ],
 });
 
 // Display list of all catalog.
@@ -14,7 +32,7 @@ exports.list = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     try {
       let all = await prisma.tags.findMany({
-        orderBy: { id : "asc" },
+        orderBy: { id: "asc" },
         include: {
           alarms: true,
           companies: true,
@@ -85,7 +103,7 @@ exports.list_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      console.log('error', error);
+      console.log("error", error);
       return response.status(500).json(error.message);
     }
   }
@@ -101,7 +119,6 @@ exports.list_lazy_count = asyncHandler(
     const model = new Model();
     const whereClause = model.convFilterReactToPrisma(reqFilter.filters);
 
-
     try {
       const all = await prisma.tags.count({
         where: whereClause,
@@ -111,7 +128,8 @@ exports.list_lazy_count = asyncHandler(
         // console.log(all);
         return response.status(200).json(all);
       } else {
-        const status400 = '{ "status": 400, "message": "Bad request", "object": all }';
+        const status400 =
+          '{ "status": 400, "message": "Bad request", "object": all }';
         return response.status(400).json(status400);
         // return response.status(400).json("... is empty");
       }
@@ -127,7 +145,7 @@ exports.detail = asyncHandler(
     // response.send(`NOT IMPLEMENTED: Catalog detail: ${request.params.id}`);
 
     const id: number = parseInt(request.params.id, 10);
-    console.log('details for id ' + id);
+    console.log("details for id " + id);
     try {
       const byId = await prisma.tags.findUnique({
         where: {
@@ -148,13 +166,13 @@ exports.detail = asyncHandler(
       if (byId) {
         return response.status(200).send(JsonHelper.mngBigInt(byId));
       } else {
-        console.log('error 500 : ' + JsonHelper.mngBigInt(response));
+        console.log("error 500 : " + JsonHelper.mngBigInt(response));
         return response
           .status(400)
           .json("catalog ... with id(" + id + ") not found");
       }
     } catch (error: any) {
-      console.log('error 500 : ' + error.message);
+      console.log("error 500 : " + error.message);
       return response.status(500).json(error.message);
     }
   }
@@ -165,14 +183,14 @@ exports.details = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     // response.send(`NOT IMPLEMENTED: Catalog detail: ${request.params.id}`);
 
-    const ids: string[] = request.params.ids.split(',');
+    const ids: string[] = request.params.ids.split(",");
     const idInt: number[] = ids.map((idStr: string) => parseInt(idStr, 10));
     // console.log('catalog id :' + idInt);
 
     try {
       const byId = await prisma.tags.findMany({
         where: {
-          id: { in: idInt } ,
+          id: { in: idInt },
         },
         include: {
           alarms: true,
@@ -189,13 +207,13 @@ exports.details = asyncHandler(
       if (byId) {
         return response.status(200).send(JsonHelper.mngBigInt(byId));
       } else {
-        console.log('error 500 : ' + JsonHelper.mngBigInt(response));
+        console.log("error 500 : " + JsonHelper.mngBigInt(response));
         return response
           .status(400)
           .json("catalog ... with id(" + idInt + ") not found");
       }
     } catch (error: any) {
-      console.log('error 500 : ' + error.message);
+      console.log("error 500 : " + error.message);
       return response.status(500).json(error.message);
     }
   }
@@ -213,6 +231,7 @@ exports.create_get = asyncHandler(
 // POST : Create post
 exports.create_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
+    console.log("Tags >> create_post", request.body);
     // check duplicates
     const existing = await prisma.tags.findFirst({
       where: {
@@ -249,6 +268,76 @@ exports.create_post = asyncHandler(
       console.log("TagsController create_post", error.message);
       return response.status(500).json(error.message);
     }
+  }
+);
+
+// POST : Create post
+exports.createMany_post = asyncHandler(
+  /**
+   * 1. Check duplicates
+   * 2. Create
+   * 3. Response with adapted json or error
+   */
+  async (request: Request, response: Response, next: any) => {
+    /**
+     * While creating keys in the database are :
+     * on company, machine, name, // >> pas pris en compte  >>table, type, memory, measureUnit, alarm, list
+     */
+    let catalogs = request.body.map((item: any) => {
+      return { company: item.company, machine: item.machine, name: item.name };
+    });
+    console.log('catalogs', catalogs);
+    const existing = await prisma.tags.findMany({
+      where: {
+        name: { in: catalogs.name },
+        machine: { in: catalogs.machine },
+        company: { in: catalogs.company },
+      },
+    });
+    const existingCatalog = existing.map((item: any) => {
+      return { company: item.company, machine: item.machine, name: item.name };
+    });
+    console.log("ids", catalogs, existingCatalog);
+    
+    // check duplicates
+    if (existing?.length > 0) {
+      const error = {
+        errors: {
+          status: 500,
+          message: "Doublon ! ...déjà spécifié !",
+          location: true,
+          items: existing,
+        },
+      };
+      console.error(error);
+      return response.status(400).json(JsonHelper.mngBigInt(error));
+    }
+
+    // If not duplicates
+    try {
+      catalogs = request.body;
+      catalogs.forEach((catalog: any) => {
+        delete catalog.transaction;
+        delete catalog.index;
+        delete catalog.commentRet;
+        delete catalog.id;
+        delete catalog.created;
+        delete catalog.changed;
+        // if (catalog.floor === null || catalog.floor === undefined)
+        //   catalog["floor"] = null;
+        // console.log("catalog", catalog);
+      });
+
+      const catalogResult = await prisma.tags.createMany({
+        data: catalogs,
+      });
+      return response.status(201).json(catalogResult);
+    } catch (error: any) {
+      // console.log("locationsController create_post", error.message);
+      return response.status(500).json(error.message);
+    }
+
+    // return response.status(200).json("success");
   }
 );
 
@@ -302,7 +391,84 @@ exports.update_post = asyncHandler(
     }
   }
 );
+async function updater(catalog: any): Promise<any> {
+  // check catalog exists to be updated
+  const existing = await prisma.locations.findFirst({
+    where: {
+      location: catalog.location,
+    },
+  });
+  if (!existing) {
+    const error = {
+      errors: {
+        location: ["Localisation n'existe plus !"],
+      },
+    };
+    return error;
+  }
 
+  // If catalog already exists
+  const savedCatalog = { ...catalog };
+  // console.log('saved catalog', savedCatalog);
+  try {
+    const id = catalog.id;
+    delete catalog.transaction;
+    delete catalog.index;
+    delete catalog.comment;
+    delete catalog.id;
+    delete catalog.created;
+    delete catalog.changed;
+    if (catalog.floor === null || catalog.floor === undefined)
+      catalog["floor"] = null;
+    // console.log("catalog", catalog);
+
+    let catalogResult = await prisma.locations.update({
+      where: { id: id },
+      data: {
+        ...catalog,
+      },
+    });
+    console.log("savedCatalog", savedCatalog);
+    let result = {
+      ...catalogResult,
+      transaction: savedCatalog.transaction,
+      index: savedCatalog.index,
+      comment: savedCatalog.comment,
+    };
+    return result;
+  } catch (error: any) {
+    // console.log("Updater error: " + error);
+    let result = {
+      error: error,
+      transaction: savedCatalog.transaction,
+      index: savedCatalog.index,
+      comment: savedCatalog.comment,
+    };
+    return result;
+  }
+}
+// Handle catalog update on POST.
+exports.updateMany_post = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    console.log("in updateManyPost");
+    response.send("NOT IMPLEMENTED: Catalog delete GET");
+    const catalogs = request.body;
+    // console.log("catalogs", catalogs);
+
+    try {
+      let res = await Promise.all(
+        catalogs.map((catalog: any) => {
+          return updater(catalog);
+        })
+      );
+      console.log("res", res);
+      return response.status(201).json(res);
+    } catch (error: any) {
+      console.log("locationsController updateMany_post", error.message);
+      return response.status(500).json(error);
+    }
+  }
+);
 // Display catalog delete form on GET.
 exports.delete_get = asyncHandler(
   async (request: Request, response: Response, next: any) => {
@@ -346,6 +512,50 @@ exports.delete_post = asyncHandler(
   }
 );
 
+// Handle catalog delete on POST.
+exports.deleteMany_post = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    response.send("NOT IMPLEMENTED: Catalog delete GET");
+
+    // Check if catalogs exists
+    let ids = request.body.map((item: any) => parseInt(item.id, 10));
+
+    const existing = await prisma.locations.findMany({
+      where: {
+        id: { in: ids },
+      },
+    });
+    const existingIds = existing.map((item: any) => item.ids);
+    console.log("ids", ids, "existingIds", existing);
+
+    // check duplicates
+    if (existing?.length < ids.length) {
+      const error = {
+        errors: {
+          status: 500,
+          message: "Localisation n'existe plus !",
+          id: true,
+          items: existing,
+        },
+      };
+      // console.error(error);
+      return response.status(400).json(error);
+    }
+
+    try {
+      const catalogResult = await prisma.locations.deleteMany({
+        where: {
+          id: { in: ids },
+        },
+      });
+      return response.status(201).json(catalogResult);
+    } catch (error: any) {
+      console.log("locationsController detleteMany", error.message);
+      return response.status(500).json(error);
+    }
+  }
+);
+
 // download csv lazy
 exports.download_lazy = asyncHandler(
   async (request: Request, response: Response, next: any) => {
@@ -379,7 +589,7 @@ exports.download_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      return response.status(500).json(error.message); 
+      return response.status(500).json(error.message);
     }
   }
 );

@@ -1,7 +1,7 @@
 import express from "express";
 
 import { PrismaClient } from "@prisma/client";
-import { validateSchema } from "../../middleware/validationMDW";
+import { validateSchema, validateSchemas } from "../../middleware/validationMDW";
 import { TagsCreateSchema, TagsDeleteSchema, TagsUpdateSchema } from "../../schemas/tagsSchema";
 
 const prisma = new PrismaClient();
@@ -29,7 +29,10 @@ tagsRouter.get("/:id", controller.detail);
 tagsRouter.get("/in/:ids", controller.details);
 
 // create catalog rendering template
-tagsRouter.get("/create", controller.create_get);
+tagsRouter.get("/create", validateSchemas(TagsCreateSchema),  controller.create_get);
+
+// create catalog rendering template
+tagsRouter.post("/create",  controller.createMany_post);
 
 // create catalog 
 tagsRouter.post("/", validateSchema(TagsCreateSchema), controller.create_post);
@@ -40,10 +43,13 @@ tagsRouter.get("/update", controller.update_get);
 // update catalog 
 tagsRouter.put("/:id", validateSchema(TagsUpdateSchema), controller.update_post);
 
+// update catalogs
+tagsRouter.post("/update", validateSchemas(TagsUpdateSchema), controller.updateMany_post);
+
 // delete catalog rendering template 
 tagsRouter.get("/delete", controller.delete_get);
 
-// delete catalog 
+// delete catalog  
 tagsRouter.delete("/:id", validateSchema(TagsDeleteSchema), controller.delete_post);
 
 // download catalog rendering template

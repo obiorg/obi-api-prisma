@@ -1,7 +1,7 @@
 import express from "express";
 
 import { PrismaClient } from "@prisma/client";
-import { validateSchema } from "../../middleware/validationMDW";
+import { validateSchema, validateSchemas } from "../../middleware/validationMDW";
 import { MachinesCreateSchema, MachinesDeleteSchema, MachinesUpdateSchema } from "../../schemas/connexionsSchema";
 
 const prisma = new PrismaClient();
@@ -31,17 +31,26 @@ machinesRouter.get("/create", controller.create_get);
 // create catalog 
 machinesRouter.post("/", validateSchema(MachinesCreateSchema), controller.create_post);
 
+// create catalogs
+machinesRouter.post("/create", validateSchemas(MachinesCreateSchema), controller.createMany_post);
+
 // update catalog rendering template
 machinesRouter.get("/update", controller.update_get);
 
 // update catalog 
 machinesRouter.put("/:id", validateSchema(MachinesUpdateSchema), controller.update_post);
 
+// update catalogs
+machinesRouter.post("/update", validateSchemas(MachinesUpdateSchema), controller.updateMany_post);
+
 // delete catalog rendering template 
 machinesRouter.get("/delete", controller.delete_get);
 
 // delete catalog 
 machinesRouter.delete("/:id", validateSchema(MachinesDeleteSchema), controller.delete_post);
+
+// update catalogs
+machinesRouter.post("/delete", validateSchemas(MachinesDeleteSchema), controller.deleteMany_post);
 
 // download catalog rendering template
 machinesRouter.get("/download/:filter", controller.download_lazy);
