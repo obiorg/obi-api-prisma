@@ -1,8 +1,15 @@
 import express from "express";
 
 import { PrismaClient } from "@prisma/client";
-import { validateSchema } from "../../middleware/validationMDW";
-import { TagsListTypeCreateSchema, TagsListTypeDeleteSchema, TagsListTypeUpdateSchema } from "../../schemas/tagsSchema";
+import {
+  validateSchema,
+  validateSchemas,
+} from "../../middleware/validationMDW";
+import {
+  TagsListTypeCreateSchema,
+  TagsListTypeDeleteSchema,
+  TagsListTypeUpdateSchema,
+} from "../../schemas/tagsSchema";
 
 const prisma = new PrismaClient();
 // Require controller modules.
@@ -28,22 +35,53 @@ tagsListTypeRouter.get("/:id", controller.detail);
 // create catalog rendering template
 tagsListTypeRouter.get("/create", controller.create_get);
 
-// create catalog 
-tagsListTypeRouter.post("/", validateSchema(TagsListTypeCreateSchema), controller.create_post);
+// create catalog
+tagsListTypeRouter.post(
+  "/",
+  validateSchema(TagsListTypeCreateSchema),
+  controller.create_post
+);
+
+// create catalogs
+tagsListTypeRouter.post(
+  "/create",
+  validateSchemas(TagsListTypeCreateSchema),
+  controller.createMany_post
+);
 
 // update catalog rendering template
 tagsListTypeRouter.get("/update", controller.update_get);
 
-// update catalog 
-tagsListTypeRouter.put("/:id", validateSchema(TagsListTypeUpdateSchema), controller.update_post);
+// update catalog
+tagsListTypeRouter.put(
+  "/:id",
+  validateSchema(TagsListTypeUpdateSchema),
+  controller.update_post
+);
 
-// delete catalog rendering template 
+// update catalogs
+tagsListTypeRouter.post(
+  "/update",
+  validateSchemas(TagsListTypeUpdateSchema),
+  controller.updateMany_post
+);
+
+// delete catalog rendering template
 tagsListTypeRouter.get("/delete", controller.delete_get);
 
-// delete catalog 
-tagsListTypeRouter.delete("/:id", validateSchema(TagsListTypeDeleteSchema), controller.delete_post);
+// delete catalog
+tagsListTypeRouter.delete(
+  "/:id",
+  validateSchema(TagsListTypeDeleteSchema),
+  controller.delete_post
+);
+
+// update catalogs
+tagsListTypeRouter.post(
+  "/delete",
+  validateSchemas(TagsListTypeDeleteSchema),
+  controller.deleteMany_post
+);
 
 // download catalog rendering template
 tagsListTypeRouter.get("/download/:filter", controller.download_lazy);
-
- 

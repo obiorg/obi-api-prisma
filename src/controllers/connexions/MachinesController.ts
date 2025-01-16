@@ -177,7 +177,8 @@ exports.create_get = asyncHandler(
 // POST : Create post
 exports.create_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    //console.log("MachinesController create_post", request.body);
+    let controllerName = 'MachinesController';
+    //console.log(controllerName + " create_post", request.body);
 
     try {
       // Check if duplicate catalog on
@@ -217,7 +218,7 @@ exports.create_post = asyncHandler(
         return response.status(400).json(error);
       }
     } catch (error: any) {
-      console.log("MachinesController create_post", error.message);
+      console.log(controllerName + " create_post", error.message);
       return response.status(500).json(error.message);
     }
 
@@ -239,7 +240,7 @@ exports.create_post = asyncHandler(
       });
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("MachinesController create_post", error.message);
+      //console.log(controllerName + " create_post", create_post", error.message);
       return response.status(500).json(error.message);
     }
   }
@@ -248,6 +249,7 @@ exports.create_post = asyncHandler(
 // POST : Create post
 exports.createMany_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
+    let controllerName = 'MachinesController';
     let catalogs = request.body; //.map((item: any) => {item.company, item.address});
 
     //
@@ -301,7 +303,7 @@ exports.createMany_post = asyncHandler(
         return response.status(400).json(error);
       }
     } catch (error: any) {
-      console.log("MachinesController createMany_post", error.message);
+      console.log(controllerName + " createMany_post", error.message);
       return response.status(500).json(error.message);
     }
 
@@ -329,7 +331,7 @@ exports.createMany_post = asyncHandler(
       success.items = catalogResult;
       return response.status(201).json(success);
     } catch (error: any) {
-      // console.log("locationsController create_post", error.message);
+      //console.log(controllerName + " create_post", error.message);
       return response.status(500).json(error.message);
     }
   }
@@ -345,14 +347,14 @@ exports.update_get = asyncHandler(
 // Handle catalog update on POST.
 exports.update_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    //console.log("MachinesController update_post", request.body);
+    let controllerName = 'MachinesController';
+    //console.log(controllerName + " update_post", request.body);
 
     //
     // Check not remove components
     //
     try {
       // Check if duplicate catalog on
-      // // => company and IP address
       let existing = await prisma.machines.findFirst({
         where: {
           id: request.body.id,
@@ -367,7 +369,7 @@ exports.update_post = asyncHandler(
         return response.status(400).json(error);
       }
     } catch (error: any) {
-      console.log("MachinesController update_post", error.message);
+      console.log(controllerName + " update_post", error.message);
       return response.status(500).json(error.message);
     }
 
@@ -414,7 +416,7 @@ exports.update_post = asyncHandler(
         return response.status(400).json(error);
       }
     } catch (error: any) {
-      console.log("MachinesController update_post", error.message);
+      console.log(controllerName + " update_post", error.message);
       return response.status(500).json(error.message);
     }
 
@@ -440,13 +442,14 @@ exports.update_post = asyncHandler(
       });
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("MachinesController update_post", error.message);
+      console.log(controllerName + " update_post", error.message);
       return response.status(500).json(error);
     }
   }
 );
 
 async function updater(catalog: any): Promise<any> {
+  let controllerName = 'MachinesController';
   //
   // Check not remove components
   //
@@ -466,7 +469,7 @@ async function updater(catalog: any): Promise<any> {
       return error;
     }
   } catch (error: any) {
-    console.log("MachinesController update_post", error.message);
+    console.log(controllerName + " update_post", error.message);
     return error.message;
   }
 
@@ -475,7 +478,7 @@ async function updater(catalog: any): Promise<any> {
   //
   try {
     // Check if duplicate catalog on
-    // // => company and IP address
+    // // => company, address
     let existing = await prisma.machines.findFirst({
       where: {
         id: { not: catalog.id },
@@ -513,7 +516,7 @@ async function updater(catalog: any): Promise<any> {
       return error;
     }
   } catch (error: any) {
-    console.log("MachinesController update_post", error.message);
+    console.log(controllerName + " update_post", error.message);
     return error.message;
   }
 
@@ -541,7 +544,7 @@ async function updater(catalog: any): Promise<any> {
       },
     });
 
-    console.log("savedCatalog", savedCatalog);
+    // console.log("savedCatalog", savedCatalog);
     let success = ErrorHelper.default(200);
     success = {
       ...success,
@@ -568,7 +571,7 @@ async function updater(catalog: any): Promise<any> {
 // Handle catalog update on POST.
 exports.updateMany_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    console.log("in updateManyPost");
+  let controllerName = 'MachinesController';
     const catalogs = request.body;
     // console.log("catalogs", catalogs);
 
@@ -578,10 +581,10 @@ exports.updateMany_post = asyncHandler(
           return updater(catalog);
         })
       );
-      console.log("res", res);
+      // console.log("res", res);
       return response.status(201).json(res);
     } catch (error: any) {
-      console.log("MachinesController updateMany_post", error.message);
+      console.log(controllerName + " updateMany_post", error.message);
       return response.status(500).json(error);
     }
   }
@@ -597,6 +600,7 @@ exports.delete_get = asyncHandler(
 // Handle catalog delete on POST.
 exports.delete_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
+    let controllerName = 'MachinesController';
     const id: number = parseInt(request.params.id, 10);
 
     // check duplicates
@@ -605,9 +609,11 @@ exports.delete_post = asyncHandler(
         id: id,
       },
     });
+    let error: any = ErrorHelper.default(400);
     if (!existing) {
-      const error = {
+      error = {
         errors: {
+          ...error.errors,
           company: [" n'existe plus !"],
           address: [" n'existe plus !"],
           driver: [" n'existe plus !"],
@@ -623,7 +629,7 @@ exports.delete_post = asyncHandler(
 
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("MachinesController update_post", error.message);
+      console.log(controllerName + " update_post", error.message);
       return response.status(500).json(error);
     }
   }
@@ -632,6 +638,7 @@ exports.delete_post = asyncHandler(
 // Handle catalog delete on POST.
 exports.deleteMany_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
+    let controllerName = 'MachinesController';
     // Check if catalogs exists
     let ids = request.body.map((item: any) => parseInt(item.id, 10));
 
@@ -667,11 +674,12 @@ exports.deleteMany_post = asyncHandler(
       });
       return response.status(201).json(catalogResult);
     } catch (error: any) {
-      console.log("machinesController detleteMany", error.message);
+      console.log(controllerName + " deleteMany", error.message);
       return response.status(500).json(error);
     }
   }
 );
+
 // download csv lazy
 exports.download_lazy = asyncHandler(
   async (request: Request, response: Response, next: any) => {

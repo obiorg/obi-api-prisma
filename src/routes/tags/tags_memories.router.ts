@@ -1,7 +1,7 @@
 import express from "express";
 
 import { PrismaClient } from "@prisma/client";
-import { validateSchema } from "../../middleware/validationMDW";
+import { validateSchema, validateSchemas } from "../../middleware/validationMDW";
 import { TagsMemoriesCreateSchema, TagsMemoriesDeleteSchema, TagsMemoriesUpdateSchema } from "../../schemas/tagsSchema";
 
 const prisma = new PrismaClient();
@@ -31,11 +31,17 @@ tagsMemoriesRouter.get("/create", controller.create_get);
 // create catalog 
 tagsMemoriesRouter.post("/", validateSchema(TagsMemoriesCreateSchema), controller.create_post);
 
+// create catalogs
+tagsMemoriesRouter.post("/create", validateSchemas(TagsMemoriesCreateSchema), controller.createMany_post);
+
 // update catalog rendering template
 tagsMemoriesRouter.get("/update", controller.update_get);
 
 // update catalog 
 tagsMemoriesRouter.put("/:id", validateSchema(TagsMemoriesUpdateSchema), controller.update_post);
+
+// update catalogs
+tagsMemoriesRouter.post("/update", validateSchemas(TagsMemoriesUpdateSchema), controller.updateMany_post);
 
 // delete catalog rendering template 
 tagsMemoriesRouter.get("/delete", controller.delete_get);
@@ -43,7 +49,8 @@ tagsMemoriesRouter.get("/delete", controller.delete_get);
 // delete catalog 
 tagsMemoriesRouter.delete("/:id", validateSchema(TagsMemoriesDeleteSchema), controller.delete_post);
 
+// update catalogs
+tagsMemoriesRouter.post("/delete", validateSchemas(TagsMemoriesDeleteSchema), controller.deleteMany_post);
+
 // download catalog rendering template
 tagsMemoriesRouter.get("/download/:filter", controller.download_lazy);
-
- 

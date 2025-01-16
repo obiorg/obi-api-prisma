@@ -28,14 +28,15 @@ tagsRouter.get("/:id", controller.detail);
 // detail of catalog defined by id
 tagsRouter.get("/in/:ids", controller.details);
 
+
 // create catalog rendering template
 tagsRouter.get("/create", validateSchemas(TagsCreateSchema),  controller.create_get);
 
-// create catalog rendering template
-tagsRouter.post("/create",  controller.createMany_post);
-
 // create catalog 
 tagsRouter.post("/", validateSchema(TagsCreateSchema), controller.create_post);
+
+// create catalog rendering template
+tagsRouter.post("/create",  validateSchemas(TagsCreateSchema), controller.createMany_post);
 
 // update catalog rendering template
 tagsRouter.get("/update", controller.update_get);
@@ -51,6 +52,9 @@ tagsRouter.get("/delete", controller.delete_get);
 
 // delete catalog  
 tagsRouter.delete("/:id", validateSchema(TagsDeleteSchema), controller.delete_post);
+
+// update catalogs
+tagsRouter.post("/delete", validateSchemas(TagsDeleteSchema), controller.deleteMany_post);
 
 // download catalog rendering template
 tagsRouter.get("/download/:filter", controller.download_lazy);
