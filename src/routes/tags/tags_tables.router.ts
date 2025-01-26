@@ -26,7 +26,7 @@ tagsTablesRouter.get("/lazy/count/:filter", controller.list_lazy_count);
 tagsTablesRouter.get("/:id", controller.detail);
 
 // create catalog rendering template
-tagsTablesRouter.get("/create", controller.create_get);
+tagsTablesRouter.get("/create", validateSchemas(TagsTablesCreateSchema),  controller.create_get);
 
 // create catalog 
 tagsTablesRouter.post("/", validateSchema(TagsTablesCreateSchema), controller.create_post);

@@ -36,32 +36,25 @@ export const TagsCreateSchema = z.object({
   db: z
     .number({ message: "Valeur requise !" })
     .int({ message: "Définir un nombre !" })
-    .gte(0, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .gte(0, { message: "Valeur minimale >= 0 !" }),
+  // .optional()
+  // .or(z.literal("")),
 
   byte: z
     .number({ message: "Valeur requise !" })
     .int({ message: "Définir un nombre !" })
-    .gte(0, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .gte(0, { message: "Valeur minimale >= 0 !" }),
+  // .optional()
+  // .or(z.literal("")),
 
   bit: z
     .number({ message: "Valeur requise !" })
     .int({ message: "Définir un nombre !" })
-    .gte(0, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .gte(0, { message: "Valeur minimale >= 0 !" }),
+  // .optional()
+  // .or(z.literal("")),
 
-  active: z.optional(z.boolean()),
-
-  cycle: z
-    .number({ message: "Valeur requise !" })
-    .int({ message: "Définir un nombre !" })
-    .gte(0, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+  // active: z.optional(z.boolean()),
 
   delta: z.optional(z.boolean()),
 
@@ -79,7 +72,12 @@ export const TagsCreateSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  deltaBool: z.optional(z.boolean()),
+  deltaBool: z
+    .number({ message: "Valeur requise !" })
+    .int({ message: "Définir un nombre !" })
+    .gte(0, { message: "Valeur minimale >= 0 !" })
+    .optional()
+    .or(z.literal("")),
 
   deltaDateTime: z.date().optional().or(z.literal("")),
 
@@ -137,7 +135,9 @@ export const TagsCreateSchema = z.object({
 
   measureUnit: z
     .number({ message: "Valeur requise !" })
-    .int({ message: "Définir un nombre !" }),
+    .int({ message: "Définir un nombre !" })
+    .optional()
+    .or(z.literal("")),
 
   mqtt_topic: z
     .string()
@@ -226,16 +226,37 @@ export const TagsCreateSchema = z.object({
     .or(z.literal("")),
 });
 
+// export const TagsCreateSchemaActiveCycle = z.object({
+//   active: z.boolean({ message: "Valeur requise !" }),
+
+//   cycle: z
+//     .number({ message: "Valeur requise !" })
+//     .int({ message: "Définir un nombre !" })
+//     .gte(0, { message: "Valeur minimale >= 0 !" }),
+// });
+// export const TagsCreateSchemaUnActiveCycle = z.object({
+//   active: z.literal(''),
+
+//   cycle: z
+//     .number({ message: "Valeur requise !" })
+//     .int({ message: "Définir un nombre !" })
+//     .gte(0, { message: "Valeur minimale >= 0 !" })
+//     .optional()
+//     .or(z.literal("")),
+// });
+
+// export const TagsCreateSchema = z.discriminatedUnion("active", [
+//   TagsCreateSchemaActiveCycle.merge(TagsCreateSchemaMain),
+//   TagsCreateSchemaUnActiveCycle.merge(TagsCreateSchemaMain),
+//   // MachinesCreateSchemaWebhook,
+//   // MachinesCreateSchemaBus,
+// ]);
+
 export const TagsUpdateSchema = z.object({
-  id: z
-    .number()
-    .int({ message: "Définir un nombre !" })
-    .min(1, { message: "Valeur minimale > 0 !" })
-    .optional()
-    .or(z.literal("")),
+  id: z.number(),
   deleted: z.optional(z.boolean()),
-  created: z.coerce.date(),
-  changed: z.coerce.date(),
+  // created: z.date(),
+  // changed: z.date(),
 
   company: z
     .number({ message: "Valeur requise !" })
@@ -267,64 +288,61 @@ export const TagsUpdateSchema = z.object({
   db: z
     .number({ message: "Valeur requise !" })
     .int({ message: "Définir un nombre !" })
-    .gte(0, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .gte(0, { message: "Valeur minimale >= 0 !" }),
+  // .optional()
+  // .or(z.literal("")),
 
   byte: z
     .number({ message: "Valeur requise !" })
     .int({ message: "Définir un nombre !" })
-    .gte(0, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .gte(0, { message: "Valeur minimale >= 0 !" }),
+  // .optional()
+  // .or(z.literal("")),
 
   bit: z
     .number({ message: "Valeur requise !" })
     .int({ message: "Définir un nombre !" })
-    .gte(0, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .gte(0, { message: "Valeur minimale >= 0 !" }),
+  // .optional()
+  // .or(z.literal("")),
 
-  active: z.optional(z.boolean()),
-
-  cycle: z
-    .number({ message: "Valeur requise !" })
-    .int({ message: "Définir un nombre !" })
-    .gte(0, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+  // active: z.optional(z.boolean()),
 
   delta: z.optional(z.boolean()),
 
   deltaFloat: z
     .number({ message: "Valeur requise !" })
-    .int({ message: "Définir un nombre !" })
-    .gte(0, { message: "Valeur minimale >= 0 !" })
     .optional()
     .or(z.literal("")),
 
   deltaInt: z
     .number({ message: "Valeur requise !" })
     .int({ message: "Définir un nombre !" })
+    .optional()
+    .or(z.literal("")),
+
+  deltaBool: z
+    .number({ message: "Valeur requise !" })
+    .int({ message: "Définir un nombre !" })
     .gte(0, { message: "Valeur minimale >= 0 !" })
     .optional()
     .or(z.literal("")),
 
-  deltaBool: z.optional(z.boolean()),
-
-  deltaDateTime: z.date().optional().or(z.literal("")),
-
-  vFloat: z
+  deltaDateTime: z
     .number({ message: "Valeur requise !" })
     .int({ message: "Définir un nombre !" })
     .gte(0, { message: "Valeur minimale >= 0 !" })
+    .optional()
+    .or(z.literal("")),
+
+  vFloat: z
+    .number({ message: "Valeur requise !" })
     .optional()
     .or(z.literal("")),
 
   vInt: z
     .number({ message: "Valeur requise !" })
     .int({ message: "Définir un nombre !" })
-    .gte(0, { message: "Valeur minimale >= 0 !" })
     .optional()
     .or(z.literal("")),
 
@@ -337,9 +355,9 @@ export const TagsUpdateSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  vDateTime: z.date().optional().or(z.literal("")),
+  vDateTime: z.string().datetime().optional().or(z.literal("")),
 
-  vStamp: z.date().optional().or(z.literal("")),
+  vStamp: z.string().datetime().optional().or(z.literal("")),
 
   counter: z.optional(z.boolean()),
 
@@ -368,7 +386,9 @@ export const TagsUpdateSchema = z.object({
 
   measureUnit: z
     .number({ message: "Valeur requise !" })
-    .int({ message: "Définir un nombre !" }),
+    .int({ message: "Définir un nombre !" })
+    .optional()
+    .or(z.literal("")),
 
   mqtt_topic: z
     .string()
@@ -411,7 +431,8 @@ export const TagsUpdateSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  errorStamp: z.date().optional().or(z.literal("")),
+  //2025-01-23T23:33:01.000Z
+  errorStamp: z.string().datetime().optional().or(z.literal("")).or(z.literal(0)),
 
   alarmEnable: z.optional(z.boolean()),
 
@@ -441,7 +462,7 @@ export const TagsUpdateSchema = z.object({
 
   persOffsetBool: z.optional(z.boolean()),
 
-  persOffsetDateTime: z.date().optional().or(z.literal("")),
+  persOffsetDateTime: z.string().datetime().optional().or(z.literal("")),
 
   comment: z
     .string()

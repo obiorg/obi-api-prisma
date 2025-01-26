@@ -3,6 +3,7 @@ import { Model } from "../../utils/model";
 import { PrismaClient } from "@prisma/client";
 import json from "../../utils/helper/json";
 import { ErrorHelper } from "../../utils/helper/ErrorHelper";
+import { JsonHelper } from "../../utils/helper/JsonHelper";
 
 // Import the module
 const asyncHandler = require("express-async-handler");
@@ -137,7 +138,8 @@ exports.list_lazy_count = asyncHandler(
 // Display detail page for a specific catalog.
 exports.detail = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    // response.send(`NOT IMPLEMENTED: Catalog detail: ${request.params.id}`);
+    let controllerName = "MachinesController";
+    console.log(controllerName + " detail", request.body);
 
     const id: number = parseInt(request.params.id, 10);
     try {
@@ -148,12 +150,17 @@ exports.detail = asyncHandler(
         include: {
           companies: true,
           mach_drivers: true,
-          tags: true,
+          tags: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       });
 
       if (byId) {
-        return response.status(200).json(byId);
+        return response.status(200).json(JSON.parse(JsonHelper.mngBigInt(byId)));
       } else {
         return response
           .status(400)
@@ -177,7 +184,7 @@ exports.create_get = asyncHandler(
 // POST : Create post
 exports.create_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    let controllerName = 'MachinesController';
+    let controllerName = "MachinesController";
     //console.log(controllerName + " create_post", request.body);
 
     try {
@@ -249,7 +256,7 @@ exports.create_post = asyncHandler(
 // POST : Create post
 exports.createMany_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    let controllerName = 'MachinesController';
+    let controllerName = "MachinesController";
     let catalogs = request.body; //.map((item: any) => {item.company, item.address});
 
     //
@@ -347,7 +354,7 @@ exports.update_get = asyncHandler(
 // Handle catalog update on POST.
 exports.update_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    let controllerName = 'MachinesController';
+    let controllerName = "MachinesController";
     //console.log(controllerName + " update_post", request.body);
 
     //
@@ -449,7 +456,7 @@ exports.update_post = asyncHandler(
 );
 
 async function updater(catalog: any): Promise<any> {
-  let controllerName = 'MachinesController';
+  let controllerName = "MachinesController";
   //
   // Check not remove components
   //
@@ -551,8 +558,8 @@ async function updater(catalog: any): Promise<any> {
       transaction: savedCatalog.transaction,
       index: savedCatalog.index,
       comment: savedCatalog.comment,
-      items: catalogResult
-    }
+      items: catalogResult,
+    };
 
     return success;
   } catch (error: any) {
@@ -571,7 +578,7 @@ async function updater(catalog: any): Promise<any> {
 // Handle catalog update on POST.
 exports.updateMany_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-  let controllerName = 'MachinesController';
+    let controllerName = "MachinesController";
     const catalogs = request.body;
     // console.log("catalogs", catalogs);
 
@@ -600,7 +607,7 @@ exports.delete_get = asyncHandler(
 // Handle catalog delete on POST.
 exports.delete_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    let controllerName = 'MachinesController';
+    let controllerName = "MachinesController";
     const id: number = parseInt(request.params.id, 10);
 
     // check duplicates
@@ -638,7 +645,7 @@ exports.delete_post = asyncHandler(
 // Handle catalog delete on POST.
 exports.deleteMany_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    let controllerName = 'MachinesController';
+    let controllerName = "MachinesController";
     // Check if catalogs exists
     let ids = request.body.map((item: any) => parseInt(item.id, 10));
 

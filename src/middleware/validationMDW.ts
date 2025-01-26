@@ -89,9 +89,9 @@ export function validateSchema(
     }
   };
 }
-
+// | z.ZodDiscriminatedUnion<any, any>
 export function validateSchemas(
-  schema: z.ZodObject<any, any> | z.ZodUnion<any>
+  schema: z.ZodObject<any, any> | z.ZodUnion<any> 
 ) {
   return (req: Request, res: Response, next: NextFunction) => {
     // console.log("Validation body", req.body);

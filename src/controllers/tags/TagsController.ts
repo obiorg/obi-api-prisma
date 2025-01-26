@@ -90,6 +90,7 @@ exports.list_lazy = asyncHandler(
           companies: true,
           tags_lists: true,
           // tags: true,
+          machines: true,
           meas_units: true,
           tags_memories: true,
           tags_tables: true,
@@ -233,7 +234,7 @@ exports.create_get = asyncHandler(
 exports.create_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
     let controllerName = "TagsController";
-    //console.log(controllerName + " create_post", request.body);
+    // console.log(controllerName + " create_post - body", request.body);
 
     try {
       // Check if duplicate catalog on
@@ -243,6 +244,8 @@ exports.create_post = asyncHandler(
           company: request.body.company,
           machine: request.body.machine,
           name: request.body.name,
+          // type: request.body.type,
+          // memory: request.body.memory,
         },
       });
       let existingError = false;
@@ -281,12 +284,14 @@ exports.create_post = asyncHandler(
       delete catalog.tags_tables;
       delete catalog.tags_types;
 
+
+
       const catalogResult = await prisma.tags.create({
         data: {
           ...catalog,
         },
       });
-      return response.status(201).json(catalogResult);
+      return response.status(201).json(JsonHelper.mngBigInt(catalogResult));
     } catch (error: any) {
       //console.log(controllerName + " create_post", create_post", error.message);
       return response.status(500).json(error.message);
@@ -466,7 +471,7 @@ exports.update_post = asyncHandler(
           ...catalog,
         },
       });
-      return response.status(201).json(catalogResult);
+      return response.status(201).json(JsonHelper.mngBigInt(catalogResult));
     } catch (error: any) {
       console.log(controllerName + " update_post", error.message);
       return response.status(500).json(error);
@@ -476,6 +481,8 @@ exports.update_post = asyncHandler(
 
 async function updater(catalog: any): Promise<any> {
   let controllerName = "TagsController";
+  // console.log(controllerName + " : updater start....");
+
   //
   // Check not remove components
   //
@@ -600,7 +607,7 @@ exports.updateMany_post = asyncHandler(
         })
       );
       // console.log("res", res);
-      return response.status(201).json(res);
+      return response.status(201).json(JsonHelper.mngBigInt(res));
     } catch (error: any) {
       console.log(controllerName + " updateMany_post", error.message);
       return response.status(500).json(error);
