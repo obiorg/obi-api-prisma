@@ -7,25 +7,16 @@ export const PersistencesCreateSchema = z.object({
   // changed: z.date(),
 
   company: z
-    .number()
-    .int({ message: "Définir un nombre !" })
-    .min(1, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .number({ message: "Valeur requise !" })
+    .int({ message: "Définir un nombre !" }),
 
   tag: z
-    .number()
-    .int({ message: "Définir un nombre !" })
-    .min(1, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .number({ message: "Valeur requise !" })
+    .int({ message: "Définir un nombre !" }),
 
   method: z
-    .number()
-    .int({ message: "Définir un nombre !" })
-    .min(1, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .number({ message: "Valeur requise !" })
+    .int({ message: "Définir un nombre !" }),
 
   activate: z.optional(z.boolean()),
 
@@ -41,33 +32,24 @@ export const PersistencesUpdateSchema = z.object({
   id: z
     .number()
     .int({ message: "Définir un nombre !" })
-    .min(1, { message: "Valeur minimale > 0 !" })
+    .min(1, { message: "Valeur minimale > 1 !" })
     .optional()
     .or(z.literal("")),
   deleted: z.optional(z.boolean()),
-  created: z.coerce.date(),
-  changed: z.coerce.date(),
+  // created: z.coerce.date(),
+  // changed: z.coerce.date(),
 
   company: z
-    .number()
-    .int({ message: "Définir un nombre !" })
-    .min(1, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .number({ message: "Valeur requise !" })
+    .int({ message: "Définir un nombre !" }),
 
   tag: z
-    .number()
-    .int({ message: "Définir un nombre !" })
-    .min(1, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .number({ message: "Valeur requise !" })
+    .int({ message: "Définir un nombre !" }),
 
   method: z
-    .number()
-    .int({ message: "Définir un nombre !" })
-    .min(1, { message: "Valeur minimale >= 0 !" })
-    .optional()
-    .or(z.literal("")),
+    .number({ message: "Valeur requise !" })
+    .int({ message: "Définir un nombre !" }),
 
   activate: z.optional(z.boolean()),
 
@@ -291,11 +273,10 @@ export const PersistencesStandardsCreateSchema = z.object({
     .or(z.literal("")),
 
   vDateTime: z
-    .string().datetime({ message: "Spécifier une date" })
+    .string()
+    .datetime({ message: "Spécifier une date" })
     .optional()
     .or(z.literal("")),
-
-
 });
 
 export const PersistencesStandardsUpdateSchema = z.object({

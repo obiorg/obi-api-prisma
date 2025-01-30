@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Model } from "../../utils/model";
 import { PrismaClient } from "@prisma/client";
 import { ErrorHelper } from "../../utils/helper/ErrorHelper";
+import { JsonHelper } from "../../utils/helper/JsonHelper";
 
 // Import the module
 const asyncHandler = require("express-async-handler");
@@ -211,7 +212,7 @@ exports.create_post = asyncHandler(
           ...catalog,
         },
       });
-      return response.status(201).json(catalogResult);
+      return response.status(201).json(JsonHelper.mngBigInt(catalogResult));
     } catch (error: any) {
       //console.log(controllerName + " create_post", create_post", error.message);
       return response.status(500).json(error.message);
@@ -370,7 +371,7 @@ exports.update_post = asyncHandler(
           ...catalog,
         },
       });
-      return response.status(201).json(catalogResult);
+      return response.status(201).json(JsonHelper.mngBigInt(catalogResult));
     } catch (error: any) {
       console.log(controllerName + " update_post", error.message);
       return response.status(500).json(error);
@@ -494,7 +495,7 @@ exports.updateMany_post = asyncHandler(
         })
       );
       // console.log("res", res);
-      return response.status(201).json(res);
+      return response.status(201).json(JsonHelper.mngBigInt(res));
     } catch (error: any) {
       console.log(controllerName + " updateMany_post", error.message);
       return response.status(500).json(error);
