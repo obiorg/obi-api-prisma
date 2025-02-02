@@ -432,7 +432,12 @@ export const TagsUpdateSchema = z.object({
     .or(z.literal("")),
 
   //2025-01-23T23:33:01.000Z
-  errorStamp: z.string().datetime().optional().or(z.literal("")).or(z.literal(0)),
+  errorStamp: z
+    .string()
+    .datetime()
+    .optional()
+    .or(z.literal(""))
+    .or(z.literal(0)),
 
   alarmEnable: z.optional(z.boolean()),
 
@@ -502,7 +507,7 @@ export const TagsListContentsCreateSchema = z.object({
 
   value: z
     .string()
-    .min(3, { message: "Définir minimum 3 caractères !" })
+    .min(1, { message: "Définir minimum 1 caractères !" })
     .max(255, { message: "Nombre de caractères limité à 255 !" }),
 
   default: z.optional(z.boolean()),
@@ -554,7 +559,7 @@ export const TagsListContentsUpdateSchema = z.object({
 
   value: z
     .string()
-    .min(3, { message: "Définir minimum 3 caractères !" })
+    .min(1, { message: "Définir minimum 1 caractères !" })
     .max(255, { message: "Nombre de caractères limité à 255 !" }),
 
   default: z.optional(z.boolean()),

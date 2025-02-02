@@ -49,4 +49,11 @@ persistencesStandardsRouter.delete("/:id", validateSchema(PersistencesStandardsD
 // download catalog rendering template
 persistencesStandardsRouter.get("/download/:filter", controller.download_lazy);
 
- 
+// SP On changing value get Average, Minimal, Maximal arrange by hour
+persistencesStandardsRouter.get("/average/min/max/hour/:tag/:hours", controller.averageMinMaxHours);
+
+// SP On changing value get Average, Minimal, Maximal arrange by hour
+persistencesStandardsRouter.get("/average/min/max/day/:tag/:days", controller.averageMinMaxDays);
+
+// SP On changing value get Average, Minimal, Maximal arrange by hour
+persistencesStandardsRouter.get("/average/min/max/month/:tag/:months", controller.averageMinMaxMonths);
