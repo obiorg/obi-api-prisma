@@ -363,21 +363,11 @@ exports.download_lazy = asyncHandler(
 // Average Min Max Hours
 exports.averageMinMaxHours = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    console.log(request.params);
+    // console.log(request.params);
     const tag: any = JSON.parse(request.params.tag);
     const limits: any = parseInt(request.params.hours, 10);
 
     try {
-      // let all = await prisma.pers_standard.findMany({
-      //   orderBy: { id: "asc" },
-      //   include: {
-      //     companies: true,
-      //     tags: true,
-      //     pers_standard_limits_pers_standard_limits_pers_standardTopers_standard:
-      //       true,
-      //   },
-      // });
-
       const result =
         await prisma.$queryRaw`SELECT TOP(${limits}) DATEADD(HOUR, DATEPART(HOUR, created), CAST(CAST(created as Date) as datetime)) [Time]
       , AVG(vFloat) AS Average
@@ -398,16 +388,19 @@ exports.averageMinMaxHours = asyncHandler(
 // Average Min Max Days
 exports.averageMinMaxDays = asyncHandler(
   async (request: Request, response: Response, next: any) => {
+    // console.log(request.params);
+    const tag: any = JSON.parse(request.params.tag);
+    const limits: any = parseInt(request.params.days, 10);
     try {
-      let all = await prisma.pers_standard.findMany({
-        orderBy: { id: "asc" },
-        include: {
-          companies: true,
-          tags: true,
-          pers_standard_limits_pers_standard_limits_pers_standardTopers_standard:
-            true,
-        },
-      });
+      const all =
+        await prisma.$queryRaw`SELECT TOP(${limits}) CAST(CAST(created as Date) as date) [day]
+        , AVG(vFloat) AS Average
+        , Min(vFloat) AS Minimal
+        , Max(vFloat) AS Maximal
+      FROM [OBI].[dbo].[pers_standard]
+      WHERE tag = ${tag}
+      GROUP BY CAST(CAST(created as Date) as date)
+      ORDER BY [day] desc`;
       return response.status(200).send(json(all));
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -418,16 +411,18 @@ exports.averageMinMaxDays = asyncHandler(
 // Average Min Max Months
 exports.averageMinMaxMonths = asyncHandler(
   async (request: Request, response: Response, next: any) => {
+    // console.log(request.params);
+    const tag: any = JSON.parse(request.params.tag);
+    const limits: any = parseInt(request.params.months, 10);
     try {
-      let all = await prisma.pers_standard.findMany({
-        orderBy: { id: "asc" },
-        include: {
-          companies: true,
-          tags: true,
-          pers_standard_limits_pers_standard_limits_pers_standardTopers_standard:
-            true,
-        },
-      });
+      const all = await prisma.$queryRaw`SELECT TOP(${limits})
+        datefromparts(year(created), month(created), 1) [Month]
+        , AVG(vFloat) AS Average
+        , Min(vFloat) AS Minimal
+        , Max(vFloat) AS Maximal
+      FROM [OBI].[dbo].[pers_standard]
+      WHERE tag = ${tag}
+      GROUP BY datefromparts(year(created), month(created), 1)`;
       return response.status(200).send(json(all));
     } catch (error: any) {
       return response.status(500).json(error.message);
