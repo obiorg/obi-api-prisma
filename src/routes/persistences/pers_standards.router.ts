@@ -50,6 +50,9 @@ persistencesStandardsRouter.delete("/:id", validateSchema(PersistencesStandardsD
 persistencesStandardsRouter.get("/download/:filter", controller.download_lazy);
 
 // SP On changing value get Average, Minimal, Maximal arrange by hour
+persistencesStandardsRouter.get("/average/min/max/minute/:tag/:minutes", controller.averageMinMaxMinutes);
+
+// SP On changing value get Average, Minimal, Maximal arrange by hour
 persistencesStandardsRouter.get("/average/min/max/hour/:tag/:hours", controller.averageMinMaxHours);
 
 // SP On changing value get Average, Minimal, Maximal arrange by hour

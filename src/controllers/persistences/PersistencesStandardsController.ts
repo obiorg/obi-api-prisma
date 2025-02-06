@@ -360,6 +360,38 @@ exports.download_lazy = asyncHandler(
   }
 );
 
+
+
+
+
+
+
+
+// Average Min Max Minutes
+exports.averageMinMaxMinutes = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // console.log(request.params);
+    const tag: any = JSON.parse(request.params.tag);
+    const limits: any = parseInt(request.params.minutes, 10);
+
+    try {
+      const result =
+        await prisma.$queryRaw`SELECT TOP(${limits}) DATEADD(HOUR, DATEPART(HOUR, created), DATEADD(MINUTE, DATEPART(MINUTE, created), CAST(CAST(created as Date) as datetime))) [Time]
+        , AVG(vFloat) AS Average
+        , Min(vFloat) AS Minimal
+        , Max(vFloat) AS Maximal
+      FROM [OBI].[dbo].[pers_standard]
+      WHERE tag = ${tag}
+      GROUP BY DATEADD(HOUR, DATEPART(HOUR, created), DATEADD(MINUTE, DATEPART(MINUTE, created), CAST(CAST(created as Date) as datetime))) 
+      ORDER BY [Time] desc`;
+
+      return response.status(200).send(json(result));
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
 // Average Min Max Hours
 exports.averageMinMaxHours = asyncHandler(
   async (request: Request, response: Response, next: any) => {
@@ -393,14 +425,14 @@ exports.averageMinMaxDays = asyncHandler(
     const limits: any = parseInt(request.params.days, 10);
     try {
       const all =
-        await prisma.$queryRaw`SELECT TOP(${limits}) CAST(CAST(created as Date) as date) [day]
+        await prisma.$queryRaw`SELECT TOP(${limits}) CAST(created as Date) [Time]
         , AVG(vFloat) AS Average
         , Min(vFloat) AS Minimal
         , Max(vFloat) AS Maximal
       FROM [OBI].[dbo].[pers_standard]
       WHERE tag = ${tag}
-      GROUP BY CAST(CAST(created as Date) as date)
-      ORDER BY [day] desc`;
+      GROUP BY CAST(created as Date)
+      ORDER BY  [Time] desc`;
       return response.status(200).send(json(all));
     } catch (error: any) {
       return response.status(500).json(error.message);
@@ -416,7 +448,7 @@ exports.averageMinMaxMonths = asyncHandler(
     const limits: any = parseInt(request.params.months, 10);
     try {
       const all = await prisma.$queryRaw`SELECT TOP(${limits})
-        datefromparts(year(created), month(created), 1) [Month]
+        datefromparts(year(created), month(created), 1) [Time]
         , AVG(vFloat) AS Average
         , Min(vFloat) AS Minimal
         , Max(vFloat) AS Maximal
