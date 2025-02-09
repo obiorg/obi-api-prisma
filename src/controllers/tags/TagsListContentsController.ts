@@ -417,7 +417,7 @@ exports.update_post = asyncHandler(
         };
         existingError = true;
       }
-      
+
       // Return on error message
       if (existingError) {
         return response.status(400).json(error);
@@ -455,7 +455,7 @@ exports.update_post = asyncHandler(
 );
 
 async function updater(catalog: any): Promise<any> {
-  let controllerName = 'TagsListContentsController';
+  let controllerName = "TagsListContentsController";
   //
   // Check not remove components
   //
@@ -544,8 +544,8 @@ async function updater(catalog: any): Promise<any> {
       transaction: savedCatalog.transaction,
       index: savedCatalog.index,
       comment: savedCatalog.comment,
-      items: catalogResult
-    }
+      items: catalogResult,
+    };
 
     return success;
   } catch (error: any) {
@@ -564,7 +564,7 @@ async function updater(catalog: any): Promise<any> {
 // Handle catalog update on POST.
 exports.updateMany_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-  let controllerName = 'TagsListContentsController';
+    let controllerName = "TagsListContentsController";
     const catalogs = request.body;
     // console.log("catalogs", catalogs);
 
@@ -593,7 +593,7 @@ exports.delete_get = asyncHandler(
 // Handle catalog delete on POST.
 exports.delete_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    let controllerName = 'TagsListContentsController';
+    let controllerName = "TagsListContentsController";
     const id: number = parseInt(request.params.id, 10);
 
     // check duplicates
@@ -631,7 +631,7 @@ exports.delete_post = asyncHandler(
 // Handle catalog delete on POST.
 exports.deleteMany_post = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    let controllerName = 'TagsListContentsController';
+    let controllerName = "TagsListContentsController";
     // Check if catalogs exists
     let ids = request.body.map((item: any) => parseInt(item.id, 10));
 

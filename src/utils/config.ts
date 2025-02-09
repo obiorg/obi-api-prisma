@@ -20,7 +20,7 @@ const config = {
         database: SQL_DATABASE,
         user: SQL_USER,
         password: SQL_PASSWORD,
-        //port: SQL_PORT,
+        port: SQL_PORT,
         options: {
             encrypt: sqlEncrypt,
             instancename: SQL_INSTANCENAME,
