@@ -60,3 +60,16 @@ persistencesStandardsRouter.get("/average/min/max/day/:tag/:days", controller.av
 
 // SP On changing value get Average, Minimal, Maximal arrange by hour
 persistencesStandardsRouter.get("/average/min/max/month/:tag/:months", controller.averageMinMaxMonths);
+
+
+// SP On changing value get delta between days on tag limited by days
+persistencesStandardsRouter.get("/delta/minute/:tag/:minutes", controller.deltaInMinutes);
+
+// SP On changing value get delta between days on tag limited by days
+persistencesStandardsRouter.get("/delta/hour/:tag/:hours", controller.deltaInHours);
+
+// SP On changing value get delta between days on tag limited by days
+persistencesStandardsRouter.get("/delta/day/:tag/:days", controller.deltaInDays);
+
+// SP On changing value get delta between days on tag limited by days
+persistencesStandardsRouter.get("/delta/month/:tag/:months", controller.deltaInMonths);

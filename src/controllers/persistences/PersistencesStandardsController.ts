@@ -32,7 +32,7 @@ exports.list = asyncHandler(
 
 exports.dedicatedCatalogByTag = asyncHandler(
   async (request: Request, response: Response, next: any) => {
-    console.log(request.params);
+    // console.log(request.params);
     const tag: any = JSON.parse(request.params.tag);
     const from: any = parseInt(request.params.from, 10);
     const to: any = parseInt(request.params.to, 10);
@@ -42,7 +42,7 @@ exports.dedicatedCatalogByTag = asyncHandler(
       [sortField]: sortOrder === "asc" ? "asc" : "desc",
     };
 
-    console.log(tag, from, to, sortField, sortOrder);
+    // console.log(tag, from, to, sortField, sortOrder);
 
     try {
       let all = await prisma.pers_standard.findMany({
@@ -116,7 +116,7 @@ exports.list_lazy = asyncHandler(
         return response.status(400).json(status400);
       }
     } catch (error: any) {
-      console.log("error", error);
+      // console.log("error", error);
       return response.status(500).json(error.message);
     }
   }
@@ -360,13 +360,6 @@ exports.download_lazy = asyncHandler(
   }
 );
 
-
-
-
-
-
-
-
 // Average Min Max Minutes
 exports.averageMinMaxMinutes = asyncHandler(
   async (request: Request, response: Response, next: any) => {
@@ -382,7 +375,7 @@ exports.averageMinMaxMinutes = asyncHandler(
         , Max(vFloat) AS Maximal
       FROM [OBI].[dbo].[pers_standard]
       WHERE tag = ${tag}
-      GROUP BY DATEADD(HOUR, DATEPART(HOUR, created), DATEADD(MINUTE, DATEPART(MINUTE, created), CAST(CAST(created as Date) as datetime))) 
+      GROUP BY DATEADD(HOUR, DATEPART(HOUR, created), DATEADD(MINUTE, DATEPART(MINUTE, created), CAST(CAST(created as Date) as datetime)))
       ORDER BY [Time] desc`;
 
       return response.status(200).send(json(result));
@@ -407,7 +400,7 @@ exports.averageMinMaxHours = asyncHandler(
       , Max(vFloat) AS Maximal
       FROM [OBI].[dbo].[pers_standard]
       WHERE tag = ${tag}
-      GROUP BY DATEADD(HOUR, DATEPART(HOUR, created), CAST(CAST(created as Date) as datetime)) 
+      GROUP BY DATEADD(HOUR, DATEPART(HOUR, created), CAST(CAST(created as Date) as datetime))
       ORDER BY [Time] desc`;
 
       return response.status(200).send(json(result));
@@ -455,6 +448,268 @@ exports.averageMinMaxMonths = asyncHandler(
       FROM [OBI].[dbo].[pers_standard]
       WHERE tag = ${tag}
       GROUP BY datefromparts(year(created), month(created), 1)`;
+      return response.status(200).send(json(all));
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
+
+
+
+// Delta Minutes
+exports.deltaInMinutes = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // console.log(request.params);
+    const tag: any = JSON.parse(request.params.tag);
+    const limits: any = parseInt(request.params.minutes, 10);
+    try {
+      // '2025-02-11 06:00:00'
+      const dtn = new Date();
+      const dts =
+        dtn.getFullYear() +
+        "-" +
+        ((dtn.getMonth()+1).toString().length < 2 ? '0' + (dtn.getMonth()+1) : (dtn.getMonth()+1)) +
+        "-" +
+        (dtn.getDate().toString().length < 2 ? '0' + dtn.getDate() : dtn.getDate()) +
+        " " +
+        (dtn.getHours().toString().length < 2 ? '0' + dtn.getHours() : dtn.getHours()) +
+        ":" +
+        (dtn.getMinutes().toString().length < 2 ? '0' + dtn.getMinutes() : dtn.getMinutes()) +
+        ":00";
+
+        // console.log(dtn, dts);
+
+      const all: any = await prisma.$queryRaw`
+        DECLARE @varTag int, @varDateTime datetime;
+        DECLARE @varTable TABLE (tag INT, created datetime, vFloatBefore float, vFloatAfter float, delta float);
+        DECLARE @Counter INT , @MaxRNum INT
+
+        SET @varTag = ${tag};
+        SET @MaxRNum = ${limits};
+        SET @varDateTime = CONVERT(DATETIME, ${dts}, 120);
+        SET @Counter = 1
+
+        WHILE(@Counter IS NOT NULL AND @Counter <= @MaxRNum)
+        BEGIN
+          -- JOUR 06h-06h
+          insert into @varTable
+          SELECT TOP(1)
+            --p.id,
+            p.tag,  @varDateTime as created,p.vFloat as vFloatBefore,s.vFloat as vFloatAfter,s.vFloat - p.vFloat AS delta
+          FROM [OBI].[dbo].[pers_standard] as p
+          LEFT JOIN(
+            SELECT TOP(1)
+              s.id,s.tag,	s.created, s.vFloat
+            FROM [OBI].[dbo].[pers_standard] as s
+            WHERE s.tag = @varTag and s.created <= DATEADD(MI, 1, @varDateTime)
+            ORDER BY s.created desc
+          ) AS S
+          ON s.tag = p.tag
+          WHERE p.tag = @varTag and p.created <= @varDateTime
+          ORDER BY p.created desc
+
+          SET @Counter  = @Counter  + 1
+          SET @varDateTime = DATEADD(MI, -1, @varDateTime)
+
+        END
+
+        SELECT *
+        FROM @varTable`;
+
+      return response.status(200).send(json(all));
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
+// Delta Hours
+exports.deltaInHours = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // console.log('deltaInHours', request.params);
+    const tag: any = JSON.parse(request.params.tag);
+    const limits: any = parseInt(request.params.hours, 10);
+    try {
+      // '2025-02-11 06:00:00'
+      const dtn = new Date();
+      const dts =
+        dtn.getFullYear() +
+        "-" +
+        ((dtn.getMonth()+1).toString().length < 2 ? '0' + (dtn.getMonth()+1) : (dtn.getMonth()+1)) +
+        "-" +
+        (dtn.getDate().toString().length < 2 ? '0' + dtn.getDate() : dtn.getDate()) +
+        " " +
+        (dtn.getHours().toString().length < 2 ? '0' + dtn.getHours() : dtn.getHours()) +
+        ":00:00";
+
+      const all: any = await prisma.$queryRaw`
+        DECLARE @varTag int, @varDateTime datetime;
+        DECLARE @varTable TABLE (tag INT, created datetime, vFloatBefore float, vFloatAfter float, delta float);
+        DECLARE @Counter INT , @MaxRNum INT
+
+        SET @varTag = ${tag};
+        SET @MaxRNum = ${limits};
+        SET @varDateTime = CONVERT(DATETIME, ${dts}, 120);
+        SET @Counter = 1
+
+        WHILE(@Counter IS NOT NULL AND @Counter <= @MaxRNum)
+        BEGIN
+          -- JOUR 06h-06h
+          insert into @varTable
+          SELECT TOP(1)
+            --p.id,
+            p.tag,  @varDateTime as created,p.vFloat as vFloatBefore,s.vFloat as vFloatAfter,s.vFloat - p.vFloat AS delta
+          FROM [OBI].[dbo].[pers_standard] as p
+          LEFT JOIN(
+            SELECT TOP(1)
+              s.id,s.tag,	s.created, s.vFloat
+            FROM [OBI].[dbo].[pers_standard] as s
+            WHERE s.tag = @varTag and s.created <= DATEADD(hh, 1, @varDateTime)
+            ORDER BY s.created desc
+          ) AS S
+          ON s.tag = p.tag
+          WHERE p.tag = @varTag and p.created <= @varDateTime
+          ORDER BY p.created desc
+
+          SET @Counter  = @Counter  + 1
+          SET @varDateTime = DATEADD(hh, -1, @varDateTime)
+
+        END
+
+        SELECT *
+        FROM @varTable`;
+
+      return response.status(200).send(json(all));
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
+// Delta Days
+exports.deltaInDays = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // console.log(request.params);
+    const tag: any = JSON.parse(request.params.tag);
+    const limits: any = parseInt(request.params.days, 10);
+    try {
+      // '2025-02-11 06:00:00'
+      let dtn = new Date();
+      if(dtn.getHours() < 6){
+        dtn = new Date(new Date().getTime() - (6*(86400000/24)))
+      }
+      const dts =
+        dtn.getFullYear() +
+        "-" +
+        ((dtn.getMonth()+1).toString().length < 2 ? '0' + (dtn.getMonth()+1) : (dtn.getMonth()+1)) +
+        "-" +
+        (dtn.getDate().toString().length < 2 ? '0' + dtn.getDate() : dtn.getDate()) +
+        " 06:00:00";
+
+      const all: any = await prisma.$queryRaw`
+            DECLARE @varTag int, @varDateTime datetime;
+            DECLARE @varTable TABLE (tag INT, created datetime, vFloatBefore float, vFloatAfter float, delta float);
+            DECLARE @Counter INT , @MaxRNum INT
+
+            SET @varTag = ${tag};
+            SET @varDateTime = CONVERT(DATETIME, ${dts}, 120);
+            SET @Counter = 1;
+            SET @MaxRNum = ${limits};
+
+
+        WHILE(@Counter IS NOT NULL AND @Counter <= @MaxRNum)
+        BEGIN
+
+          -- JOUR 06h-06h
+          insert into @varTable
+          SELECT TOP(1)
+            --p.id,
+            p.tag, @varDateTime as created, p.vFloat as vFloatBefore, s.vFloat as vFloatAfter, s.vFloat - p.vFloat AS delta
+          FROM [OBI].[dbo].[pers_standard] as p
+          LEFT JOIN(
+            SELECT TOP(1)
+              s.id, s.tag, s.created, s.vFloat
+            FROM [OBI].[dbo].[pers_standard] as s
+            WHERE s.tag = @varTag and s.created <= DATEADD(hh, 24, @varDateTime)
+            ORDER BY s.created desc
+          ) AS S
+          ON s.tag = p.tag
+          WHERE p.tag = @varTag and p.created <= @varDateTime
+          ORDER BY p.created desc
+
+          SET @Counter  = @Counter  + 1
+          SET @varDateTime = DATEADD(hh, -24, @varDateTime)
+        END
+
+        -- Now Get Data
+        SELECT *
+        FROM @varTable`;
+
+      // console.log("all ", all);
+      return response.status(200).send(json(all));
+    } catch (error: any) {
+      return response.status(500).json(error.message);
+    }
+  }
+);
+
+// Delta Months
+exports.deltaInMonths = asyncHandler(
+  async (request: Request, response: Response, next: any) => {
+    // console.log(request.params);
+    const tag: any = JSON.parse(request.params.tag);
+    const limits: any = parseInt(request.params.months, 10);
+    try {
+      // '2025-02-11 06:00:00'
+      const dtn = new Date();
+      const dts =
+        dtn.getFullYear() +
+        "-" +
+        ((dtn.getMonth()+1).toString().length < 2 ? '0' + (dtn.getMonth()+1) : (dtn.getMonth()+1)) +
+        "-" +
+        "01 00:00:00";
+
+      const all: any = await prisma.$queryRaw`
+            DECLARE @varTag int, @varDateTime datetime;
+            DECLARE @varTable TABLE (tag INT, created datetime, vFloatBefore float, vFloatAfter float, delta float);
+            DECLARE @Counter INT , @MaxRNum INT
+
+            SET @varTag = ${tag};
+            SET @varDateTime = CONVERT(DATETIME, ${dts}, 120);
+            SET @Counter = 1;
+            SET @MaxRNum = ${limits};
+
+
+        WHILE(@Counter IS NOT NULL AND @Counter <= @MaxRNum)
+        BEGIN
+
+          -- JOUR 06h-06h
+          insert into @varTable
+          SELECT TOP(1)
+            --p.id,
+            p.tag,  @varDateTime as created, p.vFloat as vFloatBefore, s.vFloat as vFloatAfter, s.vFloat - p.vFloat AS delta
+          FROM [OBI].[dbo].[pers_standard] as p
+          LEFT JOIN(
+            SELECT TOP(1)
+              s.id, s.tag, s.created, s.vFloat
+            FROM [OBI].[dbo].[pers_standard] as s
+            WHERE s.tag = @varTag and s.created <= DATEADD(mm, 1, @varDateTime)
+            ORDER BY s.created desc
+          ) AS S
+          ON s.tag = p.tag
+          WHERE p.tag = @varTag and p.created <= @varDateTime
+          ORDER BY p.created desc
+
+          SET @Counter  = @Counter  + 1
+          SET @varDateTime = DATEADD(mm, -1, @varDateTime)
+        END
+
+        -- Now Get Data
+        SELECT *
+        FROM @varTable`;
+
       return response.status(200).send(json(all));
     } catch (error: any) {
       return response.status(500).json(error.message);
