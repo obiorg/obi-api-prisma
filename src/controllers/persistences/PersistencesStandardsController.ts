@@ -463,36 +463,70 @@ exports.deltaInMinutes = asyncHandler(
     const limits: any = parseInt(request.params.minutes, 10);
 
     try {
-      const all = await prisma.pers_standard.groupBy({
-        by: ["created_minute"],
-        where: { tag: tag },
-        _avg: { vFloat: true },
-        _min: { vFloat: true },
-        _max: { vFloat: true },
-        orderBy: { created_minute: "desc" },
-        take: limits,
-      });
+      // '2025-02-11 06:00:00'
+      const dtn = new Date();
+      const dts =
+        dtn.getFullYear() +
+        "-" +
+        ((dtn.getMonth() + 1).toString().length < 2
+          ? "0" + (dtn.getMonth() + 1)
+          : dtn.getMonth() + 1) +
+        "-" +
+        (dtn.getDate().toString().length < 2
+          ? "0" + dtn.getDate()
+          : dtn.getDate()) +
+        " " +
+        (dtn.getHours().toString().length < 2
+          ? "0" + dtn.getHours()
+          : dtn.getHours()) +
+        ":" +
+        (dtn.getMinutes().toString().length < 2
+          ? "0" + dtn.getMinutes()
+          : dtn.getMinutes()) +
+        ":00";
+
+      // console.log(dtn, dts);
+
+      const all: any = await prisma.$queryRaw`
+        SELECT TOP (${limits}) created_minute AS [Time],
+          AVG(vFloat) AS Average,
+          MIN(vFloat) AS Minimal,
+          MAX(vFloat) AS Maximal
+        FROM dbo.pers_standard
+        WHERE tag = ${tag} and created_minute >= DATEADD(MINUTE, -${limits}, CONVERT(DATETIME, ${dts}, 120))
+        GROUP BY created_minute
+        ORDER BY [Time] DESC;
+        `;
+
       return response.status(200).send(json(all));
     } catch (error: any) {
       return response.status(500).json(error.message);
     }
- 
+
     // try {
     //   // '2025-02-11 06:00:00'
     //   const dtn = new Date();
     //   const dts =
     //     dtn.getFullYear() +
     //     "-" +
-    //     ((dtn.getMonth()+1).toString().length < 2 ? '0' + (dtn.getMonth()+1) : (dtn.getMonth()+1)) +
+    //     ((dtn.getMonth() + 1).toString().length < 2
+    //       ? "0" + (dtn.getMonth() + 1)
+    //       : dtn.getMonth() + 1) +
     //     "-" +
-    //     (dtn.getDate().toString().length < 2 ? '0' + dtn.getDate() : dtn.getDate()) +
+    //     (dtn.getDate().toString().length < 2
+    //       ? "0" + dtn.getDate()
+    //       : dtn.getDate()) +
     //     " " +
-    //     (dtn.getHours().toString().length < 2 ? '0' + dtn.getHours() : dtn.getHours()) +
+    //     (dtn.getHours().toString().length < 2
+    //       ? "0" + dtn.getHours()
+    //       : dtn.getHours()) +
     //     ":" +
-    //     (dtn.getMinutes().toString().length < 2 ? '0' + dtn.getMinutes() : dtn.getMinutes()) +
+    //     (dtn.getMinutes().toString().length < 2
+    //       ? "0" + dtn.getMinutes()
+    //       : dtn.getMinutes()) +
     //     ":00";
 
-    //     // console.log(dtn, dts);
+    //   // console.log(dtn, dts);
 
     //   const all: any = await prisma.$queryRaw`
     //     DECLARE @varTag int, @varDateTime datetime;
