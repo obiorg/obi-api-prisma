@@ -531,7 +531,7 @@ model locations {
   @@index([location], map: "i_locations_location")
   @@index([state], map: "i_locations_state")
 }
- 
+
 model mach_drivers {
   id          Int        @id(map: "pk_mach_drivers_id") @unique(map: "ui_mach_drivers_id") @default(autoincrement())
   deleted     Boolean?   @default(false, map: "DF__mach_driv__delet__7B264821")
@@ -707,6 +707,7 @@ model pers_standard {
   ttr                                                                    Float?                 @default(0.0, map: "DF__pers_standa__ttr__0DCF0841") @db.Real
   error                                                                  Boolean?               @default(false, map: "DF__pers_stan__error__0EC32C7A")
   errorMsg                                                               String?                @db.VarChar(512)
+  created_minute                                                         DateTime?              @map("created_minute") @db.DateTime
   companies                                                              companies              @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_pers_standard_company")
   tags                                                                   tags                   @relation(fields: [tag], references: [id], onUpdate: NoAction, map: "fk_pers_standard_tag")
   pers_standard_limits_pers_standard_limits_pers_standardTopers_standard pers_standard_limits[] @relation("pers_standard_limits_pers_standardTopers_standard")
@@ -721,6 +722,7 @@ model pers_standard {
   @@index([vStamp], map: "i_pers_standard_vStamp")
   @@index([vStr], map: "i_pers_standard_vStr")
   @@index([company, tag], map: "ui_pers_standard_company_tag")
+  @@index([tag, created_minute], map: "IX_tag_created_minute")
 }
 
 model pers_standard_limits {
@@ -798,20 +800,19 @@ model tags {
   deltaFloat           Float?                 @default(0.0, map: "DF__tags__deltaFloat__408F9238")
   deltaInt             Int?                   @default(0, map: "DF__tags__deltaInt__4183B671")
   deltaBool            Int?                   @default(0, map: "DF__tags__deltaBool__4277DAAA")
-  // deltaDateTime        BigInt?                @default(0, map: "DF__tags__deltaDateT__436BFEE3")
-  deltaDateTime        Int?                @default(0, map: "DF__tags__deltaDateT__436BFEE3")
+  deltaDateTime        BigInt?                @default(0, map: "DF__tags__deltaDateT__436BFEE3")
   vFloat               Float?                 @default(0.0, map: "DF__tags__vFloat__4460231C")
   vInt                 Int?                   @default(0, map: "DF__tags__vInt__45544755")
   vBool                Boolean?               @default(false, map: "DF__tags__vBool__46486B8E")
   vStr                 String?                @db.VarChar(255)
-  vDateTime            DateTime?              @default(now(), map: "DF__tags__vDateTime__473C8FC7") @db.DateTime
+  vDateTime            DateTime?              @db.DateTime
   vStamp               DateTime?              @default(now(), map: "DF__tags__vStamp__4830B400") @db.DateTime
   vDefault             Boolean?               @default(false, map: "DF__tags__vDefault__4924D839")
   vFloatDefault        Float?                 @default(0.0, map: "DF__tags__vFloatDefa__4A18FC72")
   vIntDefault          Int?                   @default(0, map: "DF__tags__vIntDefaul__4B0D20AB")
   vBoolDefault         Boolean?               @default(false, map: "DF__tags__vBoolDefau__4C0144E4")
   vStrDefault          String?                @db.VarChar(255)
-  vDateTimeDefault     DateTime?              @default(now(), map: "DF__tags__vDateTimeD__4CF5691D") @db.DateTime
+  vDateTimeDefault     DateTime?              @db.DateTime
   vStampDefault        DateTime?              @default(now(), map: "DF__tags__vStampDefa__4DE98D56") @db.DateTime
   counter              Boolean?               @default(false, map: "DF__tags__counter__4EDDB18F")
   counterType          Int?                   @default(0, map: "DF__tags__counterTyp__4FD1D5C8")
@@ -829,13 +830,13 @@ model tags {
   errorMsg             String?                @db.VarChar(512)
   errorStamp           DateTime?              @default(now(), map: "DF__tags__errorStamp__5C37ACAD") @db.DateTime
   alarmEnable          Boolean?               @default(false, map: "DF__tags__alarmEnabl__5D2BD0E6")
-  alarm                Int?                   @default(0, map: "DF__tags__alarm__5E1FF51F")
+  alarm                Int?
   persistenceEnable    Boolean?               @default(false, map: "DF__tags__persistenc__5F141958")
   persOffsetEnable     Boolean?               @default(false, map: "DF__tags__persOffset__60083D91")
   persOffsetFloat      Float?                 @default(0.0, map: "DF__tags__persOffset__60FC61CA")
   persOffsetInt        Int?                   @default(0, map: "DF__tags__persOffset__61F08603")
   persOffsetBool       Boolean?               @default(false, map: "DF__tags__persOffset__62E4AA3C")
-  persOffsetDateTime   DateTime?              @default(now(), map: "DF__tags__persOffset__63D8CE75") @db.DateTime
+  persOffsetDateTime   DateTime?              @db.DateTime
   comment              String?                @db.VarChar(512)
   list                 Int?
   analyse_allowed      analyse_allowed[]
