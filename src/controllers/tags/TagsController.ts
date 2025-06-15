@@ -305,6 +305,7 @@ exports.createMany_post = asyncHandler(
     let controllerName = "TagsController";
     let catalogs = request.body; //.map((item: any) => {item.company, item.address});
 
+    console.log(controllerName + " createMany_post - step 1");
     //
     try {
       // Check if duplicate catalog on
@@ -316,6 +317,7 @@ exports.createMany_post = asyncHandler(
           name: { in: catalogs.map((c: any) => c.name) },
         },
       });
+      console.log(controllerName + " createMany_post - step 1.1");
       let existingError = false;
       let error: any = ErrorHelper.default(400);
       if (existing?.length > 0) {
@@ -331,15 +333,18 @@ exports.createMany_post = asyncHandler(
         existingError = true;
       }
 
+      console.log(controllerName + " createMany_post - step 1.2");
       // Return on error message
       if (existingError) {
-        return response.status(400).json(error);
+        return response.status(400).json(JsonHelper.mngBigInt(error));
       }
     } catch (error: any) {
+      console.log(controllerName + " createMany_post - step 1.3");
       console.log(controllerName + " createMany_post", error.message);
       return response.status(500).json(error.message);
     }
 
+    console.log(controllerName + " createMany_post - step 2");
     // If not duplicates
     try {
       catalogs = request.body;
@@ -361,14 +366,18 @@ exports.createMany_post = asyncHandler(
         delete catalog.tags_tables;
         delete catalog.tags_types;
       });
-
+      console.log(controllerName + " createMany_post - step 3");
       const catalogResult = await prisma.tags.createMany({
         data: catalogs,
       });
+      console.log(controllerName + " createMany_post - step 4");
       let success = ErrorHelper.default(200);
+      console.log(controllerName + " createMany_post - step 5");
       success.items = catalogResult;
+      console.log(controllerName + " createMany_post - step 6");
       return response.status(201).json(success);
     } catch (error: any) {
+      console.log(controllerName + " createMany_post - step 7");
       //console.log(controllerName + " create_post", error.message);
       return response.status(500).json(error.message);
     }

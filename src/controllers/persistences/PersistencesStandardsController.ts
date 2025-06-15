@@ -617,7 +617,7 @@ exports.deltaInDays = asyncHandler(
             SET @varDateTime = CONVERT(DATETIME, ${dts}, 120);
             SET @Counter = 1;
             SET @MaxRNum = ${limits};
-
+ 
 
         WHILE(@Counter IS NOT NULL AND @Counter <= @MaxRNum)
         BEGIN
