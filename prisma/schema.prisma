@@ -548,30 +548,36 @@ model mach_drivers {
 }
 
 model machines {
-  id             Int          @id(map: "pk_machines_id") @unique(map: "ui_machines_id") @default(autoincrement())
-  deleted        Boolean?     @default(false, map: "DF__machines__delete__02C769E9")
-  created        DateTime?    @default(now(), map: "DF__machines__create__03BB8E22") @db.DateTime
-  changed        DateTime?    @default(now(), map: "DF__machines__change__04AFB25B") @db.DateTime
-  company        Int
-  address        String       @db.VarChar(512)
-  mask           String?      @db.VarChar(15)
-  dns            String?      @db.VarChar(45)
-  ipv6           String?      @db.VarChar(45)
-  port           Int?         @default(0, map: "DF__machines__port__0880433F")
-  name           String?      @db.VarChar(45)
-  rack           Int?         @default(1, map: "DF__machines__rack__0A688BB1")
-  slot           Int?         @default(2, map: "DF__machines__slot__0B5CAFEA")
-  driver         Int
-  mqtt           Boolean?     @default(false, map: "DF__machines__mqtt__0C50D423")
-  mqtt_user      String?      @db.VarChar(45)
-  mqtt_password  String?      @db.VarChar(512)
-  webhook        Boolean?     @default(false, map: "DF__machines__webhoo__0F2D40CE")
-  webhook_secret String?      @db.VarChar(512)
-  bus            Int?         @default(0, map: "DF__machines__bus__11158940")
-  description    String?      @db.VarChar(512)
-  companies      companies    @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_machines_company")
-  mach_drivers   mach_drivers @relation(fields: [driver], references: [id], onUpdate: NoAction, map: "fk_machines_driver")
-  tags           tags[]
+  id                      Int          @id(map: "pk_machines_id") @unique(map: "ui_machines_id") @default(autoincrement())
+  deleted                 Boolean?     @default(false, map: "DF__machines__delete__02C769E9")
+  created                 DateTime?    @default(now(), map: "DF__machines__create__03BB8E22") @db.DateTime
+  changed                 DateTime?    @default(now(), map: "DF__machines__change__04AFB25B") @db.DateTime
+  company                 Int
+  address                 String       @db.VarChar(512)
+  mask                    String?      @db.VarChar(15)
+  dns                     String?      @db.VarChar(45)
+  ipv6                    String?      @db.VarChar(45)
+  port                    Int?         @default(0, map: "DF__machines__port__0880433F")
+  name                    String?      @db.VarChar(45)
+  rack                    Int?         @default(1, map: "DF__machines__rack__0A688BB1")
+  slot                    Int?         @default(2, map: "DF__machines__slot__0B5CAFEA")
+  driver                  Int
+  mqtt                    Boolean?     @default(false, map: "DF__machines__mqtt__0C50D423")
+  mqtt_user               String?      @db.VarChar(45)
+  mqtt_password           String?      @db.VarChar(512)
+  webhook                 Boolean?     @default(false, map: "DF__machines__webhoo__0F2D40CE")
+  webhook_secret          String?      @db.VarChar(512)
+  bus                     Int?         @default(0, map: "DF__machines__bus__11158940")
+  description             String?      @db.VarChar(512)
+  opcua_security_policy   String?      @db.VarChar(255)
+  opcua_user              String?      @db.VarChar(255)
+  opcua_password          String?      @db.VarChar(512)
+  opcua_keystore_path     String?      @db.VarChar(1024)
+  opcua_keystore_password String?      @db.VarChar(512)
+  hostname                String?      @db.VarChar(255)
+  companies               companies    @relation(fields: [company], references: [id], onUpdate: NoAction, map: "fk_machines_company")
+  mach_drivers            mach_drivers @relation(fields: [driver], references: [id], onUpdate: NoAction, map: "fk_machines_driver")
+  tags                    tags[]
 
   @@index([address], map: "i_machines_address")
   @@index([changed], map: "i_machines_changed")
@@ -839,6 +845,9 @@ model tags {
   persOffsetDateTime   DateTime?              @db.DateTime
   comment              String?                @db.VarChar(512)
   list                 Int?
+  opc_namespace_index  Int?
+  opc_identifier       String?                @db.VarChar(255)
+  opc_identifier_type  String?                @db.VarChar(10)
   analyse_allowed      analyse_allowed[]
   meas_limits          meas_limits[]
   pers_standard        pers_standard[]
